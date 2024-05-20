@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../UI_1/home.dart';
-import 'register.dart'; // Import the RegisterPage class
+import 'home.dart'; // Import the HomePage class
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -13,32 +11,19 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  void _login() async {
-    try {
-      QuerySnapshot result = await _firestore
-          .collection('users')
-          .where('username', isEqualTo: _usernameController.text)
-          .where('password', isEqualTo: _passwordController.text)
-          .get();
-
-      if (result.docs.isNotEmpty) {
-        // User found, navigate to HomePage
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
-        );
-      } else {
-        // Show error message
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid username or password')),
-        );
-      }
-    } catch (e) {
+  void _login() {
+    // Dummy validation logic
+    if (_usernameController.text == 'user' && _passwordController.text == 'password') {
+      // Navigate to the HomePage after successful login
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomePage()),
+      );
+    } else {
       // Show error message
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
+        const SnackBar(content: Text('Invalid username or password')),
       );
     }
   }
@@ -88,19 +73,15 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(height: 10),
             TextButton(
               onPressed: () {
-                // Navigate to the register page
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const RegisterPage()),
-                );
+                // Implement what happens when users need to sign up
+                print('Sign Up Clicked');
               },
-              child: const Text('Register'),
+              child: const Text('Sign Up'),
             ),
           ],
         ),
       ),
-      backgroundColor: const Color(0xFFfdebeb),
+      backgroundColor: const Color(0xFFfdebeb), // Custom background color
     );
   }
 }
-

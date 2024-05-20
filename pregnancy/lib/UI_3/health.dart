@@ -1,27 +1,18 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(MyApp());
-}
+class HealthScreen extends StatelessWidget {
+  const HealthScreen({super.key});
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: HomeScreen(),
-    );
-  }
-}
-
-class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Health'),
+        title: const Text('Health'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(Icons.notifications),
+            icon: const Icon(Icons.notifications, color: Colors.black),
             onPressed: () {
               // Handle notification icon tap
             },
@@ -39,47 +30,50 @@ class HomeScreen extends StatelessWidget {
                   context,
                   Icons.person_add,
                   'Book with Doctor',
-                  Colors.pink[100],
+                  Colors.pink.shade100,
                 ),
                 _buildIconButton(
                   context,
                   Icons.chat,
                   'Chat with Specialist',
-                  Colors.blue[100],
+                  Colors.blue.shade100,
                 ),
               ],
             ),
-            SizedBox(height: 40),
+            const SizedBox(height: 40),
             Column(
               children: [
                 CircleAvatar(
                   radius: 40,
-                  backgroundColor: Colors.grey[300],
-                  child: Icon(
+                  backgroundColor: Colors.grey.shade300,
+                  child: const Icon(
                     Icons.person,
                     size: 40,
                     color: Colors.black,
                   ),
                 ),
-                SizedBox(height: 10),
-                Text(
+                const SizedBox(height: 10),
+                const Text(
                   'Hello, User',
                   style: TextStyle(fontSize: 18),
                 ),
               ],
             ),
-            SizedBox(height: 40),
+            const SizedBox(height: 40),
             _buildIconButton(
               context,
               Icons.event_available,
               'My Appointment',
-              Colors.green[100],
+              Colors.green.shade100,
             ),
           ],
         ),
       ),
+      backgroundColor: const Color(0xFFfdebeb),
       bottomNavigationBar: BottomNavigationBar(
-        items: [
+        selectedItemColor: Colors.pink,
+        unselectedItemColor: Colors.grey,
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
@@ -89,7 +83,7 @@ class HomeScreen extends StatelessWidget {
             label: 'Calendar',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.local_hospital),
+            icon: Icon(Icons.health_and_safety),
             label: 'Health',
           ),
           BottomNavigationBarItem(
@@ -97,9 +91,18 @@ class HomeScreen extends StatelessWidget {
             label: 'Settings',
           ),
         ],
-        currentIndex: 2, // Set the current index to Health
-        onTap: (index) {
-          // Handle bottom navigation tap
+        currentIndex: 2, // Set the current index to 'Health'
+        onTap: (int index) {
+          // Handle tab navigation
+          if (index == 0) {
+            Navigator.pushNamed(context, '/home');
+          } else if (index == 1) {
+            Navigator.pushNamed(context, '/calendar');
+          } else if (index == 2) {
+            Navigator.pushNamed(context, '/health');
+          } else if (index == 3) {
+            Navigator.pushNamed(context, '/settings');
+          }
         },
       ),
     );
@@ -117,10 +120,10 @@ class HomeScreen extends StatelessWidget {
             color: Colors.black,
           ),
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         Text(
           label,
-          style: TextStyle(fontSize: 16),
+          style: const TextStyle(fontSize: 16),
         ),
       ],
     );

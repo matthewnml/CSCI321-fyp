@@ -1,128 +1,46 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'UI_main/login.dart';
+import 'firebase_options.dart'; // Import the Firebase options
+import 'UI_3/health.dart'; // Import the health.dart file
+import 'UI_1/home.dart'; // Import the home.dart file
 
-void main() {
-  runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  if (kIsWeb) {
+    // Initialize Firebase for web
+    await Firebase.initializeApp(
+      options: firebaseOptions,
+    );
+  } else {
+    // Initialize Firebase for mobile (Android, iOS)
+    await Firebase.initializeApp();
+  }
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: HomeScreen(),
+      title: 'Pregnancy App',
+      theme: ThemeData(
+        scaffoldBackgroundColor: const Color(0xFFfdebeb), // Custom background color
+      ),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const LoginPage(),
+        '/home': (context) => const HomePage(),
+        //'/calendar': (context) => CalendarScreen(), // Define CalendarScreen
+        '/health': (context) => const HealthScreen(),
+        //'/settings': (context) => SettingsScreen(), // Define SettingsScreen
+      },
     );
   }
 }
 
-class HomeScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Health'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.notifications),
-            onPressed: () {
-              // Handle notification icon tap
-            },
-          ),
-        ],
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildIconButton(
-                  context,
-                  Icons.person_add,
-                  'Book with Doctor',
-                  Color.pink[100],
-                ),
-                _buildIconButton(
-                  context,
-                  Icons.chat,
-                  'Chat with Specialist',
-                  Color.blue[100],
-                ),
-              ],
-            ),
-            SizedBox(height: 40),
-            Column(
-              children: [
-                CircleAvatar(
-                  radius: 40,
-                  backgroundColor: Colors.grey[300],
-                  child: Icon(
-                    Icons.person,
-                    size: 40,
-                    color: Color.black,
-                  ),
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'Hello, User',
-                  style: TextStyle(fontSize: 18),
-                ),
-              ],
-            ),
-            SizedBox(height: 40),
-            _buildIconButton(
-              context,
-              Icons.event_available,
-              'My Appointment',
-              Colors.green[100],
-            ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: 'Calendar',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.local_hospital),
-            label: 'Health',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
-        currentIndex: 2, // Set the current index to Health
-        onTap: (index) {
-          // Handle bottom navigation tap
-        },
-      ),
-    );
-  }
-
-  Widget _buildIconButton(BuildContext context, IconData icon, String label, Color backgroundColor) {
-    return Column(
-      children: [
-        CircleAvatar(
-          radius: 40,
-          backgroundColor: backgroundColor,
-          child: Icon(
-            icon,
-            size: 40,
-            color: Colors.black,
-          ),
-        ),
-        SizedBox(height: 10),
-        Text(
-          label,
-          style: TextStyle(fontSize: 16),
-        ),
-      ],
-    );
-  }
-}
