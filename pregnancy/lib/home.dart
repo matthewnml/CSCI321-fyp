@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'UI_3/health.dart'; // Import the health.dart file
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -38,6 +39,14 @@ class HomePage extends StatelessWidget {
         currentIndex: 0, // Set the current index to 'Home'
         onTap: (int index) {
           // Handle tab navigation
+          if (index == 2) { // 'Health' tab has index 2
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => HealthScreen()), // Navigate to HealthScreen
+            );
+          } else {
+            // Handle other tabs if needed
+          }
         },
       ),
     );
