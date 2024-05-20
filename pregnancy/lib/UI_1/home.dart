@@ -44,8 +44,6 @@ class HomePage extends StatelessWidget {
               context,
               MaterialPageRoute(builder: (context) => HealthScreen()), // Navigate to HealthScreen
             );
-          } else {
-            // Handle other tabs if needed
           }
         },
       ),
