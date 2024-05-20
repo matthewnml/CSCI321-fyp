@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'login.dart';
+import 'UI_main/login.dart';
 import 'firebase_options.dart'; // Import the Firebase options
 import 'UI_3/health.dart'; // Import the health.dart file
-import 'home.dart'; // Import the home.dart file
+import 'UI_1/home.dart'; // Import the home.dart file
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
