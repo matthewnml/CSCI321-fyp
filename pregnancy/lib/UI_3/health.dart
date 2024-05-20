@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pregnancy/UI_3/specialist_appt.dart'; // Import the chat_with_specialist.dart file
 
 class HealthScreen extends StatelessWidget {
   const HealthScreen({super.key});
@@ -37,6 +38,14 @@ class HealthScreen extends StatelessWidget {
                   Icons.chat,
                   'Chat with Specialist',
                   Colors.blue.shade100,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ChatWithSpecialistScreen(),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -108,24 +117,27 @@ class HealthScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildIconButton(BuildContext context, IconData icon, String label, Color backgroundColor) {
-    return Column(
-      children: [
-        CircleAvatar(
-          radius: 40,
-          backgroundColor: backgroundColor,
-          child: Icon(
-            icon,
-            size: 40,
-            color: Colors.black,
+  Widget _buildIconButton(BuildContext context, IconData icon, String label, Color backgroundColor, {VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: 40,
+            backgroundColor: backgroundColor,
+            child: Icon(
+              icon,
+              size: 40,
+              color: Colors.black,
+            ),
           ),
-        ),
-        const SizedBox(height: 10),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 16),
-        ),
-      ],
+          const SizedBox(height: 10),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 16),
+          ),
+        ],
+      ),
     );
   }
 }
