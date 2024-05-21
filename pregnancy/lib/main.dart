@@ -5,6 +5,11 @@ import 'UI_main/login.dart';
 import 'firebase_options.dart'; // Import the Firebase options
 import 'UI_3/health.dart'; // Import the health.dart file
 import 'UI_1/home.dart'; // Import the home.dart file
+import 'UI_2/calendar.dart'; // Import the calendar.dart file
+import 'UI_4/setting.dart'; // Import the setting.dart file
+import 'UI_4/account.dart'; // Import the account.dart file
+import 'UI_4/notifications.dart'; // Import the notifications.dart file
+import 'UI_4/privacy_security.dart'; // Import the privacy_security.dart file
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,17 +35,20 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Pregnancy App',
       theme: ThemeData(
-        scaffoldBackgroundColor: const Color(0xFFfdebeb), // Custom background color
+        scaffoldBackgroundColor:
+            const Color(0xFFfdebeb), // Custom background color
       ),
-      initialRoute: '/',
+      initialRoute: '/login',
       routes: {
-        '/': (context) => const LoginPage(),
+        '/login': (context) => const LoginPage(),
         '/home': (context) => const HomePage(),
-        //'/calendar': (context) => CalendarScreen(), // Define CalendarScreen
+        '/calendar': (context) => const CalendarScreen(),
         '/health': (context) => const HealthScreen(),
-        //'/settings': (context) => SettingsScreen(), // Define SettingsScreen
+        '/setting': (context) => const SettingsScreen(),
+        '/account': (context) => const AccountPage(),
+        '/notifications': (context) => const NotificationsPage(),
+        '/terms_conditions': (context) => const TermsAndConditionsPage(),
       },
     );
   }
 }
-

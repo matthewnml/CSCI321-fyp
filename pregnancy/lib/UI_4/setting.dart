@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import '/UI_main/login.dart'; // Import the login.dart file
+import '/UI_4/account.dart'; // Import the login.dart file
+import '/UI_4/notifications.dart'; // Import the login.dart file
+import '/UI_4/privacy_security.dart'; // Import the login.dart file
 
 void main() {
   runApp(const MyApp());
@@ -11,9 +15,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-        scaffoldBackgroundColor: const Color(0xFFfdebeb), // Custom background color
+        scaffoldBackgroundColor:
+            const Color(0xFFfdebeb), // Custom background color
       ),
       home: const SettingsScreen(),
+      routes: {
+        '/login': (context) => const LoginPage(),
+        '/account': (context) => const AccountPage(),
+        '/notifications': (context) => const NotificationsPage(),
+        '/terms_conditions': (context) => const TermsAndConditionsPage(),
+      },
     );
   }
 }
@@ -40,14 +51,14 @@ class SettingsScreen extends StatelessWidget {
             leading: const Icon(Icons.person),
             title: const Text('Account'),
             onTap: () {
-              // Handle tap
+              Navigator.pushNamed(context, '/account');
             },
           ),
           ListTile(
             leading: const Icon(Icons.notifications),
             title: const Text('Notifications'),
             onTap: () {
-              // Handle tap
+              Navigator.pushNamed(context, '/notifications');
             },
           ),
           ListTile(
@@ -61,51 +72,26 @@ class SettingsScreen extends StatelessWidget {
             leading: const Icon(Icons.description),
             title: const Text('Terms & Conditions'),
             onTap: () {
-              // Handle tap
+              Navigator.pushNamed(context, '/terms_conditions');
             },
           ),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.black, backgroundColor: Colors.brown[100], // Button text color
+                foregroundColor: Colors.black,
+                backgroundColor: Colors.brown[100], // Button text color
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
               ),
               onPressed: () {
-                // Handle log out
+                Navigator.pushReplacementNamed(context, '/login');
               },
               child: const Text('Log out'),
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Colors.pink,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: 'Calendar',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.health_and_safety),
-            label: 'Health',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
-        currentIndex: 3, // Set the current index to 'Settings'
-        onTap: (int index) {
-          // Handle tab navigation
-        },
       ),
     );
   }

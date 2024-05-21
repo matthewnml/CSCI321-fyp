@@ -1,3 +1,5 @@
+// UI_3/health.dart
+
 import 'package:flutter/material.dart';
 import 'package:pregnancy/UI_3/specialist_appt.dart'; // Import the chat_with_specialist.dart file
 
@@ -79,45 +81,12 @@ class HealthScreen extends StatelessWidget {
         ),
       ),
       backgroundColor: const Color(0xFFfdebeb),
-      bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Colors.pink,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: 'Calendar',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.health_and_safety),
-            label: 'Health',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
-        currentIndex: 2, // Set the current index to 'Health'
-        onTap: (int index) {
-          // Handle tab navigation
-          if (index == 0) {
-            Navigator.pushNamed(context, '/home');
-          } else if (index == 1) {
-            Navigator.pushNamed(context, '/calendar');
-          } else if (index == 2) {
-            Navigator.pushNamed(context, '/health');
-          } else if (index == 3) {
-            Navigator.pushNamed(context, '/settings');
-          }
-        },
-      ),
     );
   }
 
-  Widget _buildIconButton(BuildContext context, IconData icon, String label, Color backgroundColor, {VoidCallback? onTap}) {
+  Widget _buildIconButton(
+      BuildContext context, IconData icon, String label, Color backgroundColor,
+      {VoidCallback? onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Column(

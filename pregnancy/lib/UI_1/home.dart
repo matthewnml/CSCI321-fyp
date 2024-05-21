@@ -1,57 +1,436 @@
-import 'package:flutter/material.dart';
+// UI_1/home.dart
 
-class NotificationsPage extends StatelessWidget {
-  const NotificationsPage({Key? key}) : super(key: key);
+import 'package:flutter/material.dart';
+import 'notification_history.dart'; // Import the notifications page
+import 'duedatecalculator.dart'; // Import the Due Date Calculator page
+import 'contractiontimer.dart'; // Import the Contraction Timer page
+import 'kickcounter.dart'; // Import the Kick Counter page
+import '/UI_2/calendar.dart'; // Import the calendar.dart file
+import '/UI_3/health.dart'; // Import the health.dart file
+import '/UI_4/setting.dart'; // Import the settings.dart file
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  int _selectedIndex = 0;
+
+  static const List<Widget> _pages = <Widget>[
+    HomePageContent(),
+    CalendarScreen(),
+    HealthScreen(),
+    SettingsScreen(),
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFFFF4F4),
-        elevation: 0,
-        title: const Text('Notifications', style: TextStyle(color: Colors.black)),
-        iconTheme: IconThemeData(color: Colors.black),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.notifications, color: Colors.black),
-            onPressed: () {
-              // You can handle the icon press here if needed
-            },
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.white,
+        selectedItemColor: Colors.pink,
+        unselectedItemColor: Colors.grey,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_today),
+            label: 'Calendar',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.health_and_safety),
+            label: 'Health',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
           ),
         ],
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ListTile(
-                leading: Icon(Icons.calendar_today, color: Colors.black),
-                title: Text('You have an upcoming appointment.'),
-                subtitle: Text(
-                  'Click for details',
-                  style: TextStyle(
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-                onTap: () {
-                  // Handle the click event for the appointment notification
-                },
+    );
+  }
+}
+
+class HomePageContent extends StatelessWidget {
+  const HomePageContent({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE3C3C3),
+                borderRadius: BorderRadius.circular(12),
               ),
-              const Divider(),
-              ListTile(
-                leading: Icon(Icons.message, color: Colors.black),
-                title: Text('A specialist has replied to your question!'),
-                subtitle: Text(
-                  'Click for details',
-                  style: TextStyle(
-                    decoration: TextDecoration.underline,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  Text(
+                    'Countdown:',
+                    style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black),
+                  ),
+                  Text(
+                    '242 days',
+                    style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
+            Center(
+              child: CircleAvatar(
+                radius: 150,
+                backgroundImage: AssetImage('assets/bumpphoto.png'),
+                backgroundColor: const Color(0xFFF0C29B),
+              ),
+            ),
+            const SizedBox(height: 32),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: FeatureButton(
+                      title: 'Due Date Calculator',
+                      image: AssetImage('assets/duedatecalculator.png'),
+                      color: const Color(0xFFE3C3C3),
+                      textColor: const Color(0xFF000000),
+                      onTap: () {
+                        // Navigate to Due Date Calculator
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  DueDateCalculatorPage(userId: 'user1')),
+                        );
+                      },
+                    ),
                   ),
                 ),
-                onTap: () {
-                  // Handle the click event for the specialist reply notification
-                },
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: FeatureButton(
+                      title: 'Contraction Timer',
+                      image: AssetImage('assets/contractiontimer.png'),
+                      color: const Color(0xFFC3D5E3),
+                      textColor: const Color(0xFF000000),
+                      onTap: () {
+                        // Navigate to Contraction Timer
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ContractionTimerPage()),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: FeatureButton(
+                      title: 'Kick Counter',
+                      image: AssetImage('assets/kickcounter.png'),
+                      color: const Color(0xFFDAE3C3),
+                      textColor: const Color(0xFF000000),
+                      onTap: () {
+                        // Navigate to Kick Counter feature
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => KickCounterPage()),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: FeatureButton(
+                      title: 'IVF Injection',
+                      image: AssetImage('assets/ivfinjection.png'),
+                      color: const Color(0xFFE3D2C3),
+                      textColor: const Color(0xFF000000),
+                      onTap: () {
+                        // Navigate to IVF Injection feature
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 32),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      margin: EdgeInsets.only(bottom: 8.0),
+                      child: Text(
+                        'Articles',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    Divider(), // Added a divider below the Articles heading
+                    _buildArticleTile(
+                        'Picture1',
+                        'Title 1',
+                        'Article preview...........................................................................................................',
+                        const Color(0xFFE3D2C3)),
+                    _buildArticleTile(
+                        'Picture2',
+                        'Title 2',
+                        'Article preview...........................................................................................................',
+                        const Color(0xFFC3D5E3)),
+                    _buildArticleTile(
+                        'Picture3',
+                        'Title 3',
+                        'Article preview...........................................................................................................',
+                        const Color(0xFFDAE3C3)),
+                    SizedBox(height: 8),
+                    Center(
+                      child: TextButton(
+                        onPressed: () {
+                          // Handle "See more" button press
+                        },
+                        child: const Text('See more',
+                            style: TextStyle(color: const Color(0xFF000000))),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 32),
+            Text(
+              'Guides',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildGuideButton('Guide 1', const Color(0xFFE3C3C3)),
+                _buildGuideButton('Guide 2', const Color(0xFFC3D5E3)),
+                _buildGuideButton('Guide 3', const Color(0xFFDAE3C3)),
+                _buildGuideButton('Guide 4', const Color(0xFFE3D2C3)),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGuideButton(String title, Color color) {
+    return Container(
+      width: 80,
+      height: 80,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeatureButton(
+      BuildContext context,
+      String title,
+      ImageProvider<Object> image,
+      Color color,
+      Color textColor,
+      VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 80,
+        height: 80,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: Offset(0, 3), // changes position of shadow
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image(
+              image: image,
+              width: 40,
+              height: 40,
+              fit: BoxFit.contain,
+            ),
+            SizedBox(height: 8),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontSize: 14, color: textColor, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildArticleTile(
+      String picture, String title, String preview, Color color) {
+    return Column(
+      children: [
+        ListTile(
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          leading: Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(
+                  12), // Adjust the border radius as needed
+            ),
+            child: Center(
+              child: Text(
+                picture,
+                style:
+                    TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+          title: Text(
+            title,
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          ),
+          subtitle: Text(
+            preview,
+            style: TextStyle(color: Colors.black),
+          ),
+        ), // Add a divider between each article
+      ],
+    );
+  }
+}
+
+class FeatureButton extends StatefulWidget {
+  final String title;
+  final ImageProvider<Object> image;
+  final Color color;
+  final Color textColor;
+  final VoidCallback onTap;
+
+  const FeatureButton({
+    required this.title,
+    required this.image,
+    required this.color,
+    required this.textColor,
+    required this.onTap,
+  });
+
+  @override
+  _FeatureButtonState createState() => _FeatureButtonState();
+}
+
+class _FeatureButtonState extends State<FeatureButton> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            color: widget.color,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: _isHovered
+                    ? Colors.grey.withOpacity(0.5)
+                    : Colors.transparent,
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: Offset(0, 3), // changes position of shadow
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image(
+                image: widget.image,
+                width: 40,
+                height: 40,
+                fit: BoxFit.contain,
+              ),
+              SizedBox(height: 8),
+              Text(
+                widget.title,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: 14,
+                    color: widget.textColor,
+                    fontWeight: FontWeight.bold),
               ),
             ],
           ),
