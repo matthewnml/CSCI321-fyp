@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyBniX4w2A3GZiHMLCoMZxcXMuz4GE6KgJg</string>
+	<string>AIzaSyDslwZsthO9kiOvcIj-2DEDqYkmBNLNjww</string>
 	<key>GCM_SENDER_ID</key>
 	<string>512429425365</string>
 	<key>PLIST_VERSION</key>
@@ -11,9 +11,9 @@
 	<key>BUNDLE_ID</key>
 	<string>com.example.pregnancy</string>
 	<key>PROJECT_ID</key>
-	<string>tester-97973</string>
+	<string>csit321-d70ef</string>
 	<key>STORAGE_BUCKET</key>
-	<string>tester-97973.appspot.com</string>
+	<string>csit321-d70ef.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,8 +25,8 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:512429425365:ios:1ed9088a9d1547673a185c</string>
+	<string>1:1012570756875:ios:3a7ced91a1145bb378740e</string>
 	<key>DATABASE_URL</key>
-	<string>https://tester-97973-default-rtdb.asia-southeast1.firebasedatabase.app</string>
+	<string>https://csit321-d70ef-default-rtdb.asia-southeast1.firebasedatabase.app</string>
 </dict>
 </plist>
