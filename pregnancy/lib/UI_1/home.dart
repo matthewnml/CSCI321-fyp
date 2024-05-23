@@ -271,8 +271,8 @@ class HomePageContent extends StatelessWidget {
   Widget _buildGuideButton(
       String title, Color color, ImageProvider<Object> image) {
     return Container(
-      width: 80,
-      height: 80,
+      width: 300,
+      height: 500,
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(12),

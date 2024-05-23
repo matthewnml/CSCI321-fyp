@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyBniX4w2A3GZiHMLCoMZxcXMuz4GE6KgJg</string>
+	<key>GCM_SENDER_ID</key>
+	<string>512429425365</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.pregnancy</string>
+	<key>PROJECT_ID</key>
+	<string>tester-97973</string>
+	<key>STORAGE_BUCKET</key>
+	<string>tester-97973.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:512429425365:ios:1ed9088a9d1547673a185c</string>
+	<key>DATABASE_URL</key>
+	<string>https://tester-97973-default-rtdb.asia-southeast1.firebasedatabase.app</string>
+</dict>
+</plist>

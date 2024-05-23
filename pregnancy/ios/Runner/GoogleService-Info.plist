@@ -1,11 +1,13 @@
+
+
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyDslwZsthO9kiOvcIj-2DEDqYkmBNLNjww</string>
+	<string>AIzaSyAqLBVr8zJn_GdTwEXBlClPoDHni8w9KzQ</string>
 	<key>GCM_SENDER_ID</key>
-	<string>512429425365</string>
+	<string>1012570756875</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
@@ -25,8 +27,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:1012570756875:ios:3a7ced91a1145bb378740e</string>
-	<key>DATABASE_URL</key>
-	<string>https://csit321-d70ef-default-rtdb.asia-southeast1.firebasedatabase.app</string>
+	<string>1:1012570756875:ios:24f37f4c3ee0056578740e</string>
 </dict>
 </plist>
