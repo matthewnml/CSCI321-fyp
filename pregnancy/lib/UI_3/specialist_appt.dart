@@ -41,37 +41,70 @@ class ChatWithSpecialistScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16.0),
-        itemCount: chatPreviews.length,
-        itemBuilder: (context, index) {
-          final chat = chatPreviews[index];
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ListTile(
-                leading: const CircleAvatar(
-                  backgroundColor: Colors.grey,
-                  child: Icon(Icons.person, color: Colors.white),
-                ),
-                title: Text(chat.specialistName),
-                subtitle: Text(chat.previewText),
-                trailing: Text(chat.date),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ChatScreen(),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16.0),
+              itemCount: chatPreviews.length,
+              itemBuilder: (context, index) {
+                final chat = chatPreviews[index];
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ListTile(
+                      leading: const CircleAvatar(
+                        backgroundColor: Colors.grey,
+                        child: Icon(Icons.person, color: Colors.white),
+                      ),
+                      title: Text(chat.specialistName),
+                      subtitle: Text(chat.previewText),
+                      trailing: Text(chat.date),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ChatScreen(),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
+                    if (chat.isWaitingForReply)
+                      const Padding(
+                        padding: EdgeInsets.only(left: 16.0),
+                        child: Text('Waiting for Reply'),
+                      ),
+                    const SizedBox(height: 16),
+                  ],
+                );
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ChatScreen(),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue.shade100,
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
-              if (chat.isWaitingForReply)
-                const Text('Waiting for Reply'),
-              const SizedBox(height: 16),
-            ],
-          );
-        },
+              child: const Text(
+                'Chat Now',
+                style: TextStyle(fontSize: 18),
+              ),
+            ),
+          ),
+        ],
       ),
       backgroundColor: const Color(0xFFfdebeb),
       bottomNavigationBar: BottomNavigationBar(
