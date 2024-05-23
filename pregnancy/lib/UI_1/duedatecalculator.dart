@@ -4,7 +4,8 @@ import 'package:intl/intl.dart';
 class DueDateCalculatorPage extends StatefulWidget {
   final String userId;
 
-  const DueDateCalculatorPage({Key? key, required this.userId}) : super(key: key);
+  const DueDateCalculatorPage({Key? key, required this.userId})
+      : super(key: key);
 
   @override
   _DueDateCalculatorPageState createState() => _DueDateCalculatorPageState();
@@ -16,8 +17,10 @@ class _DueDateCalculatorPageState extends State<DueDateCalculatorPage> {
   final TextEditingController _ivfController = TextEditingController();
   final TextEditingController _conceptionController = TextEditingController();
   final TextEditingController _ultrasoundController = TextEditingController();
-  final TextEditingController _ultrasoundWeeksController = TextEditingController();
-  final TextEditingController _ultrasoundDaysController = TextEditingController();
+  final TextEditingController _ultrasoundWeeksController =
+      TextEditingController();
+  final TextEditingController _ultrasoundDaysController =
+      TextEditingController();
   DateTime? _estimatedDueDate;
   bool _calculating = false;
   String _selectedMethod = 'Last Period';
@@ -124,12 +127,14 @@ class _DueDateCalculatorPageState extends State<DueDateCalculatorPage> {
             if (_selectedMethod == 'Last Period') ...[
               TextField(
                 controller: _lastPeriodController,
-                decoration: _inputDecoration('First day of last period (YYYY-MM-DD)'),
+                decoration:
+                    _inputDecoration('First day of last period (YYYY-MM-DD)'),
               ),
               SizedBox(height: 16.0),
               TextField(
                 controller: _cycleLengthController,
-                decoration: _inputDecoration('Average length of menstrual cycle (days)'),
+                decoration: _inputDecoration(
+                    'Average length of menstrual cycle (days)'),
                 keyboardType: TextInputType.number,
               ),
             ] else if (_selectedMethod == 'IVF') ...[
@@ -214,4 +219,3 @@ class _DueDateCalculatorPageState extends State<DueDateCalculatorPage> {
     );
   }
 }
-

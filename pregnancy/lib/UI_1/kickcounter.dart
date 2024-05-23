@@ -1,19 +1,18 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class KickCounterPage extends StatefulWidget {
   @override
-  _KickCounterState createState() => _KickCounterState();
+  _KickCounterPageState createState() => _KickCounterPageState();
 }
 
-class _KickCounterState extends State<KickCounterPage> {
+class _KickCounterPageState extends State<KickCounterPage> {
   int _kickCount = 0;
   DateTime _startTime = DateTime.now();
-  DateTime _endTime = DateTime.now().add(Duration(minutes: 30));
   Timer? _timer;
-  Duration _remainingTime = Duration(minutes: 30);
+  Duration _elapsedTime = Duration.zero;
+  List<Map<String, dynamic>> _records = [];
 
   void _incrementKickCount() {
     setState(() {
@@ -24,33 +23,33 @@ class _KickCounterState extends State<KickCounterPage> {
   void _resetKickCount() {
     setState(() {
       _kickCount = 0;
-      _endTime = DateTime.now().add(Duration(minutes: 30)); // Reset duration to 30 minutes
-      _remainingTime = Duration(minutes: 30);
+      _elapsedTime = Duration.zero;
+      _timer?.cancel();
     });
   }
 
   void _startTimer() {
     setState(() {
       _startTime = DateTime.now();
-      _endTime = _startTime.add(Duration(minutes: 30)); // 30 minutes for tracking kicks
-      _kickCount = 0;
-      _remainingTime = Duration(minutes: 30);
       _timer?.cancel(); // Cancel any existing timer
       _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-        if (_remainingTime.inSeconds > 0) {
-          setState(() {
-            _remainingTime = _remainingTime - Duration(seconds: 1);
-          });
-        } else {
-          _timer?.cancel();
-        }
+        setState(() {
+          _elapsedTime = DateTime.now().difference(_startTime);
+        });
       });
     });
   }
 
-  void _stopTimer() {
+  void _finishAndSave() {
     setState(() {
       _timer?.cancel();
+      _records.add({
+        'date': _formatDate(_startTime),
+        'startTime': _formatTime(_startTime),
+        'duration': _formatDuration(_elapsedTime),
+        'kicks': _kickCount,
+      });
+      _resetKickCount(); // Reset the kick count and timer after saving
     });
   }
 
@@ -84,7 +83,7 @@ class _KickCounterState extends State<KickCounterPage> {
             SizedBox(height: 8.0),
             _buildInfo('Start Time', _formatTime(_startTime)),
             SizedBox(height: 8.0),
-            _buildInfo('Duration', _formatDuration(_remainingTime)),
+            _buildInfo('Duration', _formatDuration(_elapsedTime)),
             SizedBox(height: 8.0),
             _buildInfo('Kicks', '$_kickCount'),
             SizedBox(height: 24.0),
@@ -107,11 +106,13 @@ class _KickCounterState extends State<KickCounterPage> {
                 ),
                 SizedBox(width: 16.0),
                 ElevatedButton(
-                  onPressed: _stopTimer,
-                  child: Text('Stop Timer'),
+                  onPressed: _finishAndSave,
+                  child: Text('Finish and Save'),
                 ),
               ],
             ),
+            SizedBox(height: 24.0),
+            _buildRecordsList(),
           ],
         ),
       ),
@@ -120,7 +121,7 @@ class _KickCounterState extends State<KickCounterPage> {
 
   Widget _buildInfo(String title, String value) {
     return SizedBox(
-      width: 200, // Adjust the width according to your preference
+      width: 200,
       child: Container(
         padding: EdgeInsets.all(10.0),
         decoration: BoxDecoration(
@@ -148,6 +149,24 @@ class _KickCounterState extends State<KickCounterPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildRecordsList() {
+    return Expanded(
+      child: ListView.builder(
+        itemCount: _records.length,
+        itemBuilder: (context, index) {
+          final record = _records[index];
+          return Card(
+            child: ListTile(
+              title: Text('Date: ${record['date']}'),
+              subtitle: Text(
+                  'Start Time: ${record['startTime']}\nDuration: ${record['duration']}\nKicks: ${record['kicks']}'),
+            ),
+          );
+        },
       ),
     );
   }

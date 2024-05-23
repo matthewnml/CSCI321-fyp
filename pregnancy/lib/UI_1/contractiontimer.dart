@@ -9,42 +9,20 @@ class ContractionTimerPage extends StatefulWidget {
 
 class _ContractionTimerPageState extends State<ContractionTimerPage> {
   bool _isTiming = false;
-  bool _isFirstContraction = true;
-  late DateTime _startTime;
-  late DateTime _endTime;
+  DateTime? _startTime;
   Duration _contractionDuration = Duration(seconds: 0);
-  int _contractionCount = 0;
-  late Timer _timer;
-  late Stream<int> _timerStream;
-  late StreamSubscription<int> _timerSubscription;
-
-  @override
-  void initState() {
-    super.initState();
-    _startTime = DateTime.now();
-    _endTime = _startTime.add(Duration(days: 365));
-  }
-
-  @override
-  void dispose() {
-    _timerSubscription.cancel();
-    super.dispose();
-  }
+  Timer? _timer;
+  String _intensity = '';
+  List<Map<String, dynamic>> _contractions = [];
 
   void _startTimer() {
     setState(() {
       _isTiming = true;
       _startTime = DateTime.now();
-      _endTime = _startTime.add(_contractionDuration); // Update _endTime when starting the timer
-      if (!_isFirstContraction) {
-        _contractionCount++;
-      } else {
-        _isFirstContraction = false;
-      }
-      _timerStream = Stream<int>.periodic(Duration(seconds: 1), (x) => x).takeWhile((_) => _isTiming);
-      _timerSubscription = _timerStream.listen((_) {
+      _contractionDuration = Duration(seconds: 0);
+      _timer = Timer.periodic(Duration(seconds: 1), (timer) {
         setState(() {
-          _contractionDuration = DateTime.now().difference(_startTime);
+          _contractionDuration = DateTime.now().difference(_startTime!);
         });
       });
     });
@@ -53,24 +31,22 @@ class _ContractionTimerPageState extends State<ContractionTimerPage> {
   void _stopTimer() {
     setState(() {
       _isTiming = false;
-      _endTime = DateTime.now();
-      _contractionDuration = _endTime.difference(_startTime);
-      _timerSubscription.cancel();
-      _sendContractionData(_contractionDuration);
+      _timer?.cancel();
+      if (_startTime != null) {
+        _contractions.add({
+          'intensity': _intensity,
+          'duration': _contractionDuration,
+          'time': _startTime!,
+        });
+        _intensity = ''; // Reset intensity after saving
+      }
     });
   }
 
-  void _resetTimer() {
+  void _setIntensity(String intensity) {
     setState(() {
-      _isTiming = false;
-      _contractionDuration = Duration(seconds: 0);
-      _contractionCount = 0;
+      _intensity = intensity;
     });
-  }
-
-  void _sendContractionData(Duration duration) {
-    // Implement the function to send contraction data back to the home page
-    // You can use a callback function or any other method to send data back
   }
 
   String _formatDuration(Duration duration) {
@@ -78,7 +54,7 @@ class _ContractionTimerPageState extends State<ContractionTimerPage> {
   }
 
   String _formatTime(DateTime time) {
-    return DateFormat('hh:mm:ss a').format(time);
+    return DateFormat('hh:mm a').format(time);
   }
 
   @override
@@ -92,69 +68,77 @@ class _ContractionTimerPageState extends State<ContractionTimerPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _buildInfoContainer('Start Time', _formatTime(_startTime)),
-            SizedBox(height: 16.0),
-            if (_isTiming) _buildInfoContainer('End Time', _formatTime(_endTime)),
-            SizedBox(height: 16.0),
-            if (_isTiming) _buildInfoContainer('Duration', _formatDuration(_contractionDuration)),
-            SizedBox(height: 16.0),
-            if (_isTiming) _buildInfoContainer('Frequency', _contractionCount.toString()),
-            SizedBox(height: 24.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: _isTiming ? _stopTimer : _startTimer,
+                  child: _isTiming ? Text('Stop') : Text('Start'),
+                ),
+              ],
+            ),
+            SizedBox(height: 20.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(
-                  onPressed: _isTiming ? null : _startTimer,
-                  child: Text('Start Contraction'),
+                  onPressed: () => _setIntensity('Low'),
+                  child: Text('Low'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        _intensity == 'Low' ? Colors.blue : Colors.grey,
+                  ),
                 ),
                 ElevatedButton(
-                  onPressed: _resetTimer,
-                  child: Text('Reset Timer'),
+                  onPressed: () => _setIntensity('Med'),
+                  child: Text('Med'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        _intensity == 'Med' ? Colors.blue : Colors.grey,
+                  ),
                 ),
                 ElevatedButton(
-                  onPressed: _isTiming ? _stopTimer : null,
-                  child: Text('Stop Contraction'),
+                  onPressed: () => _setIntensity('High'),
+                  child: Text('High'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        _intensity == 'High' ? Colors.blue : Colors.grey,
+                  ),
                 ),
               ],
+            ),
+            SizedBox(height: 20.0),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _contractions.length,
+                itemBuilder: (context, index) {
+                  final contraction = _contractions[index];
+                  return ListTile(
+                    title: Text('Intensity: ${contraction['intensity']}'),
+                    subtitle: Text(
+                      'Duration: ${_formatDuration(contraction['duration'])}\nTime: ${_formatTime(contraction['time'])}',
+                    ),
+                    trailing: IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: () {
+                        setState(() {
+                          _contractions.removeAt(index);
+                        });
+                      },
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),
       ),
     );
   }
-
-  Widget _buildInfoContainer(String title, String value) {
-    return Container(
-      padding: EdgeInsets.all(16.0),
-      margin: EdgeInsets.symmetric(horizontal: 8.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            title,
-            style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 8.0),
-          Text(
-            value,
-            style: TextStyle(fontSize: 18.0),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
-
+void main() {
+  runApp(MaterialApp(
+    home: ContractionTimerPage(),
+  ));
+}
