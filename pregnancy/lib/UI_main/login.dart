@@ -19,7 +19,7 @@ class _LoginPageState extends State<LoginPage> {
     try {
       QuerySnapshot result = await _firestore
           .collection('user_accounts')
-          .where('Username', isEqualTo: _usernameController.text)
+          .where('user_id', isEqualTo: _usernameController.text)
           .where('password', isEqualTo: _passwordController.text)
           .get();
 
@@ -60,7 +60,7 @@ class _LoginPageState extends State<LoginPage> {
             TextField(
               controller: _usernameController,
               decoration: const InputDecoration(
-                labelText: 'user_id',
+                labelText: 'Username',
                 border: OutlineInputBorder(),
               ),
             ),

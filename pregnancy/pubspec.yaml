@@ -62,8 +62,17 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/bby.jpg
-    - assets/profile_picture.jpg
+    - assets/bby.jpg 
+    - assets/contractiontimer.png 
+    - assets/duedatecalculator.png 
+    - assets/ivfinjection.png 
+    - assets/kickcounter.png 
+    - assets/bumpphoto.png 
+    - assets/pregnancysymptomsguide.jpg 
+    - assets/fitnessguide.jpg 
+    - assets/nutritionguide.jpg 
+    - assets/videoguide.jpg 
+    - assets/article1.jpg
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
