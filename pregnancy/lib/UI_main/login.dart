@@ -18,8 +18,8 @@ class _LoginPageState extends State<LoginPage> {
   void _login() async {
     try {
       QuerySnapshot result = await _firestore
-          .collection('users')
-          .where('username', isEqualTo: _usernameController.text)
+          .collection('user_accounts')
+          .where('Username', isEqualTo: _usernameController.text)
           .where('password', isEqualTo: _passwordController.text)
           .get();
 
@@ -54,12 +54,13 @@ class _LoginPageState extends State<LoginPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Image.asset('assets/bby.jpg'), // Replace with your actual image path
+            Image.asset(
+                'assets/bby.jpg'), // Replace with your actual image path
             const SizedBox(height: 20),
             TextField(
               controller: _usernameController,
               decoration: const InputDecoration(
-                labelText: 'Username',
+                labelText: 'user_id',
                 border: OutlineInputBorder(),
               ),
             ),
@@ -103,4 +104,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-
