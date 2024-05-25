@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class KickCounterPage extends StatefulWidget {
+  final String userId;
+
+  const KickCounterPage({Key? key, required this.userId}) : super(key: key);
+
   @override
   _KickCounterPageState createState() => _KickCounterPageState();
 }

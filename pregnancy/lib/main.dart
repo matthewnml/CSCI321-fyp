@@ -41,13 +41,36 @@ class MyApp extends StatelessWidget {
       initialRoute: '/login',
       routes: {
         '/login': (context) => const LoginPage(),
-        '/home': (context) => const HomePage(),
         '/calendar': (context) => const CalendarScreen(),
         '/health': (context) => const HealthScreen(),
-        '/setting': (context) => const SettingsScreen(),
-        '/account': (context) => const AccountPage(),
+        '/setting': (context) => const SettingsScreen(
+            userId: ''), // Temporary userId for settings screen
         '/notifications': (context) => const NotificationsPage(),
         '/terms_conditions': (context) => const TermsAndConditionsPage(),
+      },
+      // Routes that require userId
+      onGenerateRoute: (settings) {
+        if (settings.name == '/home') {
+          final args = settings.arguments as Map<String, dynamic>;
+          return MaterialPageRoute(
+            builder: (context) {
+              return HomePage(userId: args['userId']);
+            },
+          );
+        }
+        if (settings.name == '/account') {
+          final args = settings.arguments as Map<String, dynamic>;
+          return MaterialPageRoute(
+            builder: (context) {
+              return AccountPage(userId: args['userId']);
+            },
+          );
+        }
+        // Add other dynamic routes here if needed
+        return null; // Let `onUnknownRoute` handle this
+      },
+      onUnknownRoute: (settings) {
+        return MaterialPageRoute(builder: (context) => const LoginPage());
       },
     );
   }

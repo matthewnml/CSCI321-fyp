@@ -24,10 +24,12 @@ class _LoginPageState extends State<LoginPage> {
           .get();
 
       if (result.docs.isNotEmpty) {
-        // User found, navigate to HomePage
-        Navigator.pushReplacement(
+        // User found, navigate to HomePage with user ID
+        String userId = result.docs.first.get('user_id');
+        Navigator.pushReplacementNamed(
           context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
+          '/home',
+          arguments: {'userId': userId},
         );
       } else {
         // Show error message

@@ -4,33 +4,10 @@ import '/UI_4/account.dart'; // Import the login.dart file
 import '/UI_4/notifications.dart'; // Import the login.dart file
 import '/UI_4/privacy_security.dart'; // Import the login.dart file
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        scaffoldBackgroundColor:
-            const Color(0xFFfdebeb), // Custom background color
-      ),
-      home: const SettingsScreen(),
-      routes: {
-        '/login': (context) => const LoginPage(),
-        '/account': (context) => const AccountPage(),
-        '/notifications': (context) => const NotificationsPage(),
-        '/terms_conditions': (context) => const TermsAndConditionsPage(),
-      },
-    );
-  }
-}
-
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
+  final String userId;
+
+  const SettingsScreen({super.key, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +28,12 @@ class SettingsScreen extends StatelessWidget {
             leading: const Icon(Icons.person),
             title: const Text('Account'),
             onTap: () {
-              Navigator.pushNamed(context, '/account');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AccountPage(userId: userId),
+                ),
+              );
             },
           ),
           ListTile(

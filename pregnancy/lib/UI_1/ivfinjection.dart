@@ -2,8 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class IVFInjectionTrackerPage extends StatefulWidget {
+  final String userId;
+
+  const IVFInjectionTrackerPage({Key? key, required this.userId})
+      : super(key: key);
+
   @override
-  _IVFInjectionTrackerPageState createState() => _IVFInjectionTrackerPageState();
+  _IVFInjectionTrackerPageState createState() =>
+      _IVFInjectionTrackerPageState();
 }
 
 class _IVFInjectionTrackerPageState extends State<IVFInjectionTrackerPage> {
@@ -49,7 +55,8 @@ class _IVFInjectionTrackerPageState extends State<IVFInjectionTrackerPage> {
     );
     if (picked != null) {
       setState(() {
-        _focusedDay = DateTime(picked.year, picked.month, 1); // Focus on the first day of the selected month
+        _focusedDay = DateTime(picked.year, picked.month,
+            1); // Focus on the first day of the selected month
       });
     }
   }
@@ -107,10 +114,12 @@ class _IVFInjectionTrackerPageState extends State<IVFInjectionTrackerPage> {
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: _getInjectionsForDay(_selectedDay ?? DateTime.now()).length,
+              itemCount:
+                  _getInjectionsForDay(_selectedDay ?? DateTime.now()).length,
               itemBuilder: (context, index) {
                 return ListTile(
-                  title: Text(_getInjectionsForDay(_selectedDay ?? DateTime.now())[index]),
+                  title: Text(_getInjectionsForDay(
+                      _selectedDay ?? DateTime.now())[index]),
                   trailing: IconButton(
                     icon: Icon(Icons.delete),
                     onPressed: () => _removeInjection(_selectedDay!, index),
@@ -124,4 +133,3 @@ class _IVFInjectionTrackerPageState extends State<IVFInjectionTrackerPage> {
     );
   }
 }
-

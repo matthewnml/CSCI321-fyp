@@ -3,6 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class ContractionTimerPage extends StatefulWidget {
+  final String userId;
+
+  const ContractionTimerPage({Key? key, required this.userId})
+      : super(key: key);
+
   @override
   _ContractionTimerPageState createState() => _ContractionTimerPageState();
 }
@@ -135,10 +140,4 @@ class _ContractionTimerPageState extends State<ContractionTimerPage> {
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: ContractionTimerPage(),
-  ));
 }

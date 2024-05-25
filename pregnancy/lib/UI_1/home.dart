@@ -1,5 +1,3 @@
-//home.dart
-
 import 'package:flutter/material.dart';
 import 'notification_history.dart'; // Import the notifications page
 import 'duedatecalculator.dart'; // Import the Due Date Calculator page
@@ -12,7 +10,9 @@ import '/UI_3/health.dart'; // Import the health.dart file
 import '/UI_4/setting.dart'; // Import the settings.dart file
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  final String userId;
+
+  const HomePage({Key? key, required this.userId}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -21,12 +21,18 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
-  static const List<Widget> _pages = <Widget>[
-    HomePageContent(),
-    CalendarScreen(),
-    HealthScreen(),
-    SettingsScreen(),
-  ];
+  late List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = <Widget>[
+      HomePageContent(userId: widget.userId),
+      CalendarScreen(),
+      HealthScreen(),
+      SettingsScreen(userId: widget.userId),
+    ];
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -68,7 +74,9 @@ class _HomePageState extends State<HomePage> {
 }
 
 class HomePageContent extends StatelessWidget {
-  const HomePageContent({Key? key}) : super(key: key);
+  final String userId;
+
+  const HomePageContent({Key? key, required this.userId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +137,7 @@ class HomePageContent extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    DueDateCalculatorPage(userId: 'user1')),
+                                    DueDateCalculatorPage(userId: userId)),
                           );
                         },
                       ),
@@ -148,7 +156,8 @@ class HomePageContent extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => ContractionTimerPage()),
+                                builder: (context) =>
+                                    ContractionTimerPage(userId: userId)),
                           );
                         },
                       ),
@@ -167,7 +176,8 @@ class HomePageContent extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => KickCounterPage()),
+                                builder: (context) =>
+                                    KickCounterPage(userId: userId)),
                           );
                         },
                       ),
@@ -187,7 +197,7 @@ class HomePageContent extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    IVFInjectionTrackerPage()),
+                                    IVFInjectionTrackerPage(userId: userId)),
                           );
                         },
                       ),
@@ -271,8 +281,8 @@ class HomePageContent extends StatelessWidget {
   Widget _buildGuideButton(
       String title, Color color, ImageProvider<Object> image) {
     return Container(
-      width: 300,
-      height: 500,
+      width: 80,
+      height: 80,
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(12),
@@ -366,8 +376,7 @@ class HomePageContent extends StatelessWidget {
             height: 50,
             decoration: BoxDecoration(
               color: color,
-              borderRadius: BorderRadius.circular(
-                  12), // Adjust the border radius as needed
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Center(
               child: Text(

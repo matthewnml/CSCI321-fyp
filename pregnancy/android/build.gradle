@@ -7,12 +7,12 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:7.2.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.google.gms:google-services:4.4.1'
+        classpath 'com.google.gms:google-services:4.3.15'
     }
 }
 
 plugins {
-    id("com.google.gms.google-services") version "4.4.1" apply false
+    id("com.google.gms.google-services") version "4.3.15" apply false // Ensure version consistency
 }
 
 allprojects {
@@ -28,10 +28,10 @@ subprojects {
     project.evaluationDependsOn(':app')
 }
 
-tasks.register("clean", Delete) {
-    delete rootProject.buildDir
-}
+// Remove the redundant clean task definition
+// tasks.register("clean", Delete) {
+//     delete rootProject.buildDir
+// }
 
 apply plugin: 'com.android.application'
-// Add this line
 apply plugin: 'com.google.gms.google-services'
