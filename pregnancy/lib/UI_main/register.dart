@@ -22,7 +22,7 @@ class _RegisterPageState extends State<RegisterPage> {
   void _register() async {
     try {
       await _firestore.collection('user_accounts').add({
-        'user': _usernameController.text,
+        'user_id': _usernameController.text,
         'password': _passwordController.text,
         'full_name': _fullNameController.text,
         'date_of_birth': _dobController.text,
