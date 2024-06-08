@@ -1,7 +1,6 @@
-// UI_3/health.dart
-
 import 'package:flutter/material.dart';
 import 'package:pregnancy/UI_3/specialist_appt.dart'; // Import the chat_with_specialist.dart file
+import 'package:pregnancy/UI_3/doc_appt.dart'; // Import the book_with_doctor.dart file
 
 class HealthScreen extends StatelessWidget {
   const HealthScreen({super.key});
@@ -34,6 +33,14 @@ class HealthScreen extends StatelessWidget {
                   Icons.person_add,
                   'Book with Doctor',
                   Colors.pink.shade100,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const BookWithDoctorScreen(),
+                      ),
+                    );
+                  },
                 ),
                 _buildIconButton(
                   context,
@@ -84,9 +91,7 @@ class HealthScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildIconButton(
-      BuildContext context, IconData icon, String label, Color backgroundColor,
-      {VoidCallback? onTap}) {
+  Widget _buildIconButton(BuildContext context, IconData icon, String label, Color backgroundColor, {VoidCallback? onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Column(
