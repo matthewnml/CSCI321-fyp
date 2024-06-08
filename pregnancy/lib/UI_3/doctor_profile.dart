@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pregnancy/UI_3/appointment_details.dart'; // Import the appointment_details.dart file
 
 class DoctorProfileScreen extends StatelessWidget {
   const DoctorProfileScreen({super.key});
@@ -133,10 +134,15 @@ class DoctorProfileScreen extends StatelessWidget {
             Center(
               child: ElevatedButton(
                 onPressed: () {
-                  // Handle book appointment
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AppointmentDetailsScreen(),
+                    ),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue.shade100,
+                  backgroundColor: const Color(0xFFB9CAD7), // Updated color
                   padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -144,7 +150,7 @@ class DoctorProfileScreen extends StatelessWidget {
                 ),
                 child: const Text(
                   'Book Appointment',
-                  style: TextStyle(fontSize: 18),
+                  style: TextStyle(fontSize: 18, color: Colors.black), // Updated text color
                 ),
               ),
             ),

@@ -52,12 +52,15 @@ class MyAppointment extends StatelessWidget {
             // Handle view details button press
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.pink.shade100, // Use backgroundColor instead of primary
+            backgroundColor: const Color(0xFFE0C9C9), // Set background color to E0C9C9
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
             ),
           ),
-          child: const Text('View Details'),
+          child: const Text(
+            'View Details',
+            style: TextStyle(color: Colors.black), // Set text color to black
+          ),
         ),
       ),
     );

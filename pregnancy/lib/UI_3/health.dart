@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pregnancy/UI_3/specialist_appt.dart'; // Import the chat_with_specialist.dart file
-import 'package:pregnancy/UI_3/doc_appt.dart'; // Import the book_with_doctor.dart file
+import 'package:pregnancy/UI_3/doc_appt.dart'; // Import the doc_appt.dart file
+import 'package:pregnancy/UI_3/my_appt.dart'; // Import the my_appt.dart file
 
 class HealthScreen extends StatelessWidget {
   const HealthScreen({super.key});
@@ -83,6 +84,14 @@ class HealthScreen extends StatelessWidget {
               Icons.event_available,
               'My Appointment',
               Colors.green.shade100,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MyAppointment(),
+                  ),
+                );
+              },
             ),
           ],
         ),
