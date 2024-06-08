@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pregnancy/UI_3/view_details.dart'; // Import the view_details.dart file
 
 class MyAppointment extends StatelessWidget {
   const MyAppointment({super.key});
@@ -49,10 +50,19 @@ class MyAppointment extends StatelessWidget {
         subtitle: Text('Date: $date\nTime: $time'),
         trailing: ElevatedButton(
           onPressed: () {
-            // Handle view details button press
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MyAppointmentDetailsScreen(
+                  doctorName: doctorName,
+                  date: date,
+                  time: time,
+                ),
+              ),
+            );
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFE0C9C9), // Set background color to E0C9C9
+            backgroundColor: const Color(0xFFE0C9C9), // Use backgroundColor instead of primary
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
             ),
