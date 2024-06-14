@@ -1,22 +1,20 @@
 import 'package:flutter/material.dart';
 
-class MyAppointmentDetailsScreen extends StatelessWidget {
-  final String doctorName;
-  final String date;
-  final String time;
+class ConfirmAppointmentScreen extends StatelessWidget {
+  final DateTime selectedDate;
+  final TimeOfDay selectedTime;
 
-  const MyAppointmentDetailsScreen({
+  const ConfirmAppointmentScreen({
     super.key,
-    required this.doctorName,
-    required this.date,
-    required this.time,
+    required this.selectedDate,
+    required this.selectedTime,
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Appointment'),
+        title: const Text('Book with Doctor'),
         backgroundColor: Colors.pink[50],
         elevation: 0,
         leading: IconButton(
@@ -57,11 +55,20 @@ class MyAppointmentDetailsScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    Text(
-                      'Doctor: $doctorName\nDate: $date\nTime: $time',
-                      style: const TextStyle(fontSize: 16),
+                    const Text(
+                      'Doctor 1\nGynaecologist\nClinic\nABC Clinic\n261 Clementi Road, 081261\nTel: 67456130',
+                      style: TextStyle(fontSize: 16),
                     ),
                     const SizedBox(height: 20),
+                    Text(
+                      'Preferred Appointment Date: ${selectedDate.toLocal()}'.split(' ')[0],
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Preferred Appointment Time: ${selectedTime.format(context)}',
+                      style: const TextStyle(fontSize: 16),
+                    ),
                   ],
                 ),
               ),
@@ -72,7 +79,7 @@ class MyAppointmentDetailsScreen extends StatelessWidget {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    // Handle reschedule button press
+                    Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFB9CAD7), // Updated color
@@ -81,13 +88,13 @@ class MyAppointmentDetailsScreen extends StatelessWidget {
                     ),
                   ),
                   child: const Text(
-                    'Reschedule',
+                    'Back',
                     style: TextStyle(color: Colors.black), // Updated text color
                   ),
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    // Handle cancel button press
+                    // Handle confirm button press
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFB9CAD7), // Updated color
@@ -96,7 +103,7 @@ class MyAppointmentDetailsScreen extends StatelessWidget {
                     ),
                   ),
                   child: const Text(
-                    'Cancel',
+                    'Confirm',
                     style: TextStyle(color: Colors.black), // Updated text color
                   ),
                 ),

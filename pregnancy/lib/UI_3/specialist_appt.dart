@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pregnancy/UI_3/consult_platform.dart'; // Import the consult_platform.dart file
+import 'package:pregnancy/UI_3/consult_platform.dart';
 
 class ChatWithSpecialistScreen extends StatelessWidget {
   const ChatWithSpecialistScreen({super.key});
@@ -60,20 +60,9 @@ class ChatWithSpecialistScreen extends StatelessWidget {
                       title: Text(chat.specialistName),
                       subtitle: Text(chat.previewText),
                       trailing: Text(chat.date),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ChatScreen(),
-                          ),
-                        );
-                      },
                     ),
                     if (chat.isWaitingForReply)
-                      const Padding(
-                        padding: EdgeInsets.only(left: 16.0),
-                        child: Text('Waiting for Reply'),
-                      ),
+                      const Text('Waiting for Reply'),
                     const SizedBox(height: 16),
                   ],
                 );
@@ -92,15 +81,14 @@ class ChatWithSpecialistScreen extends StatelessWidget {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue.shade100,
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                backgroundColor: const Color(0xFFB9CAD7),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
               child: const Text(
                 'Chat Now',
-                style: TextStyle(fontSize: 18),
+                style: TextStyle(color: Colors.black),
               ),
             ),
           ),
