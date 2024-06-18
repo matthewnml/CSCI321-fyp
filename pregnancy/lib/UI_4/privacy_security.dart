@@ -10,7 +10,7 @@ class TermsAndConditionsPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Terms & Conditions'),
       ),
-      body: Center(
+      body: const Center(
         child: Text('Terms & Conditions Page Content'),
       ),
     );

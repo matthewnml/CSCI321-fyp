@@ -5,8 +5,7 @@ import 'package:intl/intl.dart';
 class ContractionTimerPage extends StatefulWidget {
   final String userId;
 
-  const ContractionTimerPage({Key? key, required this.userId})
-      : super(key: key);
+  const ContractionTimerPage({super.key, required this.userId});
 
   @override
   _ContractionTimerPageState createState() => _ContractionTimerPageState();
@@ -15,17 +14,17 @@ class ContractionTimerPage extends StatefulWidget {
 class _ContractionTimerPageState extends State<ContractionTimerPage> {
   bool _isTiming = false;
   DateTime? _startTime;
-  Duration _contractionDuration = Duration(seconds: 0);
+  Duration _contractionDuration = const Duration(seconds: 0);
   Timer? _timer;
   String _intensity = '';
-  List<Map<String, dynamic>> _contractions = [];
+  final List<Map<String, dynamic>> _contractions = [];
 
   void _startTimer() {
     setState(() {
       _isTiming = true;
       _startTime = DateTime.now();
-      _contractionDuration = Duration(seconds: 0);
-      _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      _contractionDuration = const Duration(seconds: 0);
+      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
         setState(() {
           _contractionDuration = DateTime.now().difference(_startTime!);
         });
@@ -66,10 +65,10 @@ class _ContractionTimerPageState extends State<ContractionTimerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Contraction Timer'),
+        title: const Text('Contraction Timer'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -78,41 +77,41 @@ class _ContractionTimerPageState extends State<ContractionTimerPage> {
               children: [
                 ElevatedButton(
                   onPressed: _isTiming ? _stopTimer : _startTimer,
-                  child: _isTiming ? Text('Stop') : Text('Start'),
+                  child: _isTiming ? const Text('Stop') : const Text('Start'),
                 ),
               ],
             ),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(
                   onPressed: () => _setIntensity('Low'),
-                  child: Text('Low'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor:
                         _intensity == 'Low' ? Colors.blue : Colors.grey,
                   ),
+                  child: const Text('Low'),
                 ),
                 ElevatedButton(
                   onPressed: () => _setIntensity('Med'),
-                  child: Text('Med'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor:
                         _intensity == 'Med' ? Colors.blue : Colors.grey,
                   ),
+                  child: const Text('Med'),
                 ),
                 ElevatedButton(
                   onPressed: () => _setIntensity('High'),
-                  child: Text('High'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor:
                         _intensity == 'High' ? Colors.blue : Colors.grey,
                   ),
+                  child: const Text('High'),
                 ),
               ],
             ),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             Expanded(
               child: ListView.builder(
                 itemCount: _contractions.length,
@@ -124,7 +123,7 @@ class _ContractionTimerPageState extends State<ContractionTimerPage> {
                       'Duration: ${_formatDuration(contraction['duration'])}\nTime: ${_formatTime(contraction['time'])}',
                     ),
                     trailing: IconButton(
-                      icon: Icon(Icons.delete),
+                      icon: const Icon(Icons.delete),
                       onPressed: () {
                         setState(() {
                           _contractions.removeAt(index);

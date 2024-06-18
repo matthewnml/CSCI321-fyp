@@ -12,7 +12,7 @@ import '/UI_4/setting.dart'; // Import the settings.dart file
 class HomePage extends StatefulWidget {
   final String userId;
 
-  const HomePage({Key? key, required this.userId}) : super(key: key);
+  const HomePage({super.key, required this.userId});
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -28,8 +28,8 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _pages = <Widget>[
       HomePageContent(userId: widget.userId),
-      CalendarScreen(),
-      HealthScreen(),
+      const CalendarScreen(),
+      const HealthScreen(),
       SettingsScreen(userId: widget.userId),
     ];
   }
@@ -76,7 +76,7 @@ class _HomePageState extends State<HomePage> {
 class HomePageContent extends StatelessWidget {
   final String userId;
 
-  const HomePageContent({Key? key, required this.userId}) : super(key: key);
+  const HomePageContent({super.key, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +86,7 @@ class HomePageContent extends StatelessWidget {
         elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(Icons.notifications, color: Colors.black),
+            icon: const Icon(Icons.notifications, color: Colors.black),
             onPressed: () {
               // Navigate to the notifications page
               Navigator.push(
@@ -98,7 +98,7 @@ class HomePageContent extends StatelessWidget {
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(4.0),
+          preferredSize: const Size.fromHeight(4.0),
           child: Container(
             color: const Color(0xFFFFF4F4),
           ),
@@ -110,13 +110,13 @@ class HomePageContent extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CountdownDays(), // Display the CountdownDays widget
+              const CountdownDays(), // Display the CountdownDays widget
               const SizedBox(height: 32),
-              Center(
+              const Center(
                 child: CircleAvatar(
                   radius: 150,
                   backgroundImage: AssetImage('assets/bumpphoto.png'),
-                  backgroundColor: const Color(0xFFF0C29B),
+                  backgroundColor: Color(0xFFF0C29B),
                 ),
               ),
               const SizedBox(height: 32),
@@ -128,7 +128,7 @@ class HomePageContent extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: FeatureButton(
                         title: 'Due Date Calculator',
-                        image: AssetImage('assets/duedatecalculator.png'),
+                        image: const AssetImage('assets/duedatecalculator.png'),
                         color: const Color(0xFFE3C3C3),
                         textColor: const Color(0xFF000000),
                         onTap: () {
@@ -148,7 +148,7 @@ class HomePageContent extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: FeatureButton(
                         title: 'Contraction Timer',
-                        image: AssetImage('assets/contractiontimer.png'),
+                        image: const AssetImage('assets/contractiontimer.png'),
                         color: const Color(0xFFC3D5E3),
                         textColor: const Color(0xFF000000),
                         onTap: () {
@@ -168,7 +168,7 @@ class HomePageContent extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: FeatureButton(
                         title: 'Kick Counter',
-                        image: AssetImage('assets/kickcounter.png'),
+                        image: const AssetImage('assets/kickcounter.png'),
                         color: const Color(0xFFDAE3C3),
                         textColor: const Color(0xFF000000),
                         onTap: () {
@@ -188,7 +188,7 @@ class HomePageContent extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: FeatureButton(
                         title: 'IVF Injection',
-                        image: AssetImage('assets/ivfinjection.png'),
+                        image: const AssetImage('assets/ivfinjection.png'),
                         color: const Color(0xFFE3D2C3),
                         textColor: const Color(0xFF000000),
                         onTap: () {
@@ -213,8 +213,8 @@ class HomePageContent extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        margin: EdgeInsets.only(bottom: 8.0),
-                        child: Text(
+                        margin: const EdgeInsets.only(bottom: 8.0),
+                        child: const Text(
                           'Articles',
                           style: TextStyle(
                             fontSize: 20,
@@ -222,7 +222,7 @@ class HomePageContent extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Divider(), // Added a divider below the Articles heading
+                      const Divider(), // Added a divider below the Articles heading
                       _buildArticleTile(
                           'Picture1',
                           'Title 1',
@@ -238,37 +238,37 @@ class HomePageContent extends StatelessWidget {
                           'Title 3',
                           'Article preview...........................................................................................................',
                           const Color(0xFFDAE3C3)),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Center(
                         child: TextButton(
                           onPressed: () {
                             // Handle "See more" button press
                           },
                           child: const Text('See more',
-                              style: TextStyle(color: const Color(0xFF000000))),
+                              style: TextStyle(color: Color(0xFF000000))),
                         ),
                       ),
                     ],
                   ),
                 ),
               ),
-              SizedBox(height: 32),
-              Text(
+              const SizedBox(height: 32),
+              const Text(
                 'Guides',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _buildGuideButton('Guide 1', const Color(0xFFE3C3C3),
-                      AssetImage('assets/fitnessguide.jpg')),
+                      const AssetImage('assets/fitnessguide.jpg')),
                   _buildGuideButton('Guide 2', const Color(0xFFC3D5E3),
-                      AssetImage('assets/pregnancysymptomsguide.jpg')),
+                      const AssetImage('assets/pregnancysymptomsguide.jpg')),
                   _buildGuideButton('Guide 3', const Color(0xFFDAE3C3),
-                      AssetImage('assets/nutritionguide.jpg')),
+                      const AssetImage('assets/nutritionguide.jpg')),
                   _buildGuideButton('Guide 4', const Color(0xFFE3D2C3),
-                      AssetImage('assets/videoguide.jpg')),
+                      const AssetImage('assets/videoguide.jpg')),
                 ],
               ),
             ],
@@ -337,7 +337,7 @@ class HomePageContent extends StatelessWidget {
               color: Colors.grey.withOpacity(0.5),
               spreadRadius: 2,
               blurRadius: 5,
-              offset: Offset(0, 3), // changes position of shadow
+              offset: const Offset(0, 3), // changes position of shadow
             ),
           ],
         ),
@@ -351,7 +351,7 @@ class HomePageContent extends StatelessWidget {
               height: 40,
               fit: BoxFit.contain,
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               title,
               textAlign: TextAlign.center,
@@ -381,7 +381,7 @@ class HomePageContent extends StatelessWidget {
             child: Center(
               child: Text(
                 picture,
-                style: TextStyle(
+                style: const TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
                     fontSize: 12),
@@ -390,12 +390,12 @@ class HomePageContent extends StatelessWidget {
           ),
           title: Text(
             title,
-            style: TextStyle(
+            style: const TextStyle(
                 color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
           ),
           subtitle: Text(
             preview,
-            style: TextStyle(color: Colors.black, fontSize: 12),
+            style: const TextStyle(color: Colors.black, fontSize: 12),
           ),
         ), // Add a divider between each article
       ],
@@ -411,13 +411,13 @@ class FeatureButton extends StatelessWidget {
   final VoidCallback onTap;
 
   const FeatureButton({
-    Key? key,
+    super.key,
     required this.title,
     required this.image,
     required this.color,
     required this.textColor,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -434,7 +434,7 @@ class FeatureButton extends StatelessWidget {
               color: Colors.grey.withOpacity(0.5),
               spreadRadius: 2,
               blurRadius: 5,
-              offset: Offset(0, 3), // changes position of shadow
+              offset: const Offset(0, 3), // changes position of shadow
             ),
           ],
         ),
@@ -448,7 +448,7 @@ class FeatureButton extends StatelessWidget {
               height: 40,
               fit: BoxFit.contain,
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               title,
               textAlign: TextAlign.center,

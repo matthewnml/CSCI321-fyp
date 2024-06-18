@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 class KickCounterPage extends StatefulWidget {
   final String userId;
 
-  const KickCounterPage({Key? key, required this.userId}) : super(key: key);
+  const KickCounterPage({super.key, required this.userId});
 
   @override
   _KickCounterPageState createState() => _KickCounterPageState();
@@ -16,7 +16,7 @@ class _KickCounterPageState extends State<KickCounterPage> {
   DateTime _startTime = DateTime.now();
   Timer? _timer;
   Duration _elapsedTime = Duration.zero;
-  List<Map<String, dynamic>> _records = [];
+  final List<Map<String, dynamic>> _records = [];
 
   void _incrementKickCount() {
     setState(() {
@@ -36,7 +36,7 @@ class _KickCounterPageState extends State<KickCounterPage> {
     setState(() {
       _startTime = DateTime.now();
       _timer?.cancel(); // Cancel any existing timer
-      _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
         setState(() {
           _elapsedTime = DateTime.now().difference(_startTime);
         });
@@ -75,47 +75,47 @@ class _KickCounterPageState extends State<KickCounterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Kick Counter'),
+        title: const Text('Kick Counter'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: 8.0),
+            const SizedBox(height: 8.0),
             _buildInfo('Date', _formatDate(_startTime)),
-            SizedBox(height: 8.0),
+            const SizedBox(height: 8.0),
             _buildInfo('Start Time', _formatTime(_startTime)),
-            SizedBox(height: 8.0),
+            const SizedBox(height: 8.0),
             _buildInfo('Duration', _formatDuration(_elapsedTime)),
-            SizedBox(height: 8.0),
+            const SizedBox(height: 8.0),
             _buildInfo('Kicks', '$_kickCount'),
-            SizedBox(height: 24.0),
+            const SizedBox(height: 24.0),
             ElevatedButton(
               onPressed: _incrementKickCount,
-              child: Text('Count Kick'),
+              child: const Text('Count Kick'),
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: _resetKickCount,
-              child: Text('Reset'),
+              child: const Text('Reset'),
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
                   onPressed: _startTimer,
-                  child: Text('Start Timer'),
+                  child: const Text('Start Timer'),
                 ),
-                SizedBox(width: 16.0),
+                const SizedBox(width: 16.0),
                 ElevatedButton(
                   onPressed: _finishAndSave,
-                  child: Text('Finish and Save'),
+                  child: const Text('Finish and Save'),
                 ),
               ],
             ),
-            SizedBox(height: 24.0),
+            const SizedBox(height: 24.0),
             _buildRecordsList(),
           ],
         ),
@@ -127,7 +127,7 @@ class _KickCounterPageState extends State<KickCounterPage> {
     return SizedBox(
       width: 200,
       child: Container(
-        padding: EdgeInsets.all(10.0),
+        padding: const EdgeInsets.all(10.0),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20.0),
@@ -136,7 +136,7 @@ class _KickCounterPageState extends State<KickCounterPage> {
               color: Colors.grey.withOpacity(0.5),
               spreadRadius: 2,
               blurRadius: 7,
-              offset: Offset(0, 3),
+              offset: const Offset(0, 3),
             ),
           ],
         ),
@@ -145,11 +145,11 @@ class _KickCounterPageState extends State<KickCounterPage> {
           children: [
             Text(
               title,
-              style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
             ),
             Text(
               value,
-              style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
             ),
           ],
         ),

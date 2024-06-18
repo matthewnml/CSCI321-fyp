@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class NotificationsPage extends StatelessWidget {
-  const NotificationsPage({Key? key}) : super(key: key);
+  const NotificationsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -10,10 +10,10 @@ class NotificationsPage extends StatelessWidget {
         backgroundColor: const Color(0xFFFFF4F4),
         elevation: 0,
         title: const Text('Notifications', style: TextStyle(color: Colors.black)),
-        iconTheme: IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(color: Colors.black),
         actions: [
           IconButton(
-            icon: Icon(Icons.notifications, color: Colors.black),
+            icon: const Icon(Icons.notifications, color: Colors.black),
             onPressed: () {
               // You can handle the icon press here if needed
             },
@@ -27,9 +27,9 @@ class NotificationsPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ListTile(
-                leading: Icon(Icons.calendar_today, color: Colors.black),
-                title: Text('You have an upcoming appointment.'),
-                subtitle: Text(
+                leading: const Icon(Icons.calendar_today, color: Colors.black),
+                title: const Text('You have an upcoming appointment.'),
+                subtitle: const Text(
                   'Click for details',
                   style: TextStyle(
                     decoration: TextDecoration.underline,
@@ -41,9 +41,9 @@ class NotificationsPage extends StatelessWidget {
               ),
               const Divider(),
               ListTile(
-                leading: Icon(Icons.message, color: Colors.black),
-                title: Text('A specialist has replied to your question!'),
-                subtitle: Text(
+                leading: const Icon(Icons.message, color: Colors.black),
+                title: const Text('A specialist has replied to your question!'),
+                subtitle: const Text(
                   'Click for details',
                   style: TextStyle(
                     decoration: TextDecoration.underline,

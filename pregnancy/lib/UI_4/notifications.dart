@@ -10,7 +10,7 @@ class NotificationsPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Notifications'),
       ),
-      body: Center(
+      body: const Center(
         child: Text('Notifications Page Content'),
       ),
     );

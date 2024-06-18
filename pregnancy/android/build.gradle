@@ -1,5 +1,12 @@
 buildscript {
-    ext.kotlin_version = '1.9.0' // Ensure this is set to 1.9.0
+    ext.kotlin_version = '1.9.0' // Ensure this is set to the expected Kotlin version
+
+    ext {
+        buildToolsVersion = "34.0.0"
+        minSdkVersion = 21
+        compileSdkVersion = 34
+        targetSdkVersion = 34
+    }
     repositories {
         google()
         mavenCentral()
@@ -12,7 +19,7 @@ buildscript {
 }
 
 plugins {
-    id("com.google.gms.google-services") version "4.3.15" apply false // Ensure version consistency
+    id("com.google.gms.google-services") version "4.3.15" apply false
 }
 
 allprojects {
@@ -25,13 +32,13 @@ allprojects {
 rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
-    project.evaluationDependsOn(':app')
+
+    // Force resolution strategy for Kotlin
+    configurations.all {
+        resolutionStrategy.eachDependency { details ->
+            if (details.requested.group == 'org.jetbrains.kotlin') {
+                details.useVersion "1.9.0"
+            }
+        }
+    }
 }
-
-// Remove the redundant clean task definition
-// tasks.register("clean", Delete) {
-//     delete rootProject.buildDir
-// }
-
-apply plugin: 'com.android.application'
-apply plugin: 'com.google.gms.google-services'

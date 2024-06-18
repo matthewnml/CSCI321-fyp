@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class AccountPage extends StatefulWidget {
   final String userId;
 
-  const AccountPage({Key? key, required this.userId}) : super(key: key);
+  const AccountPage({super.key, required this.userId});
 
   @override
   _AccountPageState createState() => _AccountPageState();
@@ -52,7 +52,7 @@ class _AccountPageState extends State<AccountPage> {
         'role': _roleController.text,
       }, SetOptions(merge: true));
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Profile updated successfully')),
+        const SnackBar(content: Text('Profile updated successfully')),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -84,7 +84,7 @@ class _AccountPageState extends State<AccountPage> {
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            CircleAvatar(
+            const CircleAvatar(
               radius: 50,
               backgroundImage: AssetImage('assets/profile_picture.jpg'),
             ),

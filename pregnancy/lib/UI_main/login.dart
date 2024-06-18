@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../UI_1/home.dart';
 import 'register.dart'; // Import the RegisterPage class
 
 class LoginPage extends StatefulWidget {

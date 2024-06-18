@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CountdownDays extends StatefulWidget {
-  const CountdownDays({Key? key}) : super(key: key);
+  const CountdownDays({super.key});
 
   @override
   _CountdownDaysState createState() => _CountdownDaysState();
@@ -46,13 +46,13 @@ class _CountdownDaysState extends State<CountdownDays> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'Countdown:',
             style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black),
           ),
           Text(
             '$_remainingDays days',
-            style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black),
+            style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black),
           ),
         ],
       ),

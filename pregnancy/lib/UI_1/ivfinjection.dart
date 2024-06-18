@@ -4,8 +4,7 @@ import 'package:table_calendar/table_calendar.dart';
 class IVFInjectionTrackerPage extends StatefulWidget {
   final String userId;
 
-  const IVFInjectionTrackerPage({Key? key, required this.userId})
-      : super(key: key);
+  const IVFInjectionTrackerPage({super.key, required this.userId});
 
   @override
   _IVFInjectionTrackerPageState createState() =>
@@ -16,7 +15,7 @@ class _IVFInjectionTrackerPageState extends State<IVFInjectionTrackerPage> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
-  Map<DateTime, List<String>> _injections = {};
+  final Map<DateTime, List<String>> _injections = {};
 
   final TextEditingController _controller = TextEditingController();
 
@@ -65,10 +64,10 @@ class _IVFInjectionTrackerPageState extends State<IVFInjectionTrackerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('IVF Injection Tracker'),
+        title: const Text('IVF Injection Tracker'),
         actions: [
           IconButton(
-            icon: Icon(Icons.calendar_today),
+            icon: const Icon(Icons.calendar_today),
             onPressed: () => _selectDate(context),
           ),
         ],
@@ -106,7 +105,7 @@ class _IVFInjectionTrackerPageState extends State<IVFInjectionTrackerPage> {
               decoration: InputDecoration(
                 labelText: 'Enter Injection Details',
                 suffixIcon: IconButton(
-                  icon: Icon(Icons.add),
+                  icon: const Icon(Icons.add),
                   onPressed: _addInjection,
                 ),
               ),
@@ -121,7 +120,7 @@ class _IVFInjectionTrackerPageState extends State<IVFInjectionTrackerPage> {
                   title: Text(_getInjectionsForDay(
                       _selectedDay ?? DateTime.now())[index]),
                   trailing: IconButton(
-                    icon: Icon(Icons.delete),
+                    icon: const Icon(Icons.delete),
                     onPressed: () => _removeInjection(_selectedDay!, index),
                   ),
                 );

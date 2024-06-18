@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '/UI_main/login.dart'; // Import the login.dart file
+// Import the login.dart file
 import '/UI_4/account.dart'; // Import the login.dart file
-import '/UI_4/notifications.dart'; // Import the login.dart file
-import '/UI_4/privacy_security.dart'; // Import the login.dart file
+// Import the login.dart file
+// Import the login.dart file
 
 class SettingsScreen extends StatelessWidget {
   final String userId;
