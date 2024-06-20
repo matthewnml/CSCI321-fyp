@@ -4,7 +4,8 @@ import 'package:intl/intl.dart';
 class DueDateCalculatorPage extends StatefulWidget {
   final String userId;
 
-  const DueDateCalculatorPage({super.key, required this.userId});
+  const DueDateCalculatorPage({Key? key, required this.userId})
+      : super(key: key);
 
   @override
   _DueDateCalculatorPageState createState() => _DueDateCalculatorPageState();
@@ -17,9 +18,9 @@ class _DueDateCalculatorPageState extends State<DueDateCalculatorPage> {
   final TextEditingController _conceptionController = TextEditingController();
   final TextEditingController _ultrasoundController = TextEditingController();
   final TextEditingController _ultrasoundWeeksController =
-      TextEditingController();
+  TextEditingController();
   final TextEditingController _ultrasoundDaysController =
-      TextEditingController();
+  TextEditingController();
   DateTime? _estimatedDueDate;
   bool _calculating = false;
   String _selectedMethod = 'Last Period';
@@ -59,12 +60,15 @@ class _DueDateCalculatorPageState extends State<DueDateCalculatorPage> {
         estimatedDueDate = ivfDate.add(Duration(days: embryoAgeDays));
       } else if (_selectedMethod == 'Conception') {
         DateTime conceptionDate = DateTime.parse(_conceptionController.text);
-        estimatedDueDate = conceptionDate.add(const Duration(days: 266));
+        estimatedDueDate = conceptionDate.add(Duration(days: 266));
       } else if (_selectedMethod == 'Ultrasound') {
         DateTime ultrasoundDate = DateTime.parse(_ultrasoundController.text);
         int ultrasoundWeeks = int.parse(_ultrasoundWeeksController.text);
         int ultrasoundDays = int.parse(_ultrasoundDaysController.text);
         int totalDays = (ultrasoundWeeks * 7) + ultrasoundDays;
+        if (ultrasoundWeeks < 1 || ultrasoundWeeks > 42 || ultrasoundDays < 0 || ultrasoundDays > 6) {
+          throw Exception('Ultrasound weeks must be between 1 and 42, and days between 0 and 6.');
+        }
         estimatedDueDate = ultrasoundDate.add(Duration(days: 280 - totalDays));
       }
 
@@ -92,7 +96,7 @@ class _DueDateCalculatorPageState extends State<DueDateCalculatorPage> {
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12.0),
       ),
-      contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
+      contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
     );
   }
 
@@ -100,10 +104,10 @@ class _DueDateCalculatorPageState extends State<DueDateCalculatorPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Due Date Calculator'),
+        title: Text('Due Date Calculator'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -122,28 +126,30 @@ class _DueDateCalculatorPageState extends State<DueDateCalculatorPage> {
                 );
               }).toList(),
             ),
-            const SizedBox(height: 16.0),
+            SizedBox(height: 16.0),
             if (_selectedMethod == 'Last Period') ...[
               TextField(
                 controller: _lastPeriodController,
                 decoration:
-                    _inputDecoration('First day of last period (YYYY-MM-DD)'),
+                _inputDecoration('First day of last period (YYYY-MM-DD)'),
+                keyboardType: TextInputType.datetime,
               ),
-              const SizedBox(height: 16.0),
+              SizedBox(height: 16.0),
               TextField(
                 controller: _cycleLengthController,
                 decoration: _inputDecoration(
-                    'Average length of menstrual cycle (days)'),
+                    'Average length of menstrual cycle days (21-35)'),
                 keyboardType: TextInputType.number,
               ),
             ] else if (_selectedMethod == 'IVF') ...[
               TextField(
                 controller: _ivfController,
                 decoration: _inputDecoration('IVF Transfer Date (YYYY-MM-DD)'),
+                keyboardType: TextInputType.datetime,
               ),
-              const SizedBox(height: 16.0),
-              const Padding(
-                padding: EdgeInsets.only(top: 16.0),
+              SizedBox(height: 16.0),
+              Padding(
+                padding: const EdgeInsets.only(top: 16.0),
                 child: Text('Embryo Age:'),
               ),
               Row(
@@ -182,35 +188,41 @@ class _DueDateCalculatorPageState extends State<DueDateCalculatorPage> {
               TextField(
                 controller: _conceptionController,
                 decoration: _inputDecoration('Conception Date (YYYY-MM-DD)'),
+                keyboardType: TextInputType.datetime,
               ),
             ] else if (_selectedMethod == 'Ultrasound') ...[
               TextField(
                 controller: _ultrasoundController,
                 decoration: _inputDecoration('Ultrasound Date (YYYY-MM-DD)'),
+                keyboardType: TextInputType.datetime,
               ),
-              const SizedBox(height: 16.0),
+              SizedBox(height: 16.0),
               TextField(
                 controller: _ultrasoundWeeksController,
-                decoration: _inputDecoration('Ultrasound Weeks'),
+                decoration: _inputDecoration(
+                    'Ultrasound Weeks (1-42)'),
+                keyboardType: TextInputType.number,
               ),
-              const SizedBox(height: 16.0),
+              SizedBox(height: 16.0),
               TextField(
                 controller: _ultrasoundDaysController,
-                decoration: _inputDecoration('Ultrasound Days'),
+                decoration: _inputDecoration(
+                    'Ultrasound Days (0-6)'),
+                keyboardType: TextInputType.number,
               ),
             ],
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             ElevatedButton(
               onPressed: _calculating ? null : _calculateDueDate,
               child: _calculating
-                  ? const CircularProgressIndicator()
-                  : const Text('Calculate Due Date'),
+                  ? CircularProgressIndicator()
+                  : Text('Calculate Due Date'),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             if (_estimatedDueDate != null)
               Text(
                 'Estimated Due Date: ${DateFormat('yyyy-MM-dd').format(_estimatedDueDate!)}',
-                style: const TextStyle(fontSize: 16),
+                style: TextStyle(fontSize: 16),
               ),
           ],
         ),
@@ -218,3 +230,7 @@ class _DueDateCalculatorPageState extends State<DueDateCalculatorPage> {
     );
   }
 }
+
+void main() => runApp(MaterialApp(
+  home: DueDateCalculatorPage(userId: 'user123'),
+));

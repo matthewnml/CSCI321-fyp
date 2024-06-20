@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:table_calendar/table_calendar.dart';
+import 'package:intl/intl.dart';
 
 class IVFInjectionTrackerPage extends StatefulWidget {
   final String userId;
@@ -7,124 +7,170 @@ class IVFInjectionTrackerPage extends StatefulWidget {
   const IVFInjectionTrackerPage({super.key, required this.userId});
 
   @override
-  _IVFInjectionTrackerPageState createState() =>
-      _IVFInjectionTrackerPageState();
+  _IVFInjectionTrackerPageState createState() => _IVFInjectionTrackerPageState();
 }
 
 class _IVFInjectionTrackerPageState extends State<IVFInjectionTrackerPage> {
-  CalendarFormat _calendarFormat = CalendarFormat.month;
-  DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay;
-  final Map<DateTime, List<String>> _injections = {};
+  final List<Map<String, dynamic>> _injections = [];
+  final TextEditingController _dateController = TextEditingController();
+  final TextEditingController _medicationController = TextEditingController();
+  final TextEditingController _planController = TextEditingController();
+  final TextEditingController _notesController = TextEditingController();
+  int? _editingIndex;
 
-  final TextEditingController _controller = TextEditingController();
-
-  void _addInjection() {
-    if (_selectedDay != null && _controller.text.isNotEmpty) {
-      setState(() {
-        if (_injections[_selectedDay!] == null) {
-          _injections[_selectedDay!] = [];
-        }
-        _injections[_selectedDay!]!.add(_controller.text);
-        _controller.clear();
-      });
+  bool _isValidDate(String input) {
+    try {
+      DateFormat('MM/dd/yyyy').parseStrict(input);
+      return true;
+    } catch (e) {
+      return false;
     }
   }
 
-  void _removeInjection(DateTime day, int index) {
+  void _saveInjection() {
+    if (!_isValidDate(_dateController.text)) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Invalid Date'),
+          content: Text('Please enter the date in MM/DD/YYYY format.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('OK'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
     setState(() {
-      _injections[day]!.removeAt(index);
-      if (_injections[day]!.isEmpty) {
-        _injections.remove(day);
+      final newInjection = {
+        'date': _dateController.text,
+        'medication': _medicationController.text,
+        'plan': _planController.text,
+        'notes': _notesController.text,
+      };
+
+      if (_editingIndex != null) {
+        _injections[_editingIndex!] = newInjection;
+        _editingIndex = null;
+      } else {
+        _injections.add(newInjection);
       }
+
+      _dateController.clear();
+      _medicationController.clear();
+      _planController.clear();
+      _notesController.clear();
     });
   }
 
-  List<String> _getInjectionsForDay(DateTime day) {
-    return _injections[day] ?? [];
+  void _editInjection(int index) {
+    setState(() {
+      _dateController.text = _injections[index]['date'];
+      _medicationController.text = _injections[index]['medication'];
+      _planController.text = _injections[index]['plan'];
+      _notesController.text = _injections[index]['notes'];
+      _editingIndex = index;
+    });
   }
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _focusedDay,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2030),
-      initialDatePickerMode: DatePickerMode.year, // Opens the year picker first
+  void _removeInjection(int index) {
+    setState(() {
+      _injections.removeAt(index);
+    });
+  }
+
+  Widget _buildTable() {
+    return DataTable(
+      columns: [
+        DataColumn(label: Text('Date')),
+        DataColumn(label: Text('Medication')),
+        DataColumn(label: Text('Plan')),
+        DataColumn(label: Text('Notes')),
+        DataColumn(label: Text('Actions')),
+      ],
+      rows: List<DataRow>.generate(
+        _injections.length,
+        (index) => DataRow(
+          cells: [
+            DataCell(Text(_injections[index]['date'])),
+            DataCell(Text(_injections[index]['medication'])),
+            DataCell(Text(_injections[index]['plan'])),
+            DataCell(Text(_injections[index]['notes'])),
+            DataCell(Row(
+              children: [
+                IconButton(
+                  icon: Icon(Icons.edit),
+                  onPressed: () => _editInjection(index),
+                ),
+                IconButton(
+                  icon: Icon(Icons.delete),
+                  onPressed: () => _removeInjection(index),
+                ),
+              ],
+            )),
+          ],
+        ),
+      ),
     );
-    if (picked != null) {
-      setState(() {
-        _focusedDay = DateTime(picked.year, picked.month,
-            1); // Focus on the first day of the selected month
-      });
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('IVF Injection Tracker'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.calendar_today),
-            onPressed: () => _selectDate(context),
-          ),
-        ],
+        title: Text('IVF Injection Tracker'),
       ),
       body: Column(
         children: [
-          TableCalendar(
-            firstDay: DateTime.utc(2020, 1, 1),
-            lastDay: DateTime.utc(2030, 12, 31),
-            focusedDay: _focusedDay,
-            calendarFormat: _calendarFormat,
-            selectedDayPredicate: (day) {
-              return isSameDay(_selectedDay, day);
-            },
-            onDaySelected: (selectedDay, focusedDay) {
-              setState(() {
-                _selectedDay = selectedDay;
-                _focusedDay = focusedDay; // update `_focusedDay` here as well
-              });
-            },
-            onFormatChanged: (format) {
-              setState(() {
-                _calendarFormat = format;
-              });
-            },
-            onPageChanged: (focusedDay) {
-              _focusedDay = focusedDay;
-            },
-            eventLoader: _getInjectionsForDay,
-          ),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: _controller,
-              decoration: InputDecoration(
-                labelText: 'Enter Injection Details',
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.add),
-                  onPressed: _addInjection,
+            child: Column(
+              children: [
+                TextField(
+                  controller: _dateController,
+                  decoration: InputDecoration(
+                    labelText: 'Date (MM/DD/YYYY)',
+                    hintText: 'e.g., 05/26/2024',
+                  ),
+                  keyboardType: TextInputType.datetime,
                 ),
-              ),
+                TextField(
+                  controller: _medicationController,
+                  decoration: InputDecoration(
+                    labelText: 'Medication',
+                    hintText: 'e.g., Follistim',
+                  ),
+                ),
+                TextField(
+                  controller: _planController,
+                  decoration: InputDecoration(
+                    labelText: 'Plan',
+                    hintText: 'e.g., Daily injection at 8 AM',
+                  ),
+                ),
+                TextField(
+                  controller: _notesController,
+                  decoration: InputDecoration(
+                    labelText: 'Notes',
+                    hintText: 'e.g., Mild side effects noted',
+                  ),
+                ),
+                SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: _saveInjection,
+                  child: Text('Save Injection'),
+                ),
+              ],
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount:
-                  _getInjectionsForDay(_selectedDay ?? DateTime.now()).length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(_getInjectionsForDay(
-                      _selectedDay ?? DateTime.now())[index]),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () => _removeInjection(_selectedDay!, index),
-                  ),
-                );
-              },
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: _buildTable(),
             ),
           ),
         ],

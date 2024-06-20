@@ -9,7 +9,7 @@ class CountdownDays extends StatefulWidget {
 }
 
 class _CountdownDaysState extends State<CountdownDays> {
-  int _remainingDays = 0; // Initialize _remainingDays to a default value
+  int _remainingDays = 242; // Initialize _remainingDays to a default value
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 

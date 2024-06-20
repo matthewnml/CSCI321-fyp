@@ -40,6 +40,7 @@ dependencies:
   cupertino_icons: ^1.0.6
 
   intl: any
+  url_launcher: ^6.3.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -63,7 +64,7 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/bby.jpg 
+    - assets/logo.png
     - assets/contractiontimer.png 
     - assets/duedatecalculator.png 
     - assets/ivfinjection.png 

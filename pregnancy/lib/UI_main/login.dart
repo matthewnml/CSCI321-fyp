@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../UI_1/home.dart';
 import 'register.dart'; // Import the RegisterPage class
 
 class LoginPage extends StatefulWidget {
@@ -55,8 +56,11 @@ class _LoginPageState extends State<LoginPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Image.asset(
-                'assets/bby.jpg'), // Replace with your actual image path
+            SizedBox(
+              width: 100, // Set your desired width
+              height: 100, // Set your desired height
+              child: Image.asset('assets/logo.png'), // Replace with your actual image path
+            ),
             const SizedBox(height: 20),
             TextField(
               controller: _usernameController,
