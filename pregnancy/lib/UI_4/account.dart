@@ -17,6 +17,7 @@ class _AccountPageState extends State<AccountPage> {
   final TextEditingController _dobController = TextEditingController();
   final TextEditingController _roleController = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  bool _isLoading = true; // Add a loading state
 
   @override
   void initState() {
@@ -40,6 +41,10 @@ class _AccountPageState extends State<AccountPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to load user data: $e')),
       );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -80,23 +85,25 @@ class _AccountPageState extends State<AccountPage> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            const CircleAvatar(
-              radius: 50,
-              backgroundImage: AssetImage('assets/profile_picture.jpg'),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ListView(
+                children: [
+                  const CircleAvatar(
+                    radius: 50,
+                    backgroundImage: AssetImage('assets/profile_picture.jpg'),
+                  ),
+                  const SizedBox(height: 16),
+                  buildTextField("Full Name", _nameController),
+                  buildTextField("E-Mail", _emailController),
+                  buildTextField("Date of Birth", _dobController),
+                  buildTextField("Role", _roleController),
+                  const SizedBox(height: 16),
+                ],
+              ),
             ),
-            const SizedBox(height: 16),
-            buildTextField("Full Name", _nameController),
-            buildTextField("E-Mail", _emailController),
-            buildTextField("Date of Birth", _dobController),
-            buildTextField("Role", _roleController),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
     );
   }
 

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-// Import the login.dart file
-import '/UI_4/account.dart'; // Import the login.dart file
-// Import the login.dart file
-// Import the login.dart file
+import '/UI_4/account.dart';
+import 'emergency_contact.dart'; // Import the EmergencyContactPage
+import '/UI_main/password_reset.dart'; // Import the PasswordResetPage
 
 class SettingsScreen extends StatelessWidget {
   final String userId;
@@ -45,6 +44,18 @@ class SettingsScreen extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.contact_mail),
+            title: const Text('Emergency Contact'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const EmergencyContactPage(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.contact_mail),
             title: const Text('Contact Us'),
             onTap: () {
               // Handle tap
@@ -55,6 +66,18 @@ class SettingsScreen extends StatelessWidget {
             title: const Text('Terms & Conditions'),
             onTap: () {
               Navigator.pushNamed(context, '/terms_conditions');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.vpn_key),
+            title: const Text('Reset Password'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PasswordResetPage(),
+                ),
+              );
             },
           ),
           Padding(

@@ -7,7 +7,7 @@ class GuidePage extends StatelessWidget {
   final String title;
   final String url;
 
-  const GuidePage({required this.title, required this.url, Key? key}) : super(key: key);
+  const GuidePage({required this.title, required this.url, super.key});
 
   @override
   Widget build(BuildContext context) {

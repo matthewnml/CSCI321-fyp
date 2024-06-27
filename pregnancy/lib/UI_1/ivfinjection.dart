@@ -32,12 +32,12 @@ class _IVFInjectionTrackerPageState extends State<IVFInjectionTrackerPage> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Invalid Date'),
-          content: Text('Please enter the date in MM/DD/YYYY format.'),
+          title: const Text('Invalid Date'),
+          content: const Text('Please enter the date in MM/DD/YYYY format.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text('OK'),
+              child: const Text('OK'),
             ),
           ],
         ),
@@ -85,7 +85,7 @@ class _IVFInjectionTrackerPageState extends State<IVFInjectionTrackerPage> {
 
   Widget _buildTable() {
     return DataTable(
-      columns: [
+      columns: const [
         DataColumn(label: Text('Date')),
         DataColumn(label: Text('Medication')),
         DataColumn(label: Text('Plan')),
@@ -103,11 +103,11 @@ class _IVFInjectionTrackerPageState extends State<IVFInjectionTrackerPage> {
             DataCell(Row(
               children: [
                 IconButton(
-                  icon: Icon(Icons.edit),
+                  icon: const Icon(Icons.edit),
                   onPressed: () => _editInjection(index),
                 ),
                 IconButton(
-                  icon: Icon(Icons.delete),
+                  icon: const Icon(Icons.delete),
                   onPressed: () => _removeInjection(index),
                 ),
               ],
@@ -122,7 +122,7 @@ class _IVFInjectionTrackerPageState extends State<IVFInjectionTrackerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('IVF Injection Tracker'),
+        title: const Text('IVF Injection Tracker'),
       ),
       body: Column(
         children: [
@@ -132,7 +132,7 @@ class _IVFInjectionTrackerPageState extends State<IVFInjectionTrackerPage> {
               children: [
                 TextField(
                   controller: _dateController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Date (MM/DD/YYYY)',
                     hintText: 'e.g., 05/26/2024',
                   ),
@@ -140,29 +140,29 @@ class _IVFInjectionTrackerPageState extends State<IVFInjectionTrackerPage> {
                 ),
                 TextField(
                   controller: _medicationController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Medication',
                     hintText: 'e.g., Follistim',
                   ),
                 ),
                 TextField(
                   controller: _planController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Plan',
                     hintText: 'e.g., Daily injection at 8 AM',
                   ),
                 ),
                 TextField(
                   controller: _notesController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Notes',
                     hintText: 'e.g., Mild side effects noted',
                   ),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: _saveInjection,
-                  child: Text('Save Injection'),
+                  child: const Text('Save Injection'),
                 ),
               ],
             ),

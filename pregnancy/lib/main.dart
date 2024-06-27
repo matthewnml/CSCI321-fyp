@@ -10,6 +10,9 @@ import 'UI_4/setting.dart'; // Import the setting.dart file
 import 'UI_4/account.dart'; // Import the account.dart file
 import 'UI_4/notifications.dart'; // Import the notifications.dart file
 import 'UI_4/privacy_security.dart'; // Import the privacy_security.dart file
+import 'UI_4/emergency_contact.dart'; // Import the emergency_contact.dart file
+import 'UI_main/password_reset.dart'; // Import the password_reset.dart file
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,10 +46,11 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginPage(),
         '/calendar': (context) => const CalendarScreen(),
         '/health': (context) => const HealthScreen(),
-        '/setting': (context) => const SettingsScreen(
-            userId: ''), // Temporary userId for settings screen
+        '/setting': (context) => const SettingsScreen(userId: ''), // Temporary userId for settings screen
         '/notifications': (context) => const NotificationsPage(),
         '/terms_conditions': (context) => const TermsAndConditionsPage(),
+        '/emergency-contact': (context) => const EmergencyContactPage(), // Add this route
+        '/password-reset': (context) => const PasswordResetPage(), // Add password reset route
       },
       // Routes that require userId
       onGenerateRoute: (settings) {

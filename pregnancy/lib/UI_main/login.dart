@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../UI_1/home.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'register.dart'; // Import the RegisterPage class
+import 'password_reset.dart'; // Import the PasswordResetPage
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -11,30 +12,36 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   void _login() async {
     try {
-      QuerySnapshot result = await _firestore
-          .collection('user_accounts')
-          .where('user_id', isEqualTo: _usernameController.text)
-          .where('password', isEqualTo: _passwordController.text)
-          .get();
+      // Sign in with Firebase Authentication
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
 
-      if (result.docs.isNotEmpty) {
+      // Get the UID of the authenticated user
+      String uid = userCredential.user!.uid;
+
+      // Fetch user data from Firestore using the UID
+      DocumentSnapshot userDoc = await _firestore.collection('user_accounts').doc(uid).get();
+
+      if (userDoc.exists) {
         // User found, navigate to HomePage with user ID
-        String userId = result.docs.first.get('user_id');
         Navigator.pushReplacementNamed(
           context,
           '/home',
-          arguments: {'userId': userId},
+          arguments: {'userId': uid},
         );
       } else {
-        // Show error message
+        // Show error message if user document does not exist
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid username or password')),
+          const SnackBar(content: Text('User not found in database')),
         );
       }
     } catch (e) {
@@ -63,9 +70,9 @@ class _LoginPageState extends State<LoginPage> {
             ),
             const SizedBox(height: 20),
             TextField(
-              controller: _usernameController,
+              controller: _emailController,
               decoration: const InputDecoration(
-                labelText: 'Username',
+                labelText: 'Email',
                 border: OutlineInputBorder(),
               ),
             ),
@@ -81,8 +88,10 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(height: 20),
             TextButton(
               onPressed: () {
-                // Implement what happens when users forget their password
-                print('Forgot Password Clicked');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PasswordResetPage()),
+                );
               },
               child: const Text('Forgot Password?'),
             ),

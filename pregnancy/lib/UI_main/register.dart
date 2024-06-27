@@ -1,5 +1,7 @@
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pregnancy/UI_main/login.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -10,26 +12,32 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   String _selectedRole = 'User'; // Default role
 
   void _register() async {
     try {
-      await _firestore.collection('user_accounts').add({
-        'user_id': _usernameController.text,
+      // Create user with email and password
+      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+
+      // Add additional user information to Firestore
+      await _firestore.collection('user_accounts').doc(userCredential.user!.uid).set({
+        'email': _emailController.text,
         'password': _passwordController.text,
         'full_name': _fullNameController.text,
         'date_of_birth': _dobController.text,
-        'email': _emailController.text,
         'role': _selectedRole,
       });
 
-      // Navigate to the loginPage after successful registration
+      // Navigate to the login page after successful registration
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const LoginPage()),
@@ -55,9 +63,9 @@ class _RegisterPageState extends State<RegisterPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               TextField(
-                controller: _usernameController,
+                controller: _emailController,
                 decoration: const InputDecoration(
-                  labelText: 'Username',
+                  labelText: 'Email',
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -84,14 +92,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 decoration: const InputDecoration(
                   labelText: 'Date of Birth',
                   hintText: 'MM/DD/YYYY',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
                   border: OutlineInputBorder(),
                 ),
               ),
