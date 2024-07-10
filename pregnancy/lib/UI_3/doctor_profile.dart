@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pregnancy/UI_3/appointment_details.dart'; // Import the appointment_details.dart file
 
 class DoctorProfileScreen extends StatelessWidget {
   const DoctorProfileScreen({super.key});
