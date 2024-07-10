@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pregnancy/UI_3/appointment_details.dart'; // Import the appointment_details.dart file
 
 class DoctorProfileScreen extends StatelessWidget {
   const DoctorProfileScreen({super.key});
@@ -8,7 +7,7 @@ class DoctorProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Book with Doctor'),
+        title: const Text('Find A Doctor'),
         backgroundColor: Colors.pink[50],
         elevation: 0,
         leading: IconButton(
@@ -134,12 +133,7 @@ class DoctorProfileScreen extends StatelessWidget {
             Center(
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AppointmentDetailsScreen(),
-                    ),
-                  );
+                  // Removed navigation to AppointmentDetailsScreen
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFB9CAD7), // Updated color
@@ -149,7 +143,7 @@ class DoctorProfileScreen extends StatelessWidget {
                   ),
                 ),
                 child: const Text(
-                  'Book Appointment',
+                  'Contact Now',
                   style: TextStyle(fontSize: 18, color: Colors.black), // Updated text color
                 ),
               ),
@@ -158,41 +152,6 @@ class DoctorProfileScreen extends StatelessWidget {
         ),
       ),
       backgroundColor: const Color(0xFFfdebeb),
-      bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Colors.pink,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: 'Calendar',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.health_and_safety),
-            label: 'Health',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
-        currentIndex: 2, // Set the current index to 'Health'
-        onTap: (int index) {
-          // Handle tab navigation
-          if (index == 0) {
-            Navigator.pushNamed(context, '/home');
-          } else if (index == 1) {
-            Navigator.pushNamed(context, '/calendar');
-          } else if (index == 2) {
-            Navigator.pushNamed(context, '/health');
-          } else if (index == 3) {
-            Navigator.pushNamed(context, '/settings');
-          }
-        },
-      ),
     );
   }
 }
