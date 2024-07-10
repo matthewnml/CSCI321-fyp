@@ -18,7 +18,7 @@ class BookWithDoctorScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Book with Doctor'),
+        title: const Text('Fina A Doctor'),
         backgroundColor: Colors.pink[50],
         elevation: 0,
         leading: IconButton(
