@@ -1,25 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:pregnancy/UI_3/consult_platform.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'chat_screen.dart';
 
 class ChatWithSpecialistScreen extends StatelessWidget {
   const ChatWithSpecialistScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final List<ChatPreview> chatPreviews = [
-      ChatPreview(
-        specialistName: 'Specialist 1',
-        previewText: 'Chat preview ..........................................................',
-        date: '08/05/2024',
-        isWaitingForReply: true,
-      ),
-      ChatPreview(
-        specialistName: 'Specialist 2',
-        previewText: 'Chat preview ..........................................................',
-        date: '07/05/2024',
-        isWaitingForReply: false,
-      ),
-    ];
+    final userId = FirebaseAuth.instance.currentUser?.uid;
 
     return Scaffold(
       appBar: AppBar(
@@ -41,109 +30,54 @@ class ChatWithSpecialistScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: chatPreviews.length,
-              itemBuilder: (context, index) {
-                final chat = chatPreviews[index];
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ListTile(
-                      leading: const CircleAvatar(
-                        backgroundColor: Colors.grey,
-                        child: Icon(Icons.person, color: Colors.white),
-                      ),
-                      title: Text(chat.specialistName),
-                      subtitle: Text(chat.previewText),
-                      trailing: Text(chat.date),
-                    ),
-                    if (chat.isWaitingForReply)
-                      const Text('Waiting for Reply'),
-                    const SizedBox(height: 16),
-                  ],
-                );
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ChatScreen(),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFB9CAD7),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text(
-                'Chat Now',
-                style: TextStyle(color: Colors.black),
-              ),
-            ),
-          ),
-        ],
-      ),
-      backgroundColor: const Color(0xFFfdebeb),
-      bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Colors.pink,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: 'Calendar',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.health_and_safety),
-            label: 'Health',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
-        currentIndex: 2, // Set the current index to 'Health'
-        onTap: (int index) {
-          // Handle tab navigation
-          if (index == 0) {
-            Navigator.pushNamed(context, '/home');
-          } else if (index == 1) {
-            Navigator.pushNamed(context, '/calendar');
-          } else if (index == 2) {
-            Navigator.pushNamed(context, '/health');
-          } else if (index == 3) {
-            Navigator.pushNamed(context, '/settings');
+      body: StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection('chats')
+            .where('participants', arrayContains: userId)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
           }
+
+          final chats = snapshot.data?.docs ?? [];
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(16.0),
+            itemCount: chats.length,
+            itemBuilder: (context, index) {
+              final chat = chats[index];
+              final otherParticipant = (chat['participants'] as List)
+                  .firstWhere((participant) => participant != userId);
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ListTile(
+                    leading: const CircleAvatar(
+                      backgroundColor: Colors.grey,
+                      child: Icon(Icons.person, color: Colors.white),
+                    ),
+                    title: Text(otherParticipant),
+                    subtitle: Text(chat['lastMessage']),
+                    trailing: Text(chat['lastUpdated'].toDate().toString()),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChatScreen(chatId: chat.id),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              );
+            },
+          );
         },
       ),
+      backgroundColor: const Color(0xFFfdebeb),
     );
   }
-}
-
-class ChatPreview {
-  final String specialistName;
-  final String previewText;
-  final String date;
-  final bool isWaitingForReply;
-
-  ChatPreview({
-    required this.specialistName,
-    required this.previewText,
-    required this.date,
-    required this.isWaitingForReply,
-  });
 }
