@@ -95,41 +95,6 @@ class ChatWithSpecialistScreen extends StatelessWidget {
         ],
       ),
       backgroundColor: const Color(0xFFfdebeb),
-      bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Colors.pink,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: 'Calendar',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.health_and_safety),
-            label: 'Health',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
-        currentIndex: 2, // Set the current index to 'Health'
-        onTap: (int index) {
-          // Handle tab navigation
-          if (index == 0) {
-            Navigator.pushNamed(context, '/home');
-          } else if (index == 1) {
-            Navigator.pushNamed(context, '/calendar');
-          } else if (index == 2) {
-            Navigator.pushNamed(context, '/health');
-          } else if (index == 3) {
-            Navigator.pushNamed(context, '/settings');
-          }
-        },
-      ),
     );
   }
 }
