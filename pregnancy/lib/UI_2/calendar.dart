@@ -173,13 +173,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
               markerBuilder: (context, date, events) {
                 if (_noteDates.contains(DateTime(date.year, date.month, date.day))) {
                   return Positioned(
-                    right: 1,
                     bottom: 1,
                     child: Container(
                       width: 8,
                       height: 8,
                       decoration: const BoxDecoration(
-                        color: Colors.red,
+                        color: Colors.black,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -198,8 +197,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       _buildExpandableTile(context, 'Pregnancy Symptoms'),
                       _buildExpandableTile(context, 'Weight'),
                       _buildExpandableTile(context, 'Activity'),
-                      _buildExpandableTile(context, 'Fetal Movement'),
-                      _buildExpandableTile(context, 'Kegels'),
+                      _buildExpandableTile(context, 'Appointments'),
+                      _buildExpandableTile(context, 'Medication'),
                       const SizedBox(height: 16),
                       _buildNotesSection(),
                     ],
@@ -244,12 +243,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 title: Text(note['title']),
                 subtitle: Text(note['content']),
                 trailing: IconButton(
-                  icon: Icon(Icons.delete),
+                  icon: const Icon(Icons.delete),
                   onPressed: () {
                     _deleteNote(note['id'], dateOnly);
                   },
                 ),
-              )).toList()
+              ))
         else
           const Padding(
             padding: EdgeInsets.all(8.0),
@@ -260,21 +259,21 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   void _showDialog(BuildContext context, String title) {
-    TextEditingController _noteController = TextEditingController();
+    TextEditingController noteController = TextEditingController();
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(title),
           content: TextField(
-            controller: _noteController,
+            controller: noteController,
             decoration: InputDecoration(hintText: "Enter $title"),
           ),
           actions: <Widget>[
             ElevatedButton(
               child: const Text("Save"),
               onPressed: () {
-                _saveNote(title, _noteController.text);
+                _saveNote(title, noteController.text);
                 Navigator.of(context).pop();
               },
             ),

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Import for storing lockout data
 import 'register.dart'; // Import the RegisterPage class
 import 'password_reset.dart'; // Import the PasswordResetPage
+import 'dart:async'; // Import for Timer
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,8 +18,73 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  int _failedAttempts = 0;
+  bool _isLockedOut = false;
+  DateTime? _lockoutEndTime;
+  Timer? _lockoutTimer;
+  String _lockoutTimeRemaining = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLockoutStatus();
+  }
+
+  @override
+  void dispose() {
+    _lockoutTimer?.cancel();
+    super.dispose();
+  }
+
+  void _checkLockoutStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final lockoutEndTimestamp = prefs.getInt('lockoutEndTime');
+    if (lockoutEndTimestamp != null) {
+      _lockoutEndTime = DateTime.fromMillisecondsSinceEpoch(lockoutEndTimestamp);
+      if (_lockoutEndTime!.isAfter(DateTime.now())) {
+        setState(() {
+          _isLockedOut = true;
+        });
+        _startLockoutTimer();
+      } else {
+        prefs.remove('lockoutEndTime');
+      }
+    }
+  }
+
+  void _startLockoutTimer() {
+    final duration = _lockoutEndTime!.difference(DateTime.now());
+    _lockoutTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      final remainingDuration = _lockoutEndTime!.difference(DateTime.now());
+      if (remainingDuration.isNegative) {
+        timer.cancel();
+        setState(() {
+          _isLockedOut = false;
+          _failedAttempts = 0;
+          _lockoutTimeRemaining = '';
+        });
+      } else {
+        setState(() {
+          _lockoutTimeRemaining = _formatDuration(remainingDuration);
+        });
+      }
+    });
+  }
+
+  String _formatDuration(Duration duration) {
+    final minutes = duration.inMinutes;
+    final seconds = duration.inSeconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
 
   void _login() async {
+    if (_isLockedOut) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Too many failed attempts. Please try again later. $_lockoutTimeRemaining remaining')),
+      );
+      return;
+    }
+
     try {
       // Sign in with Firebase Authentication
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
@@ -45,11 +112,26 @@ class _LoginPageState extends State<LoginPage> {
         );
       }
     } catch (e) {
+      _failedAttempts++;
+      if (_failedAttempts >= 3) {
+        _lockoutUser();
+      }
       // Show error message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(e.toString())),
       );
     }
+  }
+
+  void _lockoutUser() async {
+    final lockoutDuration = Duration(minutes: 2);
+    _lockoutEndTime = DateTime.now().add(lockoutDuration);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('lockoutEndTime', _lockoutEndTime!.millisecondsSinceEpoch);
+    setState(() {
+      _isLockedOut = true;
+    });
+    _startLockoutTimer();
   }
 
   @override
@@ -95,9 +177,14 @@ class _LoginPageState extends State<LoginPage> {
               },
               child: const Text('Forgot Password?'),
             ),
+            if (_isLockedOut) ...[
+              const SizedBox(height: 10),
+              Text('Too many failed attempts. Try again in $_lockoutTimeRemaining.',
+                  style: const TextStyle(color: Colors.red)),
+            ],
             const SizedBox(height: 10),
             ElevatedButton(
-              onPressed: _login,
+              onPressed: _isLockedOut ? null : _login,
               child: const Text('Login'),
             ),
             const SizedBox(height: 10),
