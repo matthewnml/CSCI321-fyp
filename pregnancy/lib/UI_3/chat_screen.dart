@@ -14,24 +14,35 @@ class ChatScreen extends StatelessWidget {
     final TextEditingController _controller = TextEditingController();
     final ScrollController _scrollController = ScrollController();
 
-    Future<void> _sendMessage({required String text}) async {
-      final userId = FirebaseAuth.instance.currentUser?.uid;
-
-      if (userId == null) return;
-
+    Future<String> _getSenderName(String userId) async {
       String senderName = userName;
-
       if (isSpecialist) {
         // Retrieve specialist name from Firestore
         final specialistDoc = await FirebaseFirestore.instance
             .collection('specialists')
             .doc(userId)
             .get();
-
         if (specialistDoc.exists) {
           senderName = specialistDoc['name'] ?? 'Unknown Specialist';
         }
+      } else {
+        // Retrieve user name from Firestore
+        final userDoc = await FirebaseFirestore.instance
+            .collection('user_accounts')
+            .doc(userId)
+            .get();
+        if (userDoc.exists) {
+          senderName = userDoc['full_name'] ?? 'Unknown User';
+        }
       }
+      return senderName;
+    }
+
+    Future<void> _sendMessage({required String text}) async {
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+      if (userId == null) return;
+
+      final senderName = await _getSenderName(userId);
 
       final message = {
         'senderId': userId,
