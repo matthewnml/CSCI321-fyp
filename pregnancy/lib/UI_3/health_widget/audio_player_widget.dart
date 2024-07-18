@@ -4,7 +4,7 @@ import 'package:just_audio/just_audio.dart';
 class AudioPlayerWidget extends StatefulWidget {
   final String audioUrl;
 
-  const AudioPlayerWidget({Key? key, required this.audioUrl}) : super(key: key);
+  const AudioPlayerWidget({super.key, required this.audioUrl});
 
   @override
   _AudioPlayerWidgetState createState() => _AudioPlayerWidgetState();
@@ -47,19 +47,19 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
         Row(
           children: [
             IconButton(
-              icon: Icon(Icons.play_arrow),
+              icon: const Icon(Icons.play_arrow),
               onPressed: () {
                 _audioPlayer.play();
               },
             ),
             IconButton(
-              icon: Icon(Icons.pause),
+              icon: const Icon(Icons.pause),
               onPressed: () {
                 _audioPlayer.pause();
               },
             ),
             IconButton(
-              icon: Icon(Icons.stop),
+              icon: const Icon(Icons.stop),
               onPressed: () {
                 _audioPlayer.stop();
               },

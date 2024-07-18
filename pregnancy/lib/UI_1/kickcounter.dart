@@ -17,6 +17,7 @@ class _KickCounterPageState extends State<KickCounterPage> {
   Timer? _timer;
   Duration _elapsedTime = Duration.zero;
   final List<Map<String, dynamic>> _records = [];
+  bool _isTimerStarted = false;
 
   void _incrementKickCount() {
     setState(() {
@@ -29,11 +30,13 @@ class _KickCounterPageState extends State<KickCounterPage> {
       _kickCount = 0;
       _elapsedTime = Duration.zero;
       _timer?.cancel();
+      _isTimerStarted = false;
     });
   }
 
   void _startTimer() {
     setState(() {
+      _resetKickCount(); // Reset kick count and timer
       _startTime = DateTime.now();
       _timer?.cancel(); // Cancel any existing timer
       _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -41,6 +44,7 @@ class _KickCounterPageState extends State<KickCounterPage> {
           _elapsedTime = DateTime.now().difference(_startTime);
         });
       });
+      _isTimerStarted = true;
     });
   }
 
@@ -48,12 +52,19 @@ class _KickCounterPageState extends State<KickCounterPage> {
     setState(() {
       _timer?.cancel();
       _records.add({
+        'id': _records.length + 1,
         'date': _formatDate(_startTime),
         'startTime': _formatTime(_startTime),
         'duration': _formatDuration(_elapsedTime),
         'kicks': _kickCount,
       });
       _resetKickCount(); // Reset the kick count and timer after saving
+    });
+  }
+
+  void _deleteRecord(int id) {
+    setState(() {
+      _records.removeWhere((record) => record['id'] == id);
     });
   }
 
@@ -92,12 +103,12 @@ class _KickCounterPageState extends State<KickCounterPage> {
             _buildInfo('Kicks', '$_kickCount'),
             const SizedBox(height: 24.0),
             ElevatedButton(
-              onPressed: _incrementKickCount,
+              onPressed: _isTimerStarted ? _incrementKickCount : null,
               child: const Text('Count Kick'),
             ),
             const SizedBox(height: 16.0),
             ElevatedButton(
-              onPressed: _resetKickCount,
+              onPressed: _isTimerStarted ? _resetKickCount : null,
               child: const Text('Reset'),
             ),
             const SizedBox(height: 16.0),
@@ -110,7 +121,7 @@ class _KickCounterPageState extends State<KickCounterPage> {
                 ),
                 const SizedBox(width: 16.0),
                 ElevatedButton(
-                  onPressed: _finishAndSave,
+                  onPressed: _isTimerStarted ? _finishAndSave : null,
                   child: const Text('Finish and Save'),
                 ),
               ],
@@ -168,6 +179,10 @@ class _KickCounterPageState extends State<KickCounterPage> {
               title: Text('Date: ${record['date']}'),
               subtitle: Text(
                   'Start Time: ${record['startTime']}\nDuration: ${record['duration']}\nKicks: ${record['kicks']}'),
+              trailing: IconButton(
+                icon: Icon(Icons.delete),
+                onPressed: () => _deleteRecord(record['id']),
+              ),
             ),
           );
         },

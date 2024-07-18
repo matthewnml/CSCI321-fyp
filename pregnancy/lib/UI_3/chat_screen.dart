@@ -6,14 +6,14 @@ class ChatScreen extends StatelessWidget {
   final String chatId;
   final String userName;
 
-  const ChatScreen({required this.chatId, required this.userName, Key? key}) : super(key: key);
+  const ChatScreen({required this.chatId, required this.userName, super.key});
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController _controller = TextEditingController();
-    final ScrollController _scrollController = ScrollController();
+    final TextEditingController controller = TextEditingController();
+    final ScrollController scrollController = ScrollController();
 
-    Future<void> _sendMessage({required String text}) async {
+    Future<void> sendMessage({required String text}) async {
       final userId = FirebaseAuth.instance.currentUser?.uid;
 
       if (userId == null) return;
@@ -39,9 +39,9 @@ class ChatScreen extends StatelessWidget {
         'lastUpdated': FieldValue.serverTimestamp(),
       });
 
-      _controller.clear();
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
+      controller.clear();
+      scrollController.animateTo(
+        scrollController.position.maxScrollExtent,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
       );
@@ -78,7 +78,7 @@ class ChatScreen extends StatelessWidget {
 
                 return ListView.builder(
                   reverse: true,
-                  controller: _scrollController,
+                  controller: scrollController,
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
                     final message = messages[index];
@@ -101,7 +101,7 @@ class ChatScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: TextField(
-                    controller: _controller,
+                    controller: controller,
                     decoration: const InputDecoration(
                       hintText: 'Enter your message',
                       border: OutlineInputBorder(
@@ -112,7 +112,7 @@ class ChatScreen extends StatelessWidget {
                 ),
                 IconButton(
                   icon: const Icon(Icons.send),
-                  onPressed: () => _sendMessage(text: _controller.text),
+                  onPressed: () => sendMessage(text: controller.text),
                 ),
               ],
             ),
