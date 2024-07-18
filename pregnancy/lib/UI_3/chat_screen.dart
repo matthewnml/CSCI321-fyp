@@ -5,8 +5,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 class ChatScreen extends StatelessWidget {
   final String chatId;
   final String userName;
+  final bool isSpecialist;
 
-  const ChatScreen({required this.chatId, required this.userName, Key? key}) : super(key: key);
+  const ChatScreen({required this.chatId, required this.userName, required this.isSpecialist, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -18,9 +19,23 @@ class ChatScreen extends StatelessWidget {
 
       if (userId == null) return;
 
+      String senderName = userName;
+
+      if (isSpecialist) {
+        // Retrieve specialist name from Firestore
+        final specialistDoc = await FirebaseFirestore.instance
+            .collection('specialists')
+            .doc(userId)
+            .get();
+
+        if (specialistDoc.exists) {
+          senderName = specialistDoc['name'] ?? 'Unknown Specialist';
+        }
+      }
+
       final message = {
         'senderId': userId,
-        'senderName': userName,
+        'senderName': senderName,
         'timestamp': FieldValue.serverTimestamp(),
         'text': text,
       };
