@@ -108,7 +108,6 @@ class ChatScreen extends StatelessWidget {
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
                     final message = messages[index];
-
                     return ListTile(
                       title: Text(message['text'] ?? ''),
                       subtitle: Text(message['senderName'] ?? 'Unknown'),

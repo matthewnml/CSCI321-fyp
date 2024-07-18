@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class HistoryPage extends StatelessWidget {
   final String userId;
 
-  HistoryPage({required this.userId});
+  const HistoryPage({super.key, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +27,7 @@ class HistoryPage extends StatelessWidget {
             },
           ),
         ],
-        bottom: PreferredSize(
+        bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1.0),
           child: Divider(
             height: 1.0,
@@ -42,7 +42,7 @@ class HistoryPage extends StatelessWidget {
             Expanded(
               child: _buildSection(context, 'Medical', 'history_medical'),
             ),
-            Divider(height: 1, color: Colors.black),
+            const Divider(height: 1, color: Colors.black),
             Expanded(
               child: _buildSection(context, 'Allergy', 'history_allergy'),
             ),
@@ -53,32 +53,32 @@ class HistoryPage extends StatelessWidget {
   }
 
   void _addNewEntry(BuildContext context, String collection) {
-    TextEditingController _controller = TextEditingController();
+    TextEditingController controller = TextEditingController();
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: Text('Add New ${collection == 'history_medical' ? 'Medical' : 'Allergy'}'),
           content: TextField(
-            controller: _controller,
+            controller: controller,
             decoration: InputDecoration(hintText: 'Enter ${collection == 'history_medical' ? 'Medical Condition' : 'Allergy'}'),
           ),
           actions: [
             TextButton(
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Add'),
+              child: const Text('Add'),
               onPressed: () {
                 FirebaseFirestore.instance
                     .collection('user_accounts')
                     .doc(userId)
                     .collection(collection)
                     .add({
-                  collection == 'history_medical' ? 'medical' : 'allergy': _controller.text
+                  collection == 'history_medical' ? 'medical' : 'allergy': controller.text
                 });
                 Navigator.of(context).pop();
               },
@@ -98,7 +98,7 @@ class HistoryPage extends StatelessWidget {
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
 
         var documents = snapshot.data!.docs;
@@ -111,21 +111,21 @@ class HistoryPage extends StatelessWidget {
                 child: ListTile(
                   title: Text(
                     title,
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   trailing: IconButton(
-                    icon: Icon(Icons.add),
+                    icon: const Icon(Icons.add),
                     onPressed: () {
                       _addNewEntry(context, collection);
                     },
                   ),
                 ),
               ),
-              Divider(height: 1, color: Colors.black),
+              const Divider(height: 1, color: Colors.black),
               Expanded(
                 child: ListView.separated(
                   itemCount: documents.length,
-                  separatorBuilder: (context, index) => Divider(height: 1, color: Colors.black),
+                  separatorBuilder: (context, index) => const Divider(height: 1, color: Colors.black),
                   itemBuilder: (context, index) {
                     String value = documents[index][collection == 'history_medical' ? 'medical' : 'allergy'];
                     return Container(
@@ -133,7 +133,7 @@ class HistoryPage extends StatelessWidget {
                       child: ListTile(
                         title: Text(value),
                         trailing: IconButton(
-                          icon: Icon(Icons.close, color: Colors.black),
+                          icon: const Icon(Icons.close, color: Colors.black),
                           onPressed: () {
                             FirebaseFirestore.instance
                                 .collection('user_accounts')

@@ -99,11 +99,12 @@ class _LoginPageState extends State<LoginPage> {
       DocumentSnapshot userDoc = await _firestore.collection('user_accounts').doc(uid).get();
 
       if (userDoc.exists) {
-        // User found, navigate to HomePage with user ID
+        // User found, navigate to HomePage with user ID and pregnancy status
+        String pregnancyStatus = userDoc['pregnancy_status'];
         Navigator.pushReplacementNamed(
           context,
           '/home',
-          arguments: {'userId': uid},
+          arguments: {'userId': uid, 'pregnancyStatus': pregnancyStatus},
         );
       } else {
         // Show error message if user document does not exist
@@ -124,7 +125,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _lockoutUser() async {
-    final lockoutDuration = Duration(minutes: 2);
+    const lockoutDuration = Duration(minutes: 2);
     _lockoutEndTime = DateTime.now().add(lockoutDuration);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('lockoutEndTime', _lockoutEndTime!.millisecondsSinceEpoch);

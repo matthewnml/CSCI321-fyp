@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'chat_screen.dart';
 
 class ChatWithSpecialistScreen extends StatelessWidget {
-  const ChatWithSpecialistScreen({Key? key}) : super(key: key);
+  const ChatWithSpecialistScreen({super.key});
 
   Future<void> _createNewChat(BuildContext context) async {
     final userId = FirebaseAuth.instance.currentUser?.uid;

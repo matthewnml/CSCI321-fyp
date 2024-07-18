@@ -10,7 +10,7 @@ class HealthJournal extends StatelessWidget {
     final User? currentUser = FirebaseAuth.instance.currentUser;
 
     if (currentUser == null) {
-      return Scaffold(
+      return const Scaffold(
         body: Center(
           child: Text('User not logged in'),
         ),
@@ -44,21 +44,21 @@ class HealthJournal extends StatelessWidget {
             Container(
               color: Colors.white,
               child: ListTile(
-                leading: Icon(Icons.favorite, color: Colors.black),
+                leading: const Icon(Icons.favorite, color: Colors.black),
                 title: const Text('Heart Rate Tracker'),
-                trailing: Icon(Icons.arrow_forward_ios, color: Colors.black),
+                trailing: const Icon(Icons.arrow_forward_ios, color: Colors.black),
                 onTap: () {
                   // Handle Heart Rate Tracker tap
                 },
               ),
             ),
-            Divider(height: 1),
+            const Divider(height: 1),
             Container(
               color: Colors.white,
               child: ListTile(
-                leading: Icon(Icons.medical_services, color: Colors.black),
+                leading: const Icon(Icons.medical_services, color: Colors.black),
                 title: const Text('Medical/ Allergy History'),
-                trailing: Icon(Icons.arrow_forward_ios, color: Colors.black),
+                trailing: const Icon(Icons.arrow_forward_ios, color: Colors.black),
                 onTap: () {
                   Navigator.push(
                     context,
