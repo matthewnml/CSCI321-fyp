@@ -11,12 +11,14 @@ class BabyDevelopmentPage extends StatefulWidget {
 }
 
 class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTickerProviderStateMixin {
-  final List<double> weights = [3.5, 4.2, 5.0, 5.8]; // Sample weights in kg
-  final List<double> heights = [50, 54, 57, 60]; // Sample heights in cm
-  final List<String> months = ['Month 1', 'Month 2', 'Month 3', 'Month 4']; // Sample months
+  final List<double> weights = [3.5, 4.2, 5.0, 5.8, 6.2, 6.5, 7.0, 7.3, 7.6, 8.0, 8.3, 8.5];
+  final List<double> heights = [50, 54, 57, 60, 62, 64, 66, 68, 70, 72, 74, 76];
+  final List<String> months = [
+    'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'
+  ];
 
   late TabController _tabController;
-  final TextEditingController _monthController = TextEditingController();
+  String selectedMonth = 'January';
   final TextEditingController _weightController = TextEditingController();
   final TextEditingController _heightController = TextEditingController();
 
@@ -29,31 +31,33 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
   @override
   void dispose() {
     _tabController.dispose();
-    _monthController.dispose();
     _weightController.dispose();
     _heightController.dispose();
     super.dispose();
   }
 
   void _addData() {
-    final newMonth = _monthController.text;
     final newWeight = double.tryParse(_weightController.text);
     final newHeight = double.tryParse(_heightController.text);
 
-    if (newMonth.isNotEmpty && newWeight != null && newHeight != null) {
+    if (newWeight != null && newHeight != null && months.contains(selectedMonth)) {
       setState(() {
-        months.add(newMonth);
-        weights.add(newWeight);
-        heights.add(newHeight);
+        final monthIndex = months.indexOf(selectedMonth);
+
+        if (monthIndex < weights.length) {
+          weights[monthIndex] = newWeight;
+          heights[monthIndex] = newHeight;
+        } else {
+          weights.add(newWeight);
+          heights.add(newHeight);
+        }
       });
 
-      _monthController.clear();
       _weightController.clear();
       _heightController.clear();
       Navigator.pop(context); // Close the dialog
     } else {
-      // Handle invalid input
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter valid data.')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter valid data and select a valid month.')));
     }
   }
 
@@ -75,8 +79,8 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
       body: TabBarView(
         controller: _tabController,
         children: [
-          _buildTrendGraph('Height', heights, Colors.green),
-          _buildTrendGraph('Weight', weights, Colors.blue),
+          _buildTrendGraph('Height (cm)', heights, Colors.green),
+          _buildTrendGraph('Weight (kg)', weights, Colors.blue),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -92,24 +96,41 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Add Data'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _monthController,
-              decoration: const InputDecoration(labelText: 'Month'),
-            ),
-            TextField(
-              controller: _weightController,
-              decoration: const InputDecoration(labelText: 'Weight (kg)'),
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-            ),
-            TextField(
-              controller: _heightController,
-              decoration: const InputDecoration(labelText: 'Height (cm)'),
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-            ),
-          ],
+        content: StatefulBuilder(
+          builder: (context, setState) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DropdownButton<String>(
+                  value: selectedMonth,
+                  onChanged: (String? newValue) {
+                    if (newValue != null && months.contains(newValue)) {
+                      setState(() {
+                        selectedMonth = newValue;
+                      });
+                    }
+                  },
+                  items: months.map<DropdownMenuItem<String>>((String month) {
+                    return DropdownMenuItem<String>(
+                      value: month,
+                      child: Text(month),
+                    );
+                  }).toList(),
+                ),
+                TextField(
+                  controller: _weightController,
+                  decoration: const InputDecoration(labelText: 'Weight (kg)'),
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                ),
+                TextField(
+                  controller: _heightController,
+                  decoration: const InputDecoration(labelText: 'Height (cm)'),
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                ),
+              ],
+            );
+          },
         ),
         actions: [
           TextButton(
@@ -126,29 +147,41 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
   }
 
   Widget _buildTrendGraph(String title, List<double> data, Color color) {
+    final adjustedData = List.generate(months.length, (index) {
+      if (index < data.length) {
+        return FlSpot(index.toDouble(), data[index]);
+      } else {
+        return FlSpot(index.toDouble(), 0);
+      }
+    });
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
           Text(
-            '$title Trends',
+            title,
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           Expanded(
             child: LineChart(
               LineChartData(
-                gridData: FlGridData(show: true),
+                maxY: (data.isNotEmpty) ? (data.reduce((a, b) => a > b ? a : b) + 5) : 100,
+                minY: 0,
+                gridData: FlGridData(show: true, drawVerticalLine: true),
                 titlesData: FlTitlesData(
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
+                      interval: 1,
+                      reservedSize: 40,
                       getTitlesWidget: (value, meta) {
                         final index = value.toInt();
                         if (index < months.length) {
                           return SideTitleWidget(
                             axisSide: meta.axisSide,
-                            child: Text(months[index]),
+                            child: Text(months[index], style: const TextStyle(fontSize: 10)),
                           );
                         }
                         return const Text('');
@@ -158,26 +191,38 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 40,
+                      reservedSize: 50,
+                      interval: 5,
                       getTitlesWidget: (value, meta) {
                         return SideTitleWidget(
                           axisSide: meta.axisSide,
-                          child: Text(value.toString()),
+                          child: Text('$value', style: const TextStyle(fontSize: 12)),
                         );
                       },
                     ),
                   ),
                 ),
-                borderData: FlBorderData(show: true),
+                borderData: FlBorderData(
+                  show: true,
+                  border: Border.all(
+                    color: const Color(0xff37434d),
+                    width: 1,
+                  ),
+                ),
                 lineBarsData: [
                   LineChartBarData(
-                    spots: List.generate(data.length, (index) => FlSpot(index.toDouble(), data[index])),
+                    spots: adjustedData,
                     isCurved: true,
-                    barWidth: 2,
-                    color: color, // Set the line color directly
-                    dotData: FlDotData(show: false),
+                    barWidth: 4,
+                    color: color,
+                    dotData: FlDotData(show: true),
+                    belowBarData: BarAreaData(show: false),
+                    aboveBarData: BarAreaData(show: false),
                   ),
                 ],
+                lineTouchData: LineTouchData(
+                  enabled: false,
+                ),
               ),
             ),
           ),
@@ -186,4 +231,5 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
     );
   }
 }
+
 
