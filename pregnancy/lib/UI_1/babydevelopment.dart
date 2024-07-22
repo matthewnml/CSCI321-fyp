@@ -16,6 +16,9 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
   final List<String> months = ['Month 1', 'Month 2', 'Month 3', 'Month 4']; // Sample months
 
   late TabController _tabController;
+  final TextEditingController _monthController = TextEditingController();
+  final TextEditingController _weightController = TextEditingController();
+  final TextEditingController _heightController = TextEditingController();
 
   @override
   void initState() {
@@ -26,7 +29,32 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
   @override
   void dispose() {
     _tabController.dispose();
+    _monthController.dispose();
+    _weightController.dispose();
+    _heightController.dispose();
     super.dispose();
+  }
+
+  void _addData() {
+    final newMonth = _monthController.text;
+    final newWeight = double.tryParse(_weightController.text);
+    final newHeight = double.tryParse(_heightController.text);
+
+    if (newMonth.isNotEmpty && newWeight != null && newHeight != null) {
+      setState(() {
+        months.add(newMonth);
+        weights.add(newWeight);
+        heights.add(newHeight);
+      });
+
+      _monthController.clear();
+      _weightController.clear();
+      _heightController.clear();
+      Navigator.pop(context); // Close the dialog
+    } else {
+      // Handle invalid input
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter valid data.')));
+    }
   }
 
   @override
@@ -52,32 +80,47 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Handle add milestone button press
-        },
+        onPressed: () => _showAddDataDialog(),
         child: const Icon(Icons.add),
         backgroundColor: Colors.pink,
       ),
     );
   }
 
-  Widget _buildDevelopmentTile(String imagePath, String title, String description) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      child: ListTile(
-        leading: Image.asset(
-          imagePath,
-          width: 50,
-          height: 50,
+  void _showAddDataDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add Data'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _monthController,
+              decoration: const InputDecoration(labelText: 'Month'),
+            ),
+            TextField(
+              controller: _weightController,
+              decoration: const InputDecoration(labelText: 'Weight (kg)'),
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
+            ),
+            TextField(
+              controller: _heightController,
+              decoration: const InputDecoration(labelText: 'Height (cm)'),
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
+            ),
+          ],
         ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(description),
-        trailing: IconButton(
-          icon: const Icon(Icons.edit, color: Colors.black),
-          onPressed: () {
-            // Handle edit button press
-          },
-        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: _addData,
+            child: const Text('Add'),
+          ),
+        ],
       ),
     );
   }
@@ -102,10 +145,13 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
                       showTitles: true,
                       getTitlesWidget: (value, meta) {
                         final index = value.toInt();
-                        return SideTitleWidget(
-                          axisSide: meta.axisSide,
-                          child: Text(months[index]),
-                        );
+                        if (index < months.length) {
+                          return SideTitleWidget(
+                            axisSide: meta.axisSide,
+                            child: Text(months[index]),
+                          );
+                        }
+                        return const Text('');
                       },
                     ),
                   ),
@@ -140,3 +186,4 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
     );
   }
 }
+
