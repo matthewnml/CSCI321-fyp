@@ -8,7 +8,6 @@ class ChatWithSpecialistScreen extends StatelessWidget {
 
   Future<void> _createNewChat(BuildContext context) async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
-
     if (userId == null) return;
 
     final userDoc = await FirebaseFirestore.instance.collection('user_accounts').doc(userId).get();
@@ -27,7 +26,7 @@ class ChatWithSpecialistScreen extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ChatScreen(chatId: newChat.id, userName: userName),
+        builder: (context) => ChatScreen(chatId: newChat.id, userName: userName, isSpecialist: false),
       ),
     );
   }
@@ -122,7 +121,7 @@ class ChatWithSpecialistScreen extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ChatScreen(chatId: chat.chatId, userName: userName),
+                              builder: (context) => ChatScreen(chatId: chat.chatId, userName: userName, isSpecialist: false),
                             ),
                           );
                         },
@@ -182,13 +181,20 @@ class ChatWithSpecialistScreen extends StatelessWidget {
                           title: const Text('No specialist'),
                           subtitle: Text(chat['lastMessage'] ?? 'No message'),
                           trailing: Text((chat['lastUpdated'] as Timestamp).toDate().toString()),
-                          onTap: () {
+                          onTap: () async {
+                            // Update chat to assign this specialist
+                            await FirebaseFirestore.instance
+                                .collection('chats')
+                                .doc(chat.id)
+                                .update({'specialistId': userId, 'status': 'ongoing'});
+
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => ChatScreen(
                                   chatId: chat.id,
                                   userName: chat['createdByName'] ?? 'Unknown',
+                                  isSpecialist: true,
                                 ),
                               ),
                             );
@@ -220,6 +226,7 @@ class ChatWithSpecialistScreen extends StatelessWidget {
                                 builder: (context) => ChatScreen(
                                   chatId: chat.id,
                                   userName: chat['createdByName'] ?? 'Unknown',
+                                  isSpecialist: true,
                                 ),
                               ),
                             );
