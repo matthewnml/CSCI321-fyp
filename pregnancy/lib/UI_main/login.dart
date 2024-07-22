@@ -125,7 +125,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _lockoutUser() async {
-    const lockoutDuration = Duration(minutes: 2);
+    const lockoutDuration = Duration(seconds: 30);
     _lockoutEndTime = DateTime.now().add(lockoutDuration);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('lockoutEndTime', _lockoutEndTime!.millisecondsSinceEpoch);
