@@ -10,10 +10,24 @@ class BabyDevelopmentPage extends StatefulWidget {
   _BabyDevelopmentPageState createState() => _BabyDevelopmentPageState();
 }
 
-class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> {
+class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTickerProviderStateMixin {
   final List<double> weights = [3.5, 4.2, 5.0, 5.8]; // Sample weights in kg
   final List<double> heights = [50, 54, 57, 60]; // Sample heights in cm
   final List<String> months = ['Month 1', 'Month 2', 'Month 3', 'Month 4']; // Sample months
+
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,30 +36,20 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> {
         title: const Text('Baby Development'),
         backgroundColor: const Color(0xFFFFF4F4),
         elevation: 0,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Track Your Baby\'s Growth',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: ListView(
-                children: [
-                  _buildDevelopmentTile('assets/month1.png', 'Month 1', 'Description of milestones for month 1...'),
-                  _buildDevelopmentTile('assets/month2.png', 'Month 2', 'Description of milestones for month 2...'),
-                  _buildDevelopmentTile('assets/month3.png', 'Month 3', 'Description of milestones for month 3...'),
-                  const SizedBox(height: 16),
-                  _buildTrendGraph(),
-                ],
-              ),
-            ),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(text: 'Height'),
+            Tab(text: 'Weight'),
           ],
         ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _buildTrendGraph('Height', heights, Colors.green),
+          _buildTrendGraph('Weight', weights, Colors.blue),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -78,87 +82,61 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> {
     );
   }
 
-  Widget _buildTrendGraph() {
-    return Column(
-      children: [
-        const Text(
-          'Growth Trends',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 16),
-        SizedBox(
-          height: 300,
-          child: LineChart(
-            LineChartData(
-              gridData: FlGridData(show: true),
-              titlesData: FlTitlesData(
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    getTitlesWidget: (value, meta) {
-                      final index = value.toInt();
-                      return SideTitleWidget(
-                        axisSide: meta.axisSide,
-                        child: Text(months[index]),
-                      );
-                    },
+  Widget _buildTrendGraph(String title, List<double> data, Color color) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          Text(
+            '$title Trends',
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: LineChart(
+              LineChartData(
+                gridData: FlGridData(show: true),
+                titlesData: FlTitlesData(
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (value, meta) {
+                        final index = value.toInt();
+                        return SideTitleWidget(
+                          axisSide: meta.axisSide,
+                          child: Text(months[index]),
+                        );
+                      },
+                    ),
+                  ),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 40,
+                      getTitlesWidget: (value, meta) {
+                        return SideTitleWidget(
+                          axisSide: meta.axisSide,
+                          child: Text(value.toString()),
+                        );
+                      },
+                    ),
                   ),
                 ),
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 40,
-                    getTitlesWidget: (value, meta) {
-                      return SideTitleWidget(
-                        axisSide: meta.axisSide,
-                        child: Text(value.toString()),
-                      );
-                    },
+                borderData: FlBorderData(show: true),
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: List.generate(data.length, (index) => FlSpot(index.toDouble(), data[index])),
+                    isCurved: true,
+                    barWidth: 2,
+                    color: color, // Set the line color directly
+                    dotData: FlDotData(show: false),
                   ),
-                ),
+                ],
               ),
-              borderData: FlBorderData(show: true),
-              lineBarsData: [
-                LineChartBarData(
-                  spots: List.generate(weights.length, (index) => FlSpot(index.toDouble(), weights[index])),
-                  isCurved: true,
-                  barWidth: 2,
-                  color: Colors.blue, // Set the line color directly
-                  dotData: FlDotData(show: false),
-                ),
-                LineChartBarData(
-                  spots: List.generate(heights.length, (index) => FlSpot(index.toDouble(), heights[index])),
-                  isCurved: true,
-                  barWidth: 2,
-                  color: Colors.green, // Set the line color directly
-                  dotData: FlDotData(show: false),
-                ),
-              ],
             ),
           ),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 10,
-              height: 10,
-              color: Colors.blue,
-            ),
-            const SizedBox(width: 5),
-            const Text('Weight (kg)'),
-            const SizedBox(width: 20),
-            Container(
-              width: 10,
-              height: 10,
-              color: Colors.green,
-            ),
-            const SizedBox(width: 5),
-            const Text('Height (cm)'),
-          ],
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
