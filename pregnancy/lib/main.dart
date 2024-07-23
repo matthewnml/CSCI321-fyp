@@ -7,6 +7,7 @@ import 'UI_3/health.dart'; // Import the health.dart file
 import 'UI_1/home_during.dart'; // Import the home_during.dart file
 import 'UI_1/home_after.dart'; // Import the home_after.dart file
 import 'UI_1/home_before.dart'; // Import the home_before.dart file
+import 'UI_1/home_special.dart'; // Import the home_special.dart file
 import 'UI_2/calendar.dart'; // Import the calendar.dart file
 import 'UI_4/setting.dart'; // Import the setting.dart file
 import 'UI_4/account.dart'; // Import the account.dart file
@@ -66,6 +67,8 @@ class MyApp extends StatelessWidget {
             homePage = HomeDuringPage(userId: userId);
           } else if (pregnancyStatus == 'Have given birth') {
             homePage = HomeAfterPage(userId: userId);
+          } else if (pregnancyStatus == 'None(For Specialist)') {
+            homePage = HomeSpecialistPage(userId: userId);
           } else {
             homePage = const LoginPage(); // Default case, shouldn't happen
           }
