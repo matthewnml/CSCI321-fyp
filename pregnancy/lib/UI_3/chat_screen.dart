@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class ChatScreen extends StatelessWidget {
   final String chatId;
-  final String userName;
+  final String userName; // This will be the name of the currently logged-in user or specialist
   final bool isSpecialist;
 
   const ChatScreen({required this.chatId, required this.userName, required this.isSpecialist, Key? key}) : super(key: key);
@@ -14,35 +14,12 @@ class ChatScreen extends StatelessWidget {
     final TextEditingController _controller = TextEditingController();
     final ScrollController _scrollController = ScrollController();
 
-    Future<String> _getSenderName(String userId) async {
-      String senderName = userName;
-      if (isSpecialist) {
-        // Retrieve specialist name from Firestore
-        final specialistDoc = await FirebaseFirestore.instance
-            .collection('specialists')
-            .doc(userId)
-            .get();
-        if (specialistDoc.exists) {
-          senderName = specialistDoc['name'] ?? 'Unknown Specialist';
-        }
-      } else {
-        // Retrieve user name from Firestore
-        final userDoc = await FirebaseFirestore.instance
-            .collection('user_accounts')
-            .doc(userId)
-            .get();
-        if (userDoc.exists) {
-          senderName = userDoc['full_name'] ?? 'Unknown User';
-        }
-      }
-      return senderName;
-    }
-
     Future<void> _sendMessage({required String text}) async {
-      final userId = FirebaseAuth.instance.currentUser?.uid;
-      if (userId == null) return;
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
 
-      final senderName = await _getSenderName(userId);
+      final userId = user.uid;
+      final senderName = userName;
 
       final message = {
         'senderId': userId,
@@ -51,16 +28,9 @@ class ChatScreen extends StatelessWidget {
         'text': text,
       };
 
-      await FirebaseFirestore.instance
-          .collection('chats')
-          .doc(chatId)
-          .collection('messages')
-          .add(message);
+      await FirebaseFirestore.instance.collection('chats').doc(chatId).collection('messages').add(message);
 
-      await FirebaseFirestore.instance
-          .collection('chats')
-          .doc(chatId)
-          .update({
+      await FirebaseFirestore.instance.collection('chats').doc(chatId).update({
         'lastMessage': text,
         'lastUpdated': FieldValue.serverTimestamp(),
       });
@@ -89,12 +59,7 @@ class ChatScreen extends StatelessWidget {
         children: [
           Expanded(
             child: StreamBuilder(
-              stream: FirebaseFirestore.instance
-                  .collection('chats')
-                  .doc(chatId)
-                  .collection('messages')
-                  .orderBy('timestamp', descending: true)
-                  .snapshots(),
+              stream: FirebaseFirestore.instance.collection('chats').doc(chatId).collection('messages').orderBy('timestamp', descending: true).snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
@@ -108,12 +73,11 @@ class ChatScreen extends StatelessWidget {
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
                     final message = messages[index];
+
                     return ListTile(
                       title: Text(message['text'] ?? ''),
                       subtitle: Text(message['senderName'] ?? 'Unknown'),
-                      trailing: Text((message['timestamp'] != null)
-                          ? (message['timestamp'] as Timestamp).toDate().toString()
-                          : 'No date'),
+                      trailing: Text((message['timestamp'] != null) ? (message['timestamp'] as Timestamp).toDate().toString() : 'No date'),
                     );
                   },
                 );
