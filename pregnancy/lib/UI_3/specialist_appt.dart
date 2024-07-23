@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 import 'chat_screen.dart';
 
 class ChatWithSpecialistScreen extends StatelessWidget {
@@ -30,6 +31,12 @@ class ChatWithSpecialistScreen extends StatelessWidget {
         builder: (context) => ChatScreen(chatId: newChat.id, userName: userName, isSpecialist: false),
       ),
     );
+  }
+
+  String _formatTimestamp(Timestamp timestamp) {
+    final DateTime dateTime = timestamp.toDate();
+    final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm');
+    return formatter.format(dateTime);
   }
 
   @override
@@ -91,7 +98,7 @@ class ChatWithSpecialistScreen extends StatelessWidget {
           return ChatPreview(
             chatId: doc.id,
             previewText: doc['lastMessage'] ?? 'No message',
-            date: (doc['lastUpdated'] != null) ? (doc['lastUpdated'] as Timestamp).toDate().toString() : 'No date',
+            date: (doc['lastUpdated'] != null) ? _formatTimestamp(doc['lastUpdated'] as Timestamp) : 'No date',
             specialistName: doc.data().containsKey('specialistName') ? doc['specialistName'] : 'No specialist',
           );
         }).toList();
@@ -178,7 +185,7 @@ class ChatWithSpecialistScreen extends StatelessWidget {
                         return ListTile(
                           title: const Text('No specialist'),
                           subtitle: Text(chat['lastMessage'] ?? 'No message'),
-                          trailing: Text((chat['lastUpdated'] as Timestamp).toDate().toString()),
+                          trailing: Text((chat['lastUpdated'] != null) ? _formatTimestamp(chat['lastUpdated'] as Timestamp) : 'No date'),
                           onTap: () async {
                             // Update chat to assign this specialist
                             await FirebaseFirestore.instance.collection('chats').doc(chat.id).update({
@@ -217,7 +224,7 @@ class ChatWithSpecialistScreen extends StatelessWidget {
                         return ListTile(
                           title: Text(chat['createdByName'] ?? 'Unknown'),
                           subtitle: Text(chat['lastMessage'] ?? 'No message'),
-                          trailing: Text((chat['lastUpdated'] as Timestamp).toDate().toString()),
+                          trailing: Text((chat['lastUpdated'] != null) ? _formatTimestamp(chat['lastUpdated'] as Timestamp) : 'No date'),
                           onTap: () {
                             Navigator.push(
                               context,
