@@ -45,5 +45,10 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- HealthKit Permissions -->
+	<key>NSHealthShareUsageDescription</key>
+	<string>Need access to your health data to show your heart rate.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Need access to your health data to update your heart rate.</string>
 </dict>
 </plist>
