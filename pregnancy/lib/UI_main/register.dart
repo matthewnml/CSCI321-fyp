@@ -121,7 +121,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     _selectedPregnancyStatus = newValue!;
                   });
                 },
-                items: <String>['Trying to conceive', 'Currently pregnant', 'Have given birth', 'None(For Doctor/Specialist)']
+                items: <String>['Trying to conceive', 'Currently pregnant', 'Have given birth', 'None(For Specialist)']
                     .map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
