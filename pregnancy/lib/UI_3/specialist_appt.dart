@@ -7,10 +7,10 @@ class ChatWithSpecialistScreen extends StatelessWidget {
   const ChatWithSpecialistScreen({Key? key}) : super(key: key);
 
   Future<void> _createNewChat(BuildContext context) async {
-    final userId = FirebaseAuth.instance.currentUser?.uid;
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
 
-    if (userId == null) return;
-
+    final userId = user.uid;
     final userDoc = await FirebaseFirestore.instance.collection('user_accounts').doc(userId).get();
     final userName = userDoc['full_name'];
 
@@ -27,16 +27,18 @@ class ChatWithSpecialistScreen extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ChatScreen(chatId: newChat.id, userName: userName),
+        builder: (context) => ChatScreen(chatId: newChat.id, userName: userName, isSpecialist: false),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final userId = FirebaseAuth.instance.currentUser?.uid;
+    final user = FirebaseAuth.instance.currentUser;
 
-    if (userId == null) return const Center(child: Text('No user logged in'));
+    if (user == null) return const Center(child: Text('No user logged in'));
+
+    final userId = user.uid;
 
     return FutureBuilder<DocumentSnapshot>(
       future: FirebaseFirestore.instance.collection('user_accounts').doc(userId).get(),
@@ -70,7 +72,7 @@ class ChatWithSpecialistScreen extends StatelessWidget {
           ),
           body: userRole == 'User'
               ? _buildUserChatList(context, userId, userName)
-              : _buildSpecialistChatList(context, userId),
+              : _buildSpecialistChatList(context, userId, userName),
           backgroundColor: const Color(0xFFfdebeb),
         );
       },
@@ -79,10 +81,7 @@ class ChatWithSpecialistScreen extends StatelessWidget {
 
   Widget _buildUserChatList(BuildContext context, String userId, String userName) {
     return StreamBuilder(
-      stream: FirebaseFirestore.instance
-          .collection('chats')
-          .where('createdBy', isEqualTo: userId)
-          .snapshots(),
+      stream: FirebaseFirestore.instance.collection('chats').where('createdBy', isEqualTo: userId).snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
@@ -92,10 +91,8 @@ class ChatWithSpecialistScreen extends StatelessWidget {
           return ChatPreview(
             chatId: doc.id,
             previewText: doc['lastMessage'] ?? 'No message',
-            date: (doc['lastUpdated'] != null)
-                ? (doc['lastUpdated'] as Timestamp).toDate().toString()
-                : 'No date',
-            specialistName: doc['specialistId'] == null ? 'No specialist' : 'Specialist',
+            date: (doc['lastUpdated'] != null) ? (doc['lastUpdated'] as Timestamp).toDate().toString() : 'No date',
+            specialistName: doc.data().containsKey('specialistName') ? doc['specialistName'] : 'No specialist',
           );
         }).toList();
 
@@ -122,7 +119,7 @@ class ChatWithSpecialistScreen extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ChatScreen(chatId: chat.chatId, userName: userName),
+                              builder: (context) => ChatScreen(chatId: chat.chatId, userName: userName, isSpecialist: false),
                             ),
                           );
                         },
@@ -156,7 +153,7 @@ class ChatWithSpecialistScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSpecialistChatList(BuildContext context, String userId) {
+  Widget _buildSpecialistChatList(BuildContext context, String userId, String userName) {
     return StreamBuilder(
       stream: FirebaseFirestore.instance.collection('chats').snapshots(),
       builder: (context, snapshot) {
@@ -182,13 +179,21 @@ class ChatWithSpecialistScreen extends StatelessWidget {
                           title: const Text('No specialist'),
                           subtitle: Text(chat['lastMessage'] ?? 'No message'),
                           trailing: Text((chat['lastUpdated'] as Timestamp).toDate().toString()),
-                          onTap: () {
+                          onTap: () async {
+                            // Update chat to assign this specialist
+                            await FirebaseFirestore.instance.collection('chats').doc(chat.id).update({
+                              'specialistId': userId,
+                              'specialistName': userName, // Ensure the specialist name is set
+                              'status': 'ongoing'
+                            });
+
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => ChatScreen(
                                   chatId: chat.id,
-                                  userName: chat['createdByName'] ?? 'Unknown',
+                                  userName: userName, // Pass the specialist name to ChatScreen
+                                  isSpecialist: true,
                                 ),
                               ),
                             );
@@ -219,7 +224,8 @@ class ChatWithSpecialistScreen extends StatelessWidget {
                               MaterialPageRoute(
                                 builder: (context) => ChatScreen(
                                   chatId: chat.id,
-                                  userName: chat['createdByName'] ?? 'Unknown',
+                                  userName: chat.data().containsKey('specialistName') ? chat['specialistName'] : userName, // Ensure specialistName is used
+                                  isSpecialist: true,
                                 ),
                               ),
                             );

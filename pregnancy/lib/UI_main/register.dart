@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -16,9 +15,11 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   String _selectedRole = 'User'; // Default role
+  String _selectedPregnancyStatus = 'Trying to conceive'; // Default pregnancy status
 
   void _register() async {
     try {
@@ -35,6 +36,7 @@ class _RegisterPageState extends State<RegisterPage> {
         'full_name': _fullNameController.text,
         'date_of_birth': _dobController.text,
         'role': _selectedRole,
+        'pregnancy_status': _selectedPregnancyStatus,
       });
 
       // Navigate to the login page after successful registration
@@ -104,6 +106,22 @@ class _RegisterPageState extends State<RegisterPage> {
                   });
                 },
                 items: <String>['User', 'Doctor', 'Specialist']
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 20),
+              DropdownButton<String>(
+                value: _selectedPregnancyStatus,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedPregnancyStatus = newValue!;
+                  });
+                },
+                items: <String>['Trying to conceive', 'Currently pregnant', 'Have given birth', 'None(For Specialist)']
                     .map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,

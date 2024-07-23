@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 class ContractionTimerPage extends StatefulWidget {
   final String userId;
 
-  const ContractionTimerPage({super.key, required this.userId});
+  const ContractionTimerPage({Key? key, required this.userId}) : super(key: key);
 
   @override
   _ContractionTimerPageState createState() => _ContractionTimerPageState();
@@ -37,10 +37,19 @@ class _ContractionTimerPageState extends State<ContractionTimerPage> {
       _isTiming = false;
       _timer?.cancel();
       if (_startTime != null) {
+        String timeApart = '--'; // Default value for first entry
+        if (_contractions.isNotEmpty) {
+          Duration interval = _startTime!.difference(_contractions.last['time']);
+          int minutes = interval.inMinutes;
+          int seconds = interval.inSeconds % 60;
+          timeApart = '${minutes}m ${seconds}s'; // Calculate interval for subsequent entries
+        }
+
         _contractions.add({
           'intensity': _intensity,
           'duration': _contractionDuration,
           'time': _startTime!,
+          'timeApart': timeApart,
         });
         _intensity = ''; // Reset intensity after saving
       }
@@ -81,6 +90,11 @@ class _ContractionTimerPageState extends State<ContractionTimerPage> {
                 ),
               ],
             ),
+            if (_isTiming) // Show timer only when timing
+              Text(
+                '${_formatDuration(_contractionDuration)}',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
             const SizedBox(height: 20.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -119,8 +133,22 @@ class _ContractionTimerPageState extends State<ContractionTimerPage> {
                   final contraction = _contractions[index];
                   return ListTile(
                     title: Text('Intensity: ${contraction['intensity']}'),
-                    subtitle: Text(
-                      'Duration: ${_formatDuration(contraction['duration'])}\nTime: ${_formatTime(contraction['time'])}',
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Duration: ${_formatDuration(contraction['duration'])}',
+                        ),
+                        Text(
+                          'Time: ${_formatTime(contraction['time'])}',
+                        ),
+                        Text(
+                          index == 0
+                              ? 'Frequency: ${contraction['timeApart']}'
+                              : 'Frequency: ${contraction['timeApart']}',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      ],
                     ),
                     trailing: IconButton(
                       icon: const Icon(Icons.delete),

@@ -4,9 +4,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class ChatScreen extends StatelessWidget {
   final String chatId;
-  final String userName;
+  final String userName; // This will be the name of the currently logged-in user or specialist
+  final bool isSpecialist;
 
-  const ChatScreen({required this.chatId, required this.userName, Key? key}) : super(key: key);
+  const ChatScreen({required this.chatId, required this.userName, required this.isSpecialist, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -14,27 +15,22 @@ class ChatScreen extends StatelessWidget {
     final ScrollController _scrollController = ScrollController();
 
     Future<void> _sendMessage({required String text}) async {
-      final userId = FirebaseAuth.instance.currentUser?.uid;
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
 
-      if (userId == null) return;
+      final userId = user.uid;
+      final senderName = userName;
 
       final message = {
         'senderId': userId,
-        'senderName': userName,
+        'senderName': senderName,
         'timestamp': FieldValue.serverTimestamp(),
         'text': text,
       };
 
-      await FirebaseFirestore.instance
-          .collection('chats')
-          .doc(chatId)
-          .collection('messages')
-          .add(message);
+      await FirebaseFirestore.instance.collection('chats').doc(chatId).collection('messages').add(message);
 
-      await FirebaseFirestore.instance
-          .collection('chats')
-          .doc(chatId)
-          .update({
+      await FirebaseFirestore.instance.collection('chats').doc(chatId).update({
         'lastMessage': text,
         'lastUpdated': FieldValue.serverTimestamp(),
       });
@@ -63,12 +59,7 @@ class ChatScreen extends StatelessWidget {
         children: [
           Expanded(
             child: StreamBuilder(
-              stream: FirebaseFirestore.instance
-                  .collection('chats')
-                  .doc(chatId)
-                  .collection('messages')
-                  .orderBy('timestamp', descending: true)
-                  .snapshots(),
+              stream: FirebaseFirestore.instance.collection('chats').doc(chatId).collection('messages').orderBy('timestamp', descending: true).snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
@@ -86,9 +77,7 @@ class ChatScreen extends StatelessWidget {
                     return ListTile(
                       title: Text(message['text'] ?? ''),
                       subtitle: Text(message['senderName'] ?? 'Unknown'),
-                      trailing: Text((message['timestamp'] != null)
-                          ? (message['timestamp'] as Timestamp).toDate().toString()
-                          : 'No date'),
+                      trailing: Text((message['timestamp'] != null) ? (message['timestamp'] as Timestamp).toDate().toString() : 'No date'),
                     );
                   },
                 );

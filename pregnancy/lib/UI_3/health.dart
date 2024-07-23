@@ -123,10 +123,10 @@ class _HealthScreenState extends State<HealthScreen> {
               ],
             ),
             const SizedBox(height: 40),
-            CircleAvatar(
+            const CircleAvatar(
               radius: 40,
               backgroundColor: Colors.black,
-              child: const Icon(
+              child: Icon(
                 Icons.person,
                 size: 40,
                 color: Colors.white,
