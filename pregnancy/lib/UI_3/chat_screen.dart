@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 
 class ChatScreen extends StatelessWidget {
   final String chatId;
@@ -43,9 +44,15 @@ class ChatScreen extends StatelessWidget {
       );
     }
 
+    String _formatTimestamp(Timestamp timestamp) {
+      final DateTime dateTime = timestamp.toDate();
+      final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm');
+      return formatter.format(dateTime);
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chat'),
+        title: const Text('Chat with Specialist'),
         backgroundColor: Colors.pink[50],
         elevation: 0,
         leading: IconButton(
@@ -54,12 +61,20 @@ class ChatScreen extends StatelessWidget {
             Navigator.pop(context);
           },
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications, color: Colors.black),
+            onPressed: () {
+              // Handle notification icon tap
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
           Expanded(
             child: StreamBuilder(
-              stream: FirebaseFirestore.instance.collection('chats').doc(chatId).collection('messages').orderBy('timestamp', descending: true).snapshots(),
+              stream: FirebaseFirestore.instance.collection('chats').doc(chatId).collection('messages').orderBy('timestamp', descending: false).snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
@@ -68,16 +83,42 @@ class ChatScreen extends StatelessWidget {
                 final messages = snapshot.data?.docs ?? [];
 
                 return ListView.builder(
-                  reverse: true,
                   controller: _scrollController,
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
                     final message = messages[index];
+                    final bool isSentByUser = message['senderId'] == FirebaseAuth.instance.currentUser?.uid;
 
-                    return ListTile(
-                      title: Text(message['text'] ?? ''),
-                      subtitle: Text(message['senderName'] ?? 'Unknown'),
-                      trailing: Text((message['timestamp'] != null) ? (message['timestamp'] as Timestamp).toDate().toString() : 'No date'),
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+                      child: Align(
+                        alignment: isSentByUser ? Alignment.centerRight : Alignment.centerLeft,
+                        child: Column(
+                          crossAxisAlignment: isSentByUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              message['senderName'] ?? 'Unknown',
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 4),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: isSentByUser ? Colors.green[100] : Colors.blue[100],
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.all(12.0),
+                              child: Text(message['text'] ?? ''),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              (message['timestamp'] != null)
+                                  ? _formatTimestamp(message['timestamp'] as Timestamp)
+                                  : 'No date',
+                              style: const TextStyle(fontSize: 10, color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                      ),
                     );
                   },
                 );
@@ -92,7 +133,7 @@ class ChatScreen extends StatelessWidget {
                   child: TextField(
                     controller: _controller,
                     decoration: const InputDecoration(
-                      hintText: 'Enter your message',
+                      hintText: 'Enter your question here',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(12)),
                       ),
