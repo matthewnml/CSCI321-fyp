@@ -4,7 +4,7 @@ void main() => runApp(AdminDashboard());
 
 class AdminDashboard extends StatelessWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context){
     return MaterialApp(
       home: DashboardScreen(),
     );
