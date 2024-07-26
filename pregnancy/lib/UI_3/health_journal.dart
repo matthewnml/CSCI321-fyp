@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'history.dart';
+<<<<<<< HEAD
 
+=======
+//import 'heart_rate_tracker.dart'; 
+>>>>>>> 4f10cdafa5afc8a3ea56b4f9b954c28fcf246fd9
 
 class HealthJournal extends StatelessWidget {
   const HealthJournal({super.key});
@@ -49,8 +53,12 @@ class HealthJournal extends StatelessWidget {
                 title: const Text('Heart Rate Tracker'),
                 trailing: const Icon(Icons.arrow_forward_ios, color: Colors.black),
                 onTap: () {
+<<<<<<< HEAD
 
                   
+=======
+                  //Handle Heart Tracker later 
+>>>>>>> 4f10cdafa5afc8a3ea56b4f9b954c28fcf246fd9
                 },
               ),
             ),
