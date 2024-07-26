@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'notification_history.dart'; // Import the notifications page
+import 'package:pregnancy/UI_4/notifications.dart'; // Import the notifications page
 import 'ivfinjection.dart'; // Import the IVF Injection page
 import 'guides.dart'; // Import the GuidePage
 import 'articles.dart'; // Import the ArticlesPage
