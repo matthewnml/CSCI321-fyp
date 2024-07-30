@@ -958,6 +958,8 @@ PODS:
     - Firebase/Firestore (= 10.28.0)
     - firebase_core
     - Flutter
+  - device_info_plus (0.0.1):
+    - Flutter
   - Firebase/Auth (10.28.0):
     - Firebase/CoreOnly
     - FirebaseAuth (~> 10.28.0)
@@ -1127,7 +1129,7 @@ PODS:
   - gRPC-Core/Interface (1.62.5)
   - gRPC-Core/Privacy (1.62.5)
   - GTMSessionFetcher/Core (3.5.0)
-  - image_picker_ios (0.0.1):
+  - health (1.0.4):
     - Flutter
   - just_audio (0.0.1):
     - Flutter
@@ -1154,11 +1156,12 @@ PODS:
 DEPENDENCIES:
   - audio_session (from `.symlinks/plugins/audio_session/ios`)
   - cloud_firestore (from `.symlinks/plugins/cloud_firestore/ios`)
+  - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_storage (from `.symlinks/plugins/firebase_storage/ios`)
   - Flutter (from `Flutter`)
-  - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
+  - health (from `.symlinks/plugins/health/ios`)
   - just_audio (from `.symlinks/plugins/just_audio/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
@@ -1194,6 +1197,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/audio_session/ios"
   cloud_firestore:
     :path: ".symlinks/plugins/cloud_firestore/ios"
+  device_info_plus:
+    :path: ".symlinks/plugins/device_info_plus/ios"
   firebase_auth:
     :path: ".symlinks/plugins/firebase_auth/ios"
   firebase_core:
@@ -1202,8 +1207,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_storage/ios"
   Flutter:
     :path: Flutter
-  image_picker_ios:
-    :path: ".symlinks/plugins/image_picker_ios/ios"
+  health:
+    :path: ".symlinks/plugins/health/ios"
   just_audio:
     :path: ".symlinks/plugins/just_audio/ios"
   path_provider_foundation:
@@ -1220,6 +1225,7 @@ SPEC CHECKSUMS:
   audio_session: 088d2483ebd1dc43f51d253d4a1c517d9a2e7207
   BoringSSL-GRPC: 1e2348957acdbcad360b80a264a90799984b2ba6
   cloud_firestore: 71f0ffec97ce23c51587ec906f4cc470c518bc70
+  device_info_plus: 97af1d7e84681a90d0693e63169a5d50e0839a0d
   Firebase: 5121c624121af81cbc81df3bda414b3c28c4f3c3
   firebase_auth: e778ee89483b86fe4200d1f8e9a1c52aa5fb64a8
   firebase_core: a9d0180d5285527884d07a41eb4a9ec9ed12cdb6
@@ -1239,7 +1245,7 @@ SPEC CHECKSUMS:
   "gRPC-C++": e725ef63c4475d7cdb7e2cf16eb0fde84bd9ee51
   gRPC-Core: eee4be35df218649fe66d721a05a7f27a28f069b
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
-  image_picker_ios: c560581cceedb403a6ff17f2f816d7fea1421fc1
+  health: 5a380c0f6c4f619535845992993964293962e99e
   just_audio: baa7252489dbcf47a4c7cc9ca663e9661c99aafa
   leveldb-library: e8eadf9008a61f9e1dde3978c086d2b6d9b9dc28
   nanopb: 438bc412db1928dac798aa6fd75726007be04262
