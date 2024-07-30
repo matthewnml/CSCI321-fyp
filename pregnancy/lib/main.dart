@@ -30,7 +30,6 @@ void main() async {
     await Firebase.initializeApp();
   }
 
-
   runApp(const MyApp());
 }
 
@@ -95,24 +94,6 @@ class MyApp extends StatelessWidget {
       onUnknownRoute: (settings) {
         return MaterialPageRoute(builder: (context) => const LoginPage());
       },
-    );
-  }
-}
-
-class AdminDashboard extends StatelessWidget {
-  final String userId;
-
-  const AdminDashboard({Key? key, required this.userId}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Admin Dashboard'),
-      ),
-      body: Center(
-        child: Text('Admin Dashboard Content for user $userId'),
-      ),
     );
   }
 }
