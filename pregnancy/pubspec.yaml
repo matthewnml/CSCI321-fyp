@@ -93,6 +93,16 @@ flutter:
     - assets/article3.jpg
     - assets/babydevelopment.jpg
     - assets/profile_picture.jpg
+    - assets/month1.png
+    - assets/month2.png
+    - assets/month3.png
+    - assets/month4.png
+    - assets/month5.png
+    - assets/month6.png
+    - assets/month7.png
+    - assets/month8.png
+    - assets/month9.png
+    - assets/month10.png
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

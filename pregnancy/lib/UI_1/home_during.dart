@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pregnancy/UI_4/notifications.dart'; // Import the notifications page
 import 'duedatecalculator.dart'; // Import the Due Date Calculator page
@@ -74,10 +76,60 @@ class _HomeDuringPageState extends State<HomeDuringPage> {
   }
 }
 
-class HomePageContent extends StatelessWidget {
+class HomePageContent extends StatefulWidget {
   final String userId;
 
   const HomePageContent({super.key, required this.userId});
+
+  @override
+  _HomePageContentState createState() => _HomePageContentState();
+}
+
+class _HomePageContentState extends State<HomePageContent> {
+  int _remainingDays = 50; // Default value
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchDueDateFromFirebase();
+  }
+
+  Future<void> _fetchDueDateFromFirebase() async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance
+            .collection('user_accounts')
+            .doc(user.uid)
+            .get();
+        if (userDoc.exists && userDoc['due_date_data'] != null) {
+          Map<String, dynamic> dueDateData = userDoc['due_date_data'];
+          Timestamp dueDateTimestamp = dueDateData['estimatedDueDate'];
+          DateTime dueDate = dueDateTimestamp.toDate();
+          final now = DateTime.now();
+          final difference = dueDate.difference(now).inDays;
+          setState(() {
+            _remainingDays = difference;
+          });
+        }
+      }
+    } catch (error) {
+      print('Error fetching due date: $error');
+    }
+  }
+
+  String _getBabyImage(int remainingDays) {
+    if (remainingDays > 270) return 'assets/month1.png';
+    if (remainingDays > 240) return 'assets/month2.png';
+    if (remainingDays > 210) return 'assets/month3.png';
+    if (remainingDays > 180) return 'assets/month4.png';
+    if (remainingDays > 150) return 'assets/month5.png';
+    if (remainingDays > 120) return 'assets/month6.png';
+    if (remainingDays > 90) return 'assets/month7.png';
+    if (remainingDays > 60) return 'assets/month8.png';
+    if (remainingDays > 30) return 'assets/month9.png';
+    return 'assets/month10.png';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -111,13 +163,13 @@ class HomePageContent extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const CountdownDays(), // Display the CountdownDays widget
+              CountdownDays(userId: widget.userId), // Display the CountdownDays widget
               const SizedBox(height: 32),
-              const Center(
+              Center(
                 child: CircleAvatar(
                   radius: 150,
-                  backgroundImage: AssetImage('assets/bumpphoto.png'),
-                  backgroundColor: Color(0xFFF0C29B),
+                  backgroundImage: AssetImage(_getBabyImage(_remainingDays)),
+                  backgroundColor: const Color(0xFFF0C29B),
                 ),
               ),
               const SizedBox(height: 32),
@@ -138,7 +190,7 @@ class HomePageContent extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    DueDateCalculatorPage(userId: userId)),
+                                    DueDateCalculatorPage(userId: widget.userId)),
                           );
                         },
                       ),
@@ -158,7 +210,7 @@ class HomePageContent extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    ContractionTimerPage(userId: userId)),
+                                    ContractionTimerPage(userId: widget.userId)),
                           );
                         },
                       ),
@@ -178,7 +230,7 @@ class HomePageContent extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    KickCounterPage(userId: userId)),
+                                    KickCounterPage(userId: widget.userId)),
                           );
                         },
                       ),
@@ -261,15 +313,15 @@ class HomePageContent extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildGuideButton('Guide 1', const Color(0xFFE3C3C3),
+                    _buildGuideButton('Fitness Guides', const Color(0xFFE3C3C3),
                         const AssetImage('assets/fitnessguide.jpg')),
                     _buildGuideButton(
-                        'Guide 2',
+                        'Pregnancy Symptoms Guides',
                         const Color(0xFFC3D5E3),
                         const AssetImage('assets/pregnancysymptomsguide.jpg')),
-                    _buildGuideButton('Guide 3', const Color(0xFFDAE3C3),
+                    _buildGuideButton('Nutrition Guides', const Color(0xFFDAE3C3),
                         const AssetImage('assets/nutritionguide.jpg')),
-                    _buildGuideButton('Guide 4', const Color(0xFFE3D2C3),
+                    _buildGuideButton('Video Guides', const Color(0xFFE3D2C3),
                         const AssetImage('assets/videoguide.jpg')),
                   ],
                 ),
@@ -284,8 +336,8 @@ class HomePageContent extends StatelessWidget {
   Widget _buildGuideButton(
       String title, Color color, ImageProvider<Object> image) {
     return Container(
-      width: 80,
-      height: 80,
+      width: 150,
+      height: 200,
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(12),
@@ -462,9 +514,3 @@ class FeatureButton extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-

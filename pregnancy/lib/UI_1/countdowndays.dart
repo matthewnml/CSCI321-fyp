@@ -1,15 +1,18 @@
-import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 class CountdownDays extends StatefulWidget {
-  const CountdownDays({super.key});
+  final String userId;
+
+  const CountdownDays({super.key, required this.userId});
 
   @override
   _CountdownDaysState createState() => _CountdownDaysState();
 }
 
 class _CountdownDaysState extends State<CountdownDays> {
-  int _remainingDays = 242; // Initialize _remainingDays to a default value
+  int _remainingDays = 50; // Default value
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -21,15 +24,20 @@ class _CountdownDaysState extends State<CountdownDays> {
 
   Future<void> _fetchDueDateFromFirebase() async {
     try {
-      DocumentSnapshot dueDateSnapshot =
-          await _firestore.collection('due_dates').doc('due_date').get();
-      Timestamp dueDateTimestamp = dueDateSnapshot['due_date'];
-      DateTime dueDate = dueDateTimestamp.toDate();
-      final now = DateTime.now();
-      final difference = dueDate.difference(now).inDays;
-      setState(() {
-        _remainingDays = difference;
-      });
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        DocumentSnapshot userDoc = await _firestore.collection('user_accounts').doc(user.uid).get();
+        if (userDoc.exists && userDoc['due_date_data'] != null) {
+          Map<String, dynamic> dueDateData = userDoc['due_date_data'];
+          Timestamp dueDateTimestamp = dueDateData['estimatedDueDate'];
+          DateTime dueDate = dueDateTimestamp.toDate();
+          final now = DateTime.now();
+          final difference = dueDate.difference(now).inDays;
+          setState(() {
+            _remainingDays = difference;
+          });
+        }
+      }
     } catch (error) {
       print('Error fetching due date: $error');
     }
@@ -38,24 +46,70 @@ class _CountdownDaysState extends State<CountdownDays> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFE3C3C3),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Countdown:',
-            style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black),
+      padding: const EdgeInsets.all(16.0),
+      child: FractionallySizedBox(
+        widthFactor: 0.25, // Adjust this to set the width to 1/4 of the screen
+        child: Container(
+          padding: const EdgeInsets.all(12.0),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8.0),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: const Offset(0, 3),
+              ),
+            ],
           ),
-          Text(
-            '$_remainingDays days',
-            style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Countdown Days:',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Image.asset(
+                    _getBabyImage(_remainingDays),
+                    width: 100,
+                    height: 100,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      '$_remainingDays days until your due date!',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
+  }
+
+  String _getBabyImage(int remainingDays) {
+    if (remainingDays > 270) return 'assets/month1.png';
+    if (remainingDays > 240) return 'assets/month2.png';
+    if (remainingDays > 210) return 'assets/month3.png';
+    if (remainingDays > 180) return 'assets/month4.png';
+    if (remainingDays > 150) return 'assets/month5.png';
+    if (remainingDays > 120) return 'assets/month6.png';
+    if (remainingDays > 90) return 'assets/month7.png';
+    if (remainingDays > 60) return 'assets/month8.png';
+    if (remainingDays > 30) return 'assets/month9.png';
+    return 'assets/month10.png';
   }
 }

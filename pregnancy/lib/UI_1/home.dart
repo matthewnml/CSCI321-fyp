@@ -111,7 +111,7 @@ class HomePageContent extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const CountdownDays(), // Display the CountdownDays widget
+              const CountdownDays(userId: '',), // Display the CountdownDays widget
               const SizedBox(height: 32),
               const Center(
                 child: CircleAvatar(
