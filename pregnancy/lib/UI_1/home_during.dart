@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'notification_history.dart'; // Import the notifications page
+import 'package:pregnancy/UI_4/notifications.dart'; // Import the notifications page
 import 'duedatecalculator.dart'; // Import the Due Date Calculator page
 import 'contractiontimer.dart'; // Import the Contraction Timer page
 import 'kickcounter.dart'; // Import the Kick Counter page

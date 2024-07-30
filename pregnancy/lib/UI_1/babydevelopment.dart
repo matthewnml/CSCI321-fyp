@@ -147,17 +147,18 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
   }
 
   Widget _buildTrendGraph(String title, List<double> data, Color color) {
+    final double maxDataValue = data.isNotEmpty ? data.reduce((a, b) => a > b ? a : b) : 100;
+    final double minY = 0;
+    final double maxY = maxDataValue + 5;
+    final double interval = (maxY / 10).ceilToDouble();
     final adjustedData = List.generate(months.length, (index) {
-      if (index < data.length) {
-        return FlSpot(index.toDouble(), data[index]);
-      } else {
-        return FlSpot(index.toDouble(), 0);
-      }
+      return FlSpot(index.toDouble(), index < data.length ? data[index] : 0);
     });
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
@@ -167,38 +168,67 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
           Expanded(
             child: LineChart(
               LineChartData(
-                maxY: (data.isNotEmpty) ? (data.reduce((a, b) => a > b ? a : b) + 5) : 100,
-                minY: 0,
-                gridData: FlGridData(show: true, drawVerticalLine: true),
+                maxY: maxY,
+                minY: minY,
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: true,
+                  horizontalInterval: interval,
+                  verticalInterval: 1,
+                ),
                 titlesData: FlTitlesData(
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
+                      reservedSize: 60, // Increased reserved size for bottom titles
                       interval: 1,
-                      reservedSize: 40,
                       getTitlesWidget: (value, meta) {
                         final index = value.toInt();
                         if (index < months.length) {
                           return SideTitleWidget(
                             axisSide: meta.axisSide,
-                            child: Text(months[index], style: const TextStyle(fontSize: 10)),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4.0), // Adjust vertical padding
+                              child: Text(
+                                months[index],
+                                style: const TextStyle(fontSize: 10),
+                                textAlign: TextAlign.center, // Center align text
+                              ),
+                            ),
                           );
                         }
-                        return const Text('');
+                        return const SizedBox.shrink();
                       },
                     ),
                   ),
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 50,
-                      interval: 5,
+                      reservedSize: 70, // Increased reserved size for left titles
+                      interval: interval, // Adjust interval based on data range
                       getTitlesWidget: (value, meta) {
                         return SideTitleWidget(
                           axisSide: meta.axisSide,
-                          child: Text('$value', style: const TextStyle(fontSize: 12)),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0), // Adjust horizontal padding
+                            child: Text(
+                              '${value.toInt()}',
+                              style: const TextStyle(fontSize: 12),
+                              textAlign: TextAlign.right, // Align text to the right
+                            ),
+                          ),
                         );
                       },
+                    ),
+                  ),
+                  topTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: false, // Hide top titles
+                    ),
+                  ),
+                  rightTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: false,
                     ),
                   ),
                 ),
@@ -231,5 +261,3 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
     );
   }
 }
-
-

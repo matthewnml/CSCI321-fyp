@@ -2,19 +2,20 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'UI_main/login.dart';
-import 'firebase_options.dart'; // Import the Firebase options
-import 'UI_3/health.dart'; // Import the health.dart file
-import 'UI_1/home_during.dart'; // Import the home_during.dart file
-import 'UI_1/home_after.dart'; // Import the home_after.dart file
-import 'UI_1/home_before.dart'; // Import the home_before.dart file
-import 'UI_1/home_special.dart'; // Import the home_special.dart file
-import 'UI_2/calendar.dart'; // Import the calendar.dart file
-import 'UI_4/setting.dart'; // Import the setting.dart file
-import 'UI_4/account.dart'; // Import the account.dart file
-import 'UI_4/notifications.dart'; // Import the notifications.dart file
-import 'UI_4/privacy_security.dart'; // Import the privacy_security.dart file
-import 'UI_4/emergency_contact.dart'; // Import the emergency_contact.dart file
-import 'UI_main/password_reset.dart'; // Import the password_reset.dart file
+import 'firebase_options.dart';
+import 'UI_3/health.dart';
+import 'UI_1/home_during.dart';
+import 'UI_1/home_after.dart';
+import 'UI_1/home_before.dart';
+import 'UI_1/home_special.dart';
+import 'UI_2/calendar.dart';
+import 'UI_4/setting.dart';
+import 'UI_4/account.dart';
+import 'UI_4/notifications.dart';
+import 'UI_4/privacy_security.dart';
+import 'UI_4/emergency_contact.dart';
+import 'UI_main/password_reset.dart';
+import 'UI_1/admin.dart'; // Import the admin.dart file
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,6 +30,7 @@ void main() async {
     await Firebase.initializeApp();
   }
 
+
   runApp(const MyApp());
 }
 
@@ -40,7 +42,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Pregnancy App',
       theme: ThemeData(
-        scaffoldBackgroundColor: const Color(0xFFfdebeb), // Custom background color
+        scaffoldBackgroundColor: const Color(0xFFfdebeb),
       ),
       initialRoute: '/login',
       routes: {
@@ -50,18 +52,20 @@ class MyApp extends StatelessWidget {
         '/setting': (context) => const SettingsScreen(userId: ''), // Temporary userId for settings screen
         '/notifications': (context) => const NotificationsPage(),
         '/terms_conditions': (context) => const TermsAndConditionsPage(),
-        '/emergency-contact': (context) => const EmergencyContactPage(), // Add this route
-        '/password-reset': (context) => const PasswordResetPage(), // Add password reset route
+        '/emergency-contact': (context) => const EmergencyContactPage(),
+        '/password-reset': (context) => const PasswordResetPage(),
       },
-      // Routes that require userId
       onGenerateRoute: (settings) {
         if (settings.name == '/home') {
           final args = settings.arguments as Map<String, dynamic>;
           final userId = args['userId'];
           final pregnancyStatus = args['pregnancyStatus'];
+          final role = args['role'];
           Widget homePage;
 
-          if (pregnancyStatus == 'Trying to conceive') {
+          if (pregnancyStatus == 'Admin') {
+            homePage = AdminDashboard(userId: userId);
+          } else if (pregnancyStatus == 'Trying to conceive') {
             homePage = HomeBeforePage(userId: userId);
           } else if (pregnancyStatus == 'Currently pregnant') {
             homePage = HomeDuringPage(userId: userId);
@@ -91,6 +95,24 @@ class MyApp extends StatelessWidget {
       onUnknownRoute: (settings) {
         return MaterialPageRoute(builder: (context) => const LoginPage());
       },
+    );
+  }
+}
+
+class AdminDashboard extends StatelessWidget {
+  final String userId;
+
+  const AdminDashboard({Key? key, required this.userId}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Admin Dashboard'),
+      ),
+      body: Center(
+        child: Text('Admin Dashboard Content for user $userId'),
+      ),
     );
   }
 }
