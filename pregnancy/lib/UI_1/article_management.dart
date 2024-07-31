@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ArticleManagement extends StatefulWidget {
+  const ArticleManagement({super.key});
+
   @override
   _ArticleManagementState createState() => _ArticleManagementState();
 }
@@ -28,30 +30,30 @@ class _ArticleManagementState extends State<ArticleManagement> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Text(
+            const Text(
               'All Articles',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => CreateArticleScreen()),
+                  MaterialPageRoute(builder: (context) => const CreateArticleScreen()),
                 );
               },
-              child: Text('Create New Article'),
+              child: const Text('Create New Article'),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: _articleStream,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator());
                   }
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return Center(child: Text('No articles found.'));
+                    return const Center(child: Text('No articles found.'));
                   }
                   final articles = snapshot.data!.docs;
                   return ListView.builder(
@@ -69,7 +71,7 @@ class _ArticleManagementState extends State<ArticleManagement> {
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
                               IconButton(
-                                icon: Icon(Icons.edit),
+                                icon: const Icon(Icons.edit),
                                 onPressed: () {
                                   Navigator.push(
                                     context,
@@ -80,7 +82,7 @@ class _ArticleManagementState extends State<ArticleManagement> {
                                 },
                               ),
                               IconButton(
-                                icon: Icon(Icons.delete),
+                                icon: const Icon(Icons.delete),
                                 onPressed: () {
                                   _deleteArticle(articleId);
                                 },
@@ -106,6 +108,8 @@ class _ArticleManagementState extends State<ArticleManagement> {
 }
 
 class CreateArticleScreen extends StatefulWidget {
+  const CreateArticleScreen({super.key});
+
   @override
   _CreateArticleScreenState createState() => _CreateArticleScreenState();
 }
@@ -120,7 +124,7 @@ class _CreateArticleScreenState extends State<CreateArticleScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Create New Article'),
+        title: const Text('Create New Article'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -130,7 +134,7 @@ class _CreateArticleScreenState extends State<CreateArticleScreen> {
             children: <Widget>[
               TextFormField(
                 controller: _titleController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Title',
                 ),
                 validator: (value) {
@@ -142,7 +146,7 @@ class _CreateArticleScreenState extends State<CreateArticleScreen> {
               ),
               TextFormField(
                 controller: _contentController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Content',
                 ),
                 validator: (value) {
@@ -152,14 +156,14 @@ class _CreateArticleScreenState extends State<CreateArticleScreen> {
                   return null;
                 },
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
                     _createArticle();
                   }
                 },
-                child: Text('Save'),
+                child: const Text('Save'),
               ),
             ],
           ),
@@ -180,7 +184,7 @@ class _CreateArticleScreenState extends State<CreateArticleScreen> {
 class EditArticleScreen extends StatefulWidget {
   final String articleId;
 
-  const EditArticleScreen({Key? key, required this.articleId}) : super(key: key);
+  const EditArticleScreen({super.key, required this.articleId});
 
   @override
   _EditArticleScreenState createState() => _EditArticleScreenState();
@@ -220,7 +224,7 @@ class _EditArticleScreenState extends State<EditArticleScreen> {
             children: <Widget>[
               TextFormField(
                 controller: _titleController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Title',
                 ),
                 validator: (value) {
@@ -232,7 +236,7 @@ class _EditArticleScreenState extends State<EditArticleScreen> {
               ),
               TextFormField(
                 controller: _contentController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Content',
                 ),
                 validator: (value) {
@@ -243,14 +247,14 @@ class _EditArticleScreenState extends State<EditArticleScreen> {
                 },
               ),
              
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
                     _updateArticle();
                   }
                 },
-                child: Text('Save'),
+                child: const Text('Save'),
               ),
             ],
           ),

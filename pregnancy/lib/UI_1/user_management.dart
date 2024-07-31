@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore package
 
 class UserManagement extends StatefulWidget {
+  const UserManagement({super.key});
+
   @override
   _UserManagementState createState() => _UserManagementState();
 }
@@ -28,39 +30,39 @@ class _UserManagementState extends State<UserManagement> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Text(
+            const Text(
               'All Users',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             TextField(
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'Search for users...',
               ),
               onChanged: (value) {
                 // Add search functionality here if needed
               },
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => CreateUserScreen()),
+                  MaterialPageRoute(builder: (context) => const CreateUserScreen()),
                 );
               },
-              child: Text('Create New User'),
+              child: const Text('Create New User'),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: _userStream,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator());
                   }
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return Center(child: Text('No users found.'));
+                    return const Center(child: Text('No users found.'));
                   }
                   final users = snapshot.data!.docs;
                   return ListView.builder(
@@ -85,7 +87,7 @@ class _UserManagementState extends State<UserManagement> {
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
                               IconButton(
-                                icon: Icon(Icons.edit),
+                                icon: const Icon(Icons.edit),
                                 onPressed: () {
                                   Navigator.push(
                                     context,
@@ -96,7 +98,7 @@ class _UserManagementState extends State<UserManagement> {
                                 },
                               ),
                               IconButton(
-                                icon: Icon(Icons.delete),
+                                icon: const Icon(Icons.delete),
                                 onPressed: () {
                                   _deleteUser(userId);
                                 },
@@ -122,6 +124,8 @@ class _UserManagementState extends State<UserManagement> {
 }
 
 class CreateUserScreen extends StatefulWidget {
+  const CreateUserScreen({super.key});
+
   @override
   _CreateUserScreenState createState() => _CreateUserScreenState();
 }
@@ -139,7 +143,7 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Create New User'),
+        title: const Text('Create New User'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -149,7 +153,7 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
             children: <Widget>[
               TextFormField(
                 controller: _nameController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Full Name',
                 ),
                 validator: (value) {
@@ -161,13 +165,13 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
               ),
               TextFormField(
                 controller: _dobController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Date of Birth',
                 ),
               ),
               TextFormField(
                 controller: _emailController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Email',
                 ),
                 validator: (value) {
@@ -179,25 +183,25 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
               ),
               TextFormField(
                 controller: _passwordController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Password',
                 ),
                 obscureText: true,
               ),
               TextFormField(
                 controller: _roleController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Role',
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
                     _createUser();
                   }
                 },
-                child: Text('Save'),
+                child: const Text('Save'),
               ),
             ],
           ),
@@ -221,7 +225,7 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
 class EditUserScreen extends StatefulWidget {
   final String userId;
 
-  const EditUserScreen({Key? key, required this.userId}) : super(key: key);
+  const EditUserScreen({super.key, required this.userId});
 
   @override
   _EditUserScreenState createState() => _EditUserScreenState();
@@ -260,7 +264,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
         _roleController.text = data['role'] ?? '';
       } else {
         // Handle case where the document does not exist
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User data does not exist.')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('User data does not exist.')));
         Navigator.pop(context);
       }
     } catch (e) {
@@ -284,7 +288,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
             children: <Widget>[
               TextFormField(
                 controller: _nameController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Full Name',
                 ),
                 validator: (value) {
@@ -296,13 +300,13 @@ class _EditUserScreenState extends State<EditUserScreen> {
               ),
               TextFormField(
                 controller: _dobController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Date of Birth',
                 ),
               ),
               TextFormField(
                 controller: _emailController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Email',
                 ),
                 validator: (value) {
@@ -314,25 +318,25 @@ class _EditUserScreenState extends State<EditUserScreen> {
               ),
               TextFormField(
                 controller: _passwordController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Password',
                 ),
                 obscureText: true,
               ),
               TextFormField(
                 controller: _roleController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Role',
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
                     _updateUser();
                   }
                 },
-                child: Text('Save'),
+                child: const Text('Save'),
               ),
             ],
           ),

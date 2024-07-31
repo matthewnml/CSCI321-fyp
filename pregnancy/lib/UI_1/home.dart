@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pregnancy/UI_4/notifications.dart'; // Import the notifications page
+import 'package:pregnancy/UI_4/notificationpage.dart';// Import the notifications page
 import 'duedatecalculator.dart'; // Import the Due Date Calculator page
 import 'contractiontimer.dart'; // Import the Contraction Timer page
 import 'kickcounter.dart'; // Import the Kick Counter page
@@ -93,7 +93,7 @@ class HomePageContent extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const NotificationsPage()),
+                    builder: (context) => const NotificationPage()),
               );
             },
           ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pregnancy/UI_4/notifications.dart'; // Import the notifications page
+import 'package:pregnancy/UI_4/notificationpage.dart'; // Import the notifications page
 import 'ivfinjection.dart'; // Import the IVF Injection page
 import 'guides.dart'; // Import the GuidePage
 import 'articles.dart'; // Import the ArticlesPage
@@ -89,7 +89,7 @@ class HomePageContent extends StatelessWidget {
               // Navigate to the notifications page
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const NotificationsPage()),
+                MaterialPageRoute(builder: (context) => const NotificationPage()),
               );
             },
           ),

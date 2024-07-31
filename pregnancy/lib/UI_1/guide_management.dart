@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class GuideManagement extends StatefulWidget {
+  const GuideManagement({super.key});
+
   @override
   _GuideManagementState createState() => _GuideManagementState();
 }
@@ -28,30 +30,30 @@ class _GuideManagementState extends State<GuideManagement> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Text(
+            const Text(
               'All Guides',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => CreateGuideScreen()),
+                  MaterialPageRoute(builder: (context) => const CreateGuideScreen()),
                 );
               },
-              child: Text('Create New Guide'),
+              child: const Text('Create New Guide'),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: _guideStream,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator());
                   }
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return Center(child: Text('No guides found.'));
+                    return const Center(child: Text('No guides found.'));
                   }
                   final guides = snapshot.data!.docs;
                   return ListView.builder(
@@ -69,7 +71,7 @@ class _GuideManagementState extends State<GuideManagement> {
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
                               IconButton(
-                                icon: Icon(Icons.edit),
+                                icon: const Icon(Icons.edit),
                                 onPressed: () {
                                   Navigator.push(
                                     context,
@@ -80,7 +82,7 @@ class _GuideManagementState extends State<GuideManagement> {
                                 },
                               ),
                               IconButton(
-                                icon: Icon(Icons.delete),
+                                icon: const Icon(Icons.delete),
                                 onPressed: () {
                                   _deleteGuide(guideId);
                                 },
@@ -106,6 +108,8 @@ class _GuideManagementState extends State<GuideManagement> {
 }
 
 class CreateGuideScreen extends StatefulWidget {
+  const CreateGuideScreen({super.key});
+
   @override
   _CreateGuideScreenState createState() => _CreateGuideScreenState();
 }
@@ -120,7 +124,7 @@ class _CreateGuideScreenState extends State<CreateGuideScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Create New Guide'),
+        title: const Text('Create New Guide'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -130,7 +134,7 @@ class _CreateGuideScreenState extends State<CreateGuideScreen> {
             children: <Widget>[
               TextFormField(
                 controller: _titleController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Title',
                 ),
                 validator: (value) {
@@ -142,7 +146,7 @@ class _CreateGuideScreenState extends State<CreateGuideScreen> {
               ),
               TextFormField(
                 controller: _contentController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Content',
                 ),
                 validator: (value) {
@@ -152,14 +156,14 @@ class _CreateGuideScreenState extends State<CreateGuideScreen> {
                   return null;
                 },
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
                     _createGuide();
                   }
                 },
-                child: Text('Save'),
+                child: const Text('Save'),
               ),
             ],
           ),
@@ -180,7 +184,7 @@ class _CreateGuideScreenState extends State<CreateGuideScreen> {
 class EditGuideScreen extends StatefulWidget {
   final String guideId;
 
-  const EditGuideScreen({Key? key, required this.guideId}) : super(key: key);
+  const EditGuideScreen({super.key, required this.guideId});
 
   @override
   _EditGuideScreenState createState() => _EditGuideScreenState();
@@ -220,7 +224,7 @@ class _EditGuideScreenState extends State<EditGuideScreen> {
             children: <Widget>[
               TextFormField(
                 controller: _titleController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Title',
                 ),
                 validator: (value) {
@@ -232,7 +236,7 @@ class _EditGuideScreenState extends State<EditGuideScreen> {
               ),
               TextFormField(
                 controller: _contentController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Content',
                 ),
                 validator: (value) {
@@ -242,14 +246,14 @@ class _EditGuideScreenState extends State<EditGuideScreen> {
                   return null;
                 },
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
                     _updateGuide();
                   }
                 },
-                child: Text('Save'),
+                child: const Text('Save'),
               ),
             ],
           ),

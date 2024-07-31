@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
-import '/UI_4/account.dart';
+import 'account.dart';
 import 'emergency_contact.dart'; // Import the EmergencyContactPage
-import '/UI_main/password_reset.dart'; // Import the PasswordResetPage
+import 'package:pregnancy/UI_main/password_reset.dart'; // Import the PasswordResetPage
+import 'contact_us.dart';
+import 'privacy_security.dart';
+import 'notifications.dart';
+import 'notificationpage.dart';
 
 class SettingsScreen extends StatelessWidget {
   final String userId;
@@ -39,7 +43,12 @@ class SettingsScreen extends StatelessWidget {
             leading: const Icon(Icons.notifications),
             title: const Text('Notifications'),
             onTap: () {
-              Navigator.pushNamed(context, '/notifications');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NotificationPage(),
+                ),
+              );
             },
           ),
           ListTile(
@@ -58,14 +67,24 @@ class SettingsScreen extends StatelessWidget {
             leading: const Icon(Icons.contact_mail),
             title: const Text('Contact Us'),
             onTap: () {
-              // Handle tap
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ContactUsPage(),
+                ),
+              );
             },
           ),
           ListTile(
             leading: const Icon(Icons.description),
             title: const Text('Terms & Conditions'),
             onTap: () {
-              Navigator.pushNamed(context, '/terms_conditions');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const TermsAndConditionsPage(),
+                ),
+              );
             },
           ),
           ListTile(

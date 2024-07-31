@@ -180,7 +180,7 @@ class _KickCounterPageState extends State<KickCounterPage> {
               subtitle: Text(
                   'Start Time: ${record['startTime']}\nDuration: ${record['duration']}\nKicks: ${record['kicks']}'),
               trailing: IconButton(
-                icon: Icon(Icons.delete),
+                icon: const Icon(Icons.delete),
                 onPressed: () => _deleteRecord(record['id']),
               ),
             ),

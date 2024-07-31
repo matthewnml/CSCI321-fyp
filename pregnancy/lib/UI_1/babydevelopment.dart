@@ -85,8 +85,8 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddDataDialog(),
-        child: const Icon(Icons.add),
         backgroundColor: Colors.pink,
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -121,12 +121,12 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
                 TextField(
                   controller: _weightController,
                   decoration: const InputDecoration(labelText: 'Weight (kg)'),
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 ),
                 TextField(
                   controller: _heightController,
                   decoration: const InputDecoration(labelText: 'Height (cm)'),
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 ),
               ],
             );
@@ -148,7 +148,7 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
 
   Widget _buildTrendGraph(String title, List<double> data, Color color) {
     final double maxDataValue = data.isNotEmpty ? data.reduce((a, b) => a > b ? a : b) : 100;
-    final double minY = 0;
+    const double minY = 0;
     final double maxY = maxDataValue + 5;
     final double interval = (maxY / 10).ceilToDouble();
     final adjustedData = List.generate(months.length, (index) {
@@ -221,12 +221,12 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
                       },
                     ),
                   ),
-                  topTitles: AxisTitles(
+                  topTitles: const AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: false, // Hide top titles
                     ),
                   ),
-                  rightTitles: AxisTitles(
+                  rightTitles: const AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: false,
                     ),
@@ -245,12 +245,12 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
                     isCurved: true,
                     barWidth: 4,
                     color: color,
-                    dotData: FlDotData(show: true),
+                    dotData: const FlDotData(show: true),
                     belowBarData: BarAreaData(show: false),
                     aboveBarData: BarAreaData(show: false),
                   ),
                 ],
-                lineTouchData: LineTouchData(
+                lineTouchData: const LineTouchData(
                   enabled: false,
                 ),
               ),

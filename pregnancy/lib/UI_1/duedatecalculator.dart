@@ -6,7 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 class DueDateCalculatorPage extends StatefulWidget {
   final String userId;
 
-  const DueDateCalculatorPage({Key? key, required this.userId}) : super(key: key);
+  const DueDateCalculatorPage({super.key, required this.userId});
 
   @override
   _DueDateCalculatorPageState createState() => _DueDateCalculatorPageState();

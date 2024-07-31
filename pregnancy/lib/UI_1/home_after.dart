@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pregnancy/UI_2/calendar.dart';
 import 'package:pregnancy/UI_3/health.dart';
 import 'package:pregnancy/UI_4/setting.dart';
-import 'package:pregnancy/UI_4/notifications.dart'; // Import the notifications page
+import 'package:pregnancy/UI_4/notificationpage.dart'; // Import the notifications page
 import 'babydevelopment.dart'; // Import the Baby Development page
 import 'guides.dart'; // Import the GuidePage
 import 'articles.dart'; // Import the ArticlesPage
@@ -90,7 +90,7 @@ class HomePageContent extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const NotificationsPage()),
+                    builder: (context) => const NotificationPage()),
               );
             },
           ),

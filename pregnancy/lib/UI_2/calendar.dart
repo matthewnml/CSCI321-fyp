@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 
 void main() {
   runApp(const MyApp());
@@ -54,6 +55,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
             .collection('notes')
             .get();
 
+        QuerySnapshot apptSnapshot = await _firestore
+            .collection('user_accounts')
+            .doc(user.uid)
+            .collection('appt_info')
+            .get();
+
         Map<DateTime, List<Map<String, dynamic>>> loadedNotes = {};
         Set<DateTime> noteDates = {};
 
@@ -70,6 +77,27 @@ class _CalendarScreenState extends State<CalendarScreen> {
             loadedNotes[dateOnly] = [];
           }
           loadedNotes[dateOnly]!.add(note);
+          noteDates.add(dateOnly);
+        }
+
+        for (var doc in apptSnapshot.docs) {
+          DateTime date;
+          try {
+            date = DateFormat('d/M/yyyy').parse(doc['Date']);
+          } catch (e) {
+            date = DateTime.parse(doc['Date']);
+          }
+          Map<String, dynamic> appt = {
+            'id': doc.id,
+            'title': 'Appointment with Dr. ${doc['Doctor Name']}',
+            'content': 'Time: ${doc['Time']}',
+          };
+
+          DateTime dateOnly = DateTime(date.year, date.month, date.day);
+          if (loadedNotes[dateOnly] == null) {
+            loadedNotes[dateOnly] = [];
+          }
+          loadedNotes[dateOnly]!.add(appt);
           noteDates.add(dateOnly);
         }
 
@@ -242,12 +270,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
           ..._notes[dateOnly]!.map((note) => ListTile(
                 title: Text(note['title']),
                 subtitle: Text(note['content']),
-                trailing: IconButton(
+                trailing: note.containsKey('id') ? IconButton(
                   icon: const Icon(Icons.delete),
                   onPressed: () {
                     _deleteNote(note['id'], dateOnly);
                   },
-                ),
+                ) : null,
               ))
         else
           const Padding(

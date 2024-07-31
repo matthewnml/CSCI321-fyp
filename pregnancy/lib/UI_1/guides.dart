@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class GuidesPage extends StatelessWidget {
-  const GuidesPage({Key? key}) : super(key: key);
+  const GuidesPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +52,7 @@ class GuidesPage extends StatelessWidget {
 class GuideDetailPage extends StatelessWidget {
   final QueryDocumentSnapshot guide;
 
-  const GuideDetailPage({Key? key, required this.guide}) : super(key: key);
+  const GuideDetailPage({super.key, required this.guide});
 
   @override
   Widget build(BuildContext context) {

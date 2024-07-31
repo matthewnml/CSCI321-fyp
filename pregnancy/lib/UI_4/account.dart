@@ -16,8 +16,11 @@ class _AccountPageState extends State<AccountPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
   final TextEditingController _roleController = TextEditingController();
+  final TextEditingController _pregnancyStatusController = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   bool _isLoading = true; // Add a loading state
+
+  List<String> pregnancyStatusOptions = ['Trying to conceive', 'Currently pregnant', 'Have given birth'];
 
   @override
   void initState() {
@@ -36,6 +39,7 @@ class _AccountPageState extends State<AccountPage> {
         _emailController.text = userData['email'] ?? '';
         _dobController.text = userData['date_of_birth'] ?? '';
         _roleController.text = userData['role'] ?? '';
+        _pregnancyStatusController.text = userData['pregnancy_status'] ?? '';
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -55,6 +59,7 @@ class _AccountPageState extends State<AccountPage> {
         'email': _emailController.text,
         'date_of_birth': _dobController.text,
         'role': _roleController.text,
+        'pregnancy_status': _pregnancyStatusController.text,
       }, SetOptions(merge: true));
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Profile updated successfully')),
@@ -99,7 +104,8 @@ class _AccountPageState extends State<AccountPage> {
                   buildTextField("Full Name", _nameController),
                   buildTextField("E-Mail", _emailController),
                   buildTextField("Date of Birth", _dobController),
-                  buildTextField("Role", _roleController),
+                  buildNonEditableField("Role", _roleController),
+                  buildDropdownField("Pregnancy Status", _pregnancyStatusController, pregnancyStatusOptions),
                   const SizedBox(height: 16),
                 ],
               ),
@@ -125,6 +131,95 @@ class _AccountPageState extends State<AccountPage> {
           _isEditing
               ? TextField(
                   controller: controller,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                )
+              : Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    controller.text,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey[800],
+                    ),
+                  ),
+                ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildNonEditableField(String labelText, TextEditingController controller) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            labelText,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[700],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              controller.text,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[800],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildDropdownField(String labelText, TextEditingController controller, List<String> options) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            labelText,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[700],
+            ),
+          ),
+          const SizedBox(height: 8),
+          _isEditing
+              ? DropdownButtonFormField<String>(
+                  value: controller.text.isEmpty ? null : controller.text,
+                  items: options.map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      controller.text = newValue!;
+                    });
+                  },
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),

@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 class ContractionTimerPage extends StatefulWidget {
   final String userId;
 
-  const ContractionTimerPage({Key? key, required this.userId}) : super(key: key);
+  const ContractionTimerPage({super.key, required this.userId});
 
   @override
   _ContractionTimerPageState createState() => _ContractionTimerPageState();
@@ -92,8 +92,8 @@ class _ContractionTimerPageState extends State<ContractionTimerPage> {
             ),
             if (_isTiming) // Show timer only when timing
               Text(
-                '${_formatDuration(_contractionDuration)}',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                _formatDuration(_contractionDuration),
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
             const SizedBox(height: 20.0),
             Row(
@@ -146,7 +146,7 @@ class _ContractionTimerPageState extends State<ContractionTimerPage> {
                           index == 0
                               ? 'Frequency: ${contraction['timeApart']}'
                               : 'Frequency: ${contraction['timeApart']}',
-                          style: TextStyle(color: Colors.black),
+                          style: const TextStyle(color: Colors.black),
                         ),
                       ],
                     ),
