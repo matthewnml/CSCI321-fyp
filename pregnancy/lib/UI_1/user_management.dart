@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore package
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 class UserManagement extends StatefulWidget {
   @override
@@ -9,11 +10,18 @@ class UserManagement extends StatefulWidget {
 class _UserManagementState extends State<UserManagement> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   late Stream<QuerySnapshot> _userStream;
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
-    _userStream = _firestore.collection('user_accounts').snapshots(); // Updated collection name
+    _userStream = _firestore.collection('user_accounts').snapshots();
+  }
+
+  void _updateSearchQuery(String query) {
+    setState(() {
+      _searchQuery = query.toLowerCase();
+    });
   }
 
   @override
@@ -38,7 +46,7 @@ class _UserManagementState extends State<UserManagement> {
                 hintText: 'Search for users...',
               ),
               onChanged: (value) {
-                // Add search functionality here if needed
+                _updateSearchQuery(value);
               },
             ),
             SizedBox(height: 10),
@@ -62,7 +70,12 @@ class _UserManagementState extends State<UserManagement> {
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                     return Center(child: Text('No users found.'));
                   }
-                  final users = snapshot.data!.docs;
+                  final users = snapshot.data!.docs.where((user) {
+                    final data = user.data() as Map<String, dynamic>;
+                    final fullName = data['full_name']?.toLowerCase() ?? '';
+                    final email = data['email']?.toLowerCase() ?? '';
+                    return fullName.contains(_searchQuery) || email.contains(_searchQuery);
+                  }).toList();
                   return ListView.builder(
                     itemCount: users.length,
                     itemBuilder: (context, index) {
@@ -79,6 +92,7 @@ class _UserManagementState extends State<UserManagement> {
                               Text('Date of Birth: ${data['date_of_birth'] ?? 'N/A'}'),
                               Text('Email: ${data['email'] ?? 'N/A'}'),
                               Text('Role: ${data['role'] ?? 'N/A'}'),
+                              Text('Password: ${data['password'] ?? 'N/A'}'),
                             ],
                           ),
                           trailing: Row(
@@ -98,7 +112,7 @@ class _UserManagementState extends State<UserManagement> {
                               IconButton(
                                 icon: Icon(Icons.delete),
                                 onPressed: () {
-                                  _deleteUser(userId);
+                                  _confirmDeleteUser(userId);
                                 },
                               ),
                             ],
@@ -116,8 +130,35 @@ class _UserManagementState extends State<UserManagement> {
     );
   }
 
+  void _confirmDeleteUser(String userId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Delete User'),
+          content: Text('Are you sure you want to delete this user?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Delete'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _deleteUser(userId);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _deleteUser(String userId) async {
-    await _firestore.collection('user_accounts').doc(userId).delete(); // Updated collection name
+    await _firestore.collection('user_accounts').doc(userId).delete();
   }
 }
 
@@ -132,8 +173,8 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
   final _dobController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _roleController = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  String? _selectedRole;
 
   @override
   Widget build(BuildContext context) {
@@ -162,8 +203,24 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
               TextFormField(
                 controller: _dobController,
                 decoration: InputDecoration(
-                  labelText: 'Date of Birth',
+                  labelText: 'Date of Birth (DD/MM/YYYY)',
                 ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a date of birth';
+                  }
+                  final parts = value.split('/');
+                  if (parts.length != 3) {
+                    return 'Please enter a valid date in the format DD/MM/YYYY';
+                  }
+                  final day = int.tryParse(parts[0]);
+                  final month = int.tryParse(parts[1]);
+                  final year = int.tryParse(parts[2]);
+                  if (day == null || month == null || year == null) {
+                    return 'Please enter a valid date in the format DD/MM/YYYY';
+                  }
+                  return null;
+                },
               ),
               TextFormField(
                 controller: _emailController,
@@ -184,11 +241,26 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
                 ),
                 obscureText: true,
               ),
-              TextFormField(
-                controller: _roleController,
-                decoration: InputDecoration(
-                  labelText: 'Role',
-                ),
+              DropdownButtonFormField<String>(
+                value: _selectedRole,
+                hint: Text('Select Role'),
+                items: ['User', 'Specialist'].map((String role) {
+                  return DropdownMenuItem<String>(
+                    value: role,
+                    child: Text(role),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedRole = newValue;
+                  });
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please select a role';
+                  }
+                  return null;
+                },
               ),
               SizedBox(height: 20),
               ElevatedButton(
@@ -207,12 +279,12 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
   }
 
   void _createUser() async {
-    await _firestore.collection('user_accounts').add({ // Updated collection name
+    await _firestore.collection('user_accounts').add({
       'full_name': _nameController.text,
       'date_of_birth': _dobController.text,
       'email': _emailController.text,
       'password': _passwordController.text, // Handle password securely
-      'role': _roleController.text,
+      'role': _selectedRole,
     });
     Navigator.pop(context);
   }
@@ -233,8 +305,8 @@ class _EditUserScreenState extends State<EditUserScreen> {
   late TextEditingController _dobController;
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
-  late TextEditingController _roleController;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  String? _selectedRole;
 
   @override
   void initState() {
@@ -243,8 +315,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
     _dobController = TextEditingController();
     _emailController = TextEditingController();
     _passwordController = TextEditingController();
-    _roleController = TextEditingController();
-    _loadUserData();
+        _loadUserData();
   }
 
   void _loadUserData() async {
@@ -252,19 +323,18 @@ class _EditUserScreenState extends State<EditUserScreen> {
       final doc = await _firestore.collection('user_accounts').doc(widget.userId).get();
       if (doc.exists) {
         final data = doc.data() as Map<String, dynamic>;
-
         _nameController.text = data['full_name'] ?? '';
         _dobController.text = data['date_of_birth'] ?? '';
         _emailController.text = data['email'] ?? '';
         _passwordController.text = data['password'] ?? '';
-        _roleController.text = data['role'] ?? '';
+        setState(() {
+          _selectedRole = data['role'] ?? '';
+        });
       } else {
-        // Handle case where the document does not exist
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User data does not exist.')));
         Navigator.pop(context);
       }
     } catch (e) {
-      // Handle any errors that occur during data fetch
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error fetching user data: $e')));
       Navigator.pop(context);
     }
@@ -274,7 +344,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit User ${widget.userId}'),
+        title: Text('Edit User'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -297,8 +367,24 @@ class _EditUserScreenState extends State<EditUserScreen> {
               TextFormField(
                 controller: _dobController,
                 decoration: InputDecoration(
-                  labelText: 'Date of Birth',
+                  labelText: 'Date of Birth (DD/MM/YYYY)',
                 ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a date of birth';
+                  }
+                  final parts = value.split('/');
+                  if (parts.length != 3) {
+                    return 'Please enter a valid date in the format DD/MM/YYYY';
+                  }
+                  final day = int.tryParse(parts[0]);
+                  final month = int.tryParse(parts[1]);
+                  final year = int.tryParse(parts[2]);
+                  if (day == null || month == null || year == null) {
+                    return 'Please enter a valid date in the format DD/MM/YYYY';
+                  }
+                  return null;
+                },
               ),
               TextFormField(
                 controller: _emailController,
@@ -319,11 +405,26 @@ class _EditUserScreenState extends State<EditUserScreen> {
                 ),
                 obscureText: true,
               ),
-              TextFormField(
-                controller: _roleController,
-                decoration: InputDecoration(
-                  labelText: 'Role',
-                ),
+              DropdownButtonFormField<String>(
+                value: _selectedRole,
+                hint: Text('Select Role'),
+                items: ['User', 'Specialist'].map((String role) {
+                  return DropdownMenuItem<String>(
+                    value: role,
+                    child: Text(role),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedRole = newValue;
+                  });
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please select a role';
+                  }
+                  return null;
+                },
               ),
               SizedBox(height: 20),
               ElevatedButton(
@@ -348,12 +449,12 @@ class _EditUserScreenState extends State<EditUserScreen> {
         'date_of_birth': _dobController.text,
         'email': _emailController.text,
         'password': _passwordController.text,
-        'role': _roleController.text,
+        'role': _selectedRole,
       });
       Navigator.pop(context);
     } catch (e) {
-      // Handle any errors that occur during update
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error updating user: $e')));
     }
   }
 }
+
