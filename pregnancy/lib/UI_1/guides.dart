@@ -2,6 +2,23 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Pregnancy Guides',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: GuidesPage(),
+    );
+  }
+}
+
 class GuidesPage extends StatelessWidget {
   const GuidesPage({super.key});
 
@@ -18,70 +35,41 @@ class GuidesPage extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
           final guides = snapshot.data!.docs;
+
           return ListView.builder(
             padding: const EdgeInsets.all(16.0),
             itemCount: guides.length,
             itemBuilder: (context, index) {
               final guide = guides[index];
+              final Map<String, dynamic> urls = Map<String, dynamic>.from(guide['url']);
+              final entries = urls.entries.toList();
+
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 10),
-                child: ListTile(
+                child: ExpansionTile(
                   title: Text(
                     guide['title'],
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontSize: 16),
                   ),
-                  trailing: const Icon(Icons.arrow_forward),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => GuideDetailPage(guide: guide),
+                  children: entries.map((urlInfo) {
+                    return ListTile(
+                      title: Text(
+                        urlInfo.key,
+                        style: const TextStyle(fontSize: 16),
                       ),
+                      subtitle: Text(
+                        urlInfo.value,
+                        style: const TextStyle(fontSize: 14, color: Colors.blue),
+                      ),
+                      trailing: const Icon(Icons.open_in_browser),
+                      onTap: () {
+                        _launchURL(urlInfo.value);
+                      },
                     );
-                  },
+                  }).toList(),
                 ),
               );
             },
-          );
-        },
-      ),
-    );
-  }
-}
-
-class GuideDetailPage extends StatelessWidget {
-  final QueryDocumentSnapshot guide;
-
-  const GuideDetailPage({super.key, required this.guide});
-
-  @override
-  Widget build(BuildContext context) {
-    // Access the 'url' field and treat it as a Map
-    final Map<String, dynamic> urls = Map<String, dynamic>.from(guide['url']);
-    
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(guide['title']),
-      ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16.0),
-        itemCount: urls.length,
-        itemBuilder: (context, index) {
-          // Convert the map to a list of entries
-          final entries = urls.entries.toList();
-          final urlInfo = entries[index];
-          return Card(
-            margin: const EdgeInsets.symmetric(vertical: 10),
-            child: ListTile(
-              title: Text(
-                urlInfo.key, // assuming the key is the title of the URL
-                style: const TextStyle(fontSize: 16),
-              ),
-              trailing: const Icon(Icons.open_in_browser),
-              onTap: () {
-                _launchURL(urlInfo.value); // assuming the value is the URL string
-              },
-            ),
           );
         },
       ),

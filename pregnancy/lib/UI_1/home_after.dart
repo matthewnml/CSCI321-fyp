@@ -109,6 +109,7 @@ class HomePageContent extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 32),
+              // Baby Development Section
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
@@ -135,93 +136,49 @@ class HomePageContent extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 32),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.only(bottom: 8.0),
-                        child: const Text(
-                          'Articles',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const Divider(), // Added a divider below the Articles heading
-                      _buildArticleTile(
-                          'Picture1',
-                          'Female Health Articles',
-                          'Article preview...........................................................................................................',
-                          const Color(0xFFE3D2C3),
-                          'assets/article1.jpg',
-                          context), // Pass context here
-                      _buildArticleTile(
-                          'Picture2',
-                          'Conceiving Articles',
-                          'Article preview...........................................................................................................',
-                          const Color(0xFFC3D5E3),
-                          'assets/article2.jpg',
-                          context), // Pass context here
-                      _buildArticleTile(
-                          'Picture3',
-                          'Parenting Articles',
-                          'Article preview...........................................................................................................',
-                          const Color(0xFFDAE3C3),
-                          'assets/article3.jpg',
-                          context), // Pass context here
-                      const SizedBox(height: 8),
-                      Center(
-                        child: TextButton(
-                          onPressed: () {
-                            // Handle "See more" button press
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const ArticlesPage()),
-                            );
-                          },
-                          child: const Text('See more',
-                              style: TextStyle(color: Color(0xFF000000))),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 32),
+              // Articles & Guides Section
               const Text(
-                'Guides',
+                'Articles & Guides',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              GestureDetector(
-                onTap: () {
-                  // Navigate to the Guides List page
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const GuidesPage()),
-                  );
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildGuideButton('Guide 1', const Color(0xFFE3C3C3),
-                        const AssetImage('assets/fitnessguide.jpg')),
-                    _buildGuideButton(
-                        'Guide 2',
-                        const Color(0xFFC3D5E3),
-                        const AssetImage('assets/pregnancysymptomsguide.jpg')),
-                    _buildGuideButton('Guide 3', const Color(0xFFDAE3C3),
-                        const AssetImage('assets/nutritionguide.jpg')),
-                    _buildGuideButton('Guide 4', const Color(0xFFE3D2C3),
-                        const AssetImage('assets/videoguide.jpg')),
-                  ],
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const ArticlesPage()),
+                        );
+                      },
+                      child: _buildArticleTile(
+                        'Articles',
+                        const Color(0xFFE3C3C3),
+                        'assets/article1.jpg',
+                        context,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16), // Space between article and guide
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const GuidesPage()),
+                        );
+                      },
+                      child: _buildGuideButton(
+                        'Guides',
+                        const Color(0xFFE3C3C3),
+                        const AssetImage('assets/fitnessguide.jpg'),
+                        context,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -230,11 +187,10 @@ class HomePageContent extends StatelessWidget {
     );
   }
 
-  Widget _buildGuideButton(
-      String title, Color color, ImageProvider<Object> image) {
+  Widget _buildGuideButton(String title, Color color, ImageProvider<Object> image, BuildContext context) {
     return Container(
-      width: 80,
-      height: 80,
+      width: 100,
+      height: 450,
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(12),
@@ -247,18 +203,14 @@ class HomePageContent extends StatelessWidget {
           children: [
             Text(
               title,
-              style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 14, color: Colors.black, fontWeight: FontWeight.bold),
             ),
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
                   image: DecorationImage(
                     image: image,
-                    fit: BoxFit.cover,
+                    fit: BoxFit.cover, // Use BoxFit.cover to make the image fill the entire space
                   ),
                 ),
               ),
@@ -269,30 +221,35 @@ class HomePageContent extends StatelessWidget {
     );
   }
 
-  Widget _buildArticleTile(String picture, String title, String previewText,
-      Color color, String imagePath, BuildContext context) {
+  Widget _buildArticleTile(String title, Color color, String imagePath, BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      width: 100,
+      height: 450,
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
       ),
-      child: ListTile(
-        leading: Image.asset(
-          imagePath,
-          width: 80,
-          height: 80,
-          fit: BoxFit.cover,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(fontSize: 14, color: Colors.black, fontWeight: FontWeight.bold),
+            ),
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage(imagePath),
+                    fit: BoxFit.cover, // Use BoxFit.cover to make the image fill the entire space
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
-        title: Text(title,
-            style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(previewText),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const ArticlesPage()),
-          );
-        },
       ),
     );
   }

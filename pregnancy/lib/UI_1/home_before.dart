@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:pregnancy/UI_4/notificationpage.dart'; // Import the notifications page
 import 'ivfinjection.dart'; // Import the IVF Injection page
-import 'guides.dart'; // Import the GuidePage
+import 'guides.dart'; // Import the GuidesPage
 import 'articles.dart'; // Import the ArticlesPage
 import '/UI_2/calendar.dart'; // Import the calendar.dart file
-import '../UI_3/health_user.dart'; // Import the health.dart file
+import '/UI_3/health_user.dart'; // Import the health.dart file
 import '/UI_4/setting.dart'; // Import the settings.dart file
 
 class HomeBeforePage extends StatefulWidget {
@@ -86,7 +86,6 @@ class HomePageContent extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.notifications, color: Colors.black),
             onPressed: () {
-              // Navigate to the notifications page
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const NotificationPage()),
@@ -114,7 +113,6 @@ class HomePageContent extends StatelessWidget {
                   color: const Color(0xFFE3C3C3),
                   textColor: const Color(0xFF000000),
                   onTap: () {
-                    // Navigate to IVF Injection feature
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => IVFInjectionTrackerPage(userId: userId)),
@@ -123,106 +121,48 @@ class HomePageContent extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.only(bottom: 8.0),
-                        child: const Text(
-                          'Articles',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const Divider(), // Added a divider below the Articles heading
-                      _buildArticleTile(
-                        'Picture1',
-                        'Female Health Articles',
-                        'Article preview..................................................................................',
-                        const Color(0xFFE3D2C3),
-                        'assets/article1.jpg',
-                        context,
-                      ),
-                      _buildArticleTile(
-                        'Picture2',
-                        'Conceiving Articles',
-                        'Article preview..................................................................................',
-                        const Color(0xFFC3D5E3),
-                        'assets/article2.jpg',
-                        context,
-                      ),
-                      _buildArticleTile(
-                        'Picture3',
-                        'Parenting Articles',
-                        'Article preview..................................................................................',
-                        const Color(0xFFDAE3C3),
-                        'assets/article3.jpg',
-                        context,
-                      ),
-                      const SizedBox(height: 8),
-                      Center(
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const ArticlesPage()),
-                            );
-                          },
-                          child: const Text('See more', style: TextStyle(color: Color(0xFF000000))),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 32),
               const Text(
-                'Guides',
+                'Articles & Guides',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              GestureDetector(
-                onTap: () {
-                  // Navigate to the Guides List page
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const GuidesPage()),
-                  );
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildGuideButton(
-                      'Guide 1',
-                      const Color(0xFFE3C3C3),
-                      const AssetImage('assets/fitnessguide.jpg'),
-                      context,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const ArticlesPage()),
+                        );
+                      },
+                      child: _buildArticleTile(
+                        'Articles',
+                        const Color(0xFFE3C3C3),
+                        'assets/article1.jpg',
+                        context,
+                      ),
                     ),
-                    _buildGuideButton(
-                      'Guide 2',
-                      const Color(0xFFC3D5E3),
-                      const AssetImage('assets/pregnancysymptomsguide.jpg'),
-                      context,
+                  ),
+                  const SizedBox(width: 16), // Space between article and guide
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const GuidesPage()),
+                        );
+                      },
+                      child: _buildGuideButton(
+                        'Guides',
+                        const Color(0xFFE3C3C3),
+                        const AssetImage('assets/fitnessguide.jpg'),
+                        context,
+                      ),
                     ),
-                    _buildGuideButton(
-                      'Guide 3',
-                      const Color(0xFFDAE3C3),
-                      const AssetImage('assets/nutritionguide.jpg'),
-                      context,
-                    ),
-                    _buildGuideButton(
-                      'Guide 4',
-                      const Color(0xFFE3D2C3),
-                      const AssetImage('assets/videoguide.jpg'),
-                      context,
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -233,8 +173,8 @@ class HomePageContent extends StatelessWidget {
 
   Widget _buildGuideButton(String title, Color color, ImageProvider<Object> image, BuildContext context) {
     return Container(
-      width: 80,
-      height: 80,
+      width: 100,
+      height: 450,
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(12),
@@ -265,37 +205,36 @@ class HomePageContent extends StatelessWidget {
     );
   }
 
-  Widget _buildArticleTile(String picture, String title, String preview, Color color, String imagePath, BuildContext context) {
-    return Column(
-      children: [
-        ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          leading: Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(12),
+  Widget _buildArticleTile(String title, Color color, String imagePath, BuildContext context) {
+    return Container(
+      width: 100,
+      height: 450,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(fontSize: 14, color: Colors.black, fontWeight: FontWeight.bold),
             ),
-            child: Image.asset(imagePath), // Updated to use Image.asset
-          ),
-          title: Text(
-            title,
-            style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          subtitle: Text(
-            preview,
-            style: const TextStyle(color: Colors.black, fontSize: 12),
-          ),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ArticlesPage()),
-            );
-          },
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage(imagePath),
+                    fit: BoxFit.cover, // Use BoxFit.cover to make the image fill the entire space
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
-        const Divider(), // Add a divider between each article
-      ],
+      ),
     );
   }
 }
