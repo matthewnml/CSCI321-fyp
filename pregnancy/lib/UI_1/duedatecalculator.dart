@@ -128,6 +128,13 @@ class _DueDateCalculatorPageState extends State<DueDateCalculatorPage> {
     );
   }
 
+  int getRemainingDays() {
+    if (_estimatedDueDate == null) return 0;
+    final now = DateTime.now();
+    final difference = _estimatedDueDate!.difference(now).inDays;
+    return difference;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
