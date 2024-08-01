@@ -13,7 +13,6 @@ class CountdownDays extends StatefulWidget {
 
 class _CountdownDaysState extends State<CountdownDays> {
   int _remainingDays = 50; // Default value
-
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
