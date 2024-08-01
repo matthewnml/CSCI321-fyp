@@ -5,7 +5,7 @@ import 'ivfinjection.dart'; // Import the IVF Injection page
 import 'guides.dart'; // Import the GuidePage
 import 'articles.dart'; // Import the ArticlesPage
 import '/UI_2/calendar.dart'; // Import the calendar.dart file
-import '/UI_3/health.dart'; // Import the health.dart file
+import '../UI_3/health_specialist.dart'; // Import the health.dart file
 import '/UI_4/setting.dart'; // Import the settings.dart file
 
 class HomeSpecialistPage extends StatefulWidget {
@@ -28,7 +28,7 @@ class _HomeSpecialPageState extends State<HomeSpecialistPage> {
     _pages = <Widget>[
       HomePageContent(userId: widget.userId),
       const CalendarScreen(),
-      const HealthScreen(),
+      const HealthSpecialistScreen(),
       SettingsScreen(userId: widget.userId),
     ];
   }
