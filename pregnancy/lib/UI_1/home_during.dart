@@ -6,11 +6,16 @@ import 'duedatecalculator.dart'; // Import the Due Date Calculator page
 import 'contractiontimer.dart'; // Import the Contraction Timer page
 import 'kickcounter.dart'; // Import the Kick Counter page
 import 'countdowndays.dart'; // Import the CountdownDays widget
-import 'guides.dart'; // Import the GuidePage
+//import 'guides.dart';
 import 'articles.dart'; // Import the ArticlesPage
 import '/UI_2/calendar.dart'; // Import the calendar.dart file
 import '../UI_3/health_user.dart'; // Import the health.dart file
 import '/UI_4/setting.dart'; // Import the settings.dart file
+//Newly added imports
+import 'nutrition_guides_page.dart'; // Import the NutritionGuidesPage
+import 'fitness_guides_page.dart'; // Import the FitnessGuidesPage
+import 'pregnancy_symptoms_guides_page.dart'; // Import the PregnancySymptomsGuidesPage
+import 'video_guides_page.dart'; // Import the VideoGuidesPage
 
 class HomeDuringPage extends StatefulWidget {
   final String userId;
@@ -301,30 +306,56 @@ class _HomePageContentState extends State<HomePageContent> {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              GestureDetector(
-                onTap: () {
-                  // Navigate to the Guides List page
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const GuidesPage()),
-                  );
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildGuideButton('Fitness Guides', const Color(0xFFE3C3C3),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const FitnessGuidesPage()),
+                      );
+                    },
+                    child: _buildGuideButton('Fitness Guides', const Color(0xFFE3C3C3),
                         const AssetImage('assets/fitnessguide.jpg')),
-                    _buildGuideButton(
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const PregnancySymptomsGuidesPage()),
+                      );
+                    },
+                    child: _buildGuideButton(
                         'Pregnancy Symptoms Guides',
                         const Color(0xFFC3D5E3),
                         const AssetImage('assets/pregnancysymptomsguide.jpg')),
-                    _buildGuideButton('Nutrition Guides', const Color(0xFFDAE3C3),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const NutritionGuidesPage()),
+                      );
+                    },
+                    child: _buildGuideButton('Nutrition Guides', const Color(0xFFDAE3C3),
                         const AssetImage('assets/nutritionguide.jpg')),
-                    _buildGuideButton('Video Guides', const Color(0xFFE3D2C3),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const VideoGuidesPage()),
+                      );
+                    },
+                    child: _buildGuideButton('Video Guides', const Color(0xFFE3D2C3),
                         const AssetImage('assets/videoguide.jpg')),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ],
           ),
