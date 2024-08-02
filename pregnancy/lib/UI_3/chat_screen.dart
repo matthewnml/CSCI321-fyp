@@ -10,6 +10,12 @@ class ChatScreen extends StatelessWidget {
 
   const ChatScreen({required this.chatId, required this.userName, required this.isSpecialist, Key? key}) : super(key: key);
 
+  String _formatTimestamp(Timestamp timestamp) {
+    final DateTime dateTime = timestamp.toDate();
+    final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm');
+    return formatter.format(dateTime);
+  }
+
   @override
   Widget build(BuildContext context) {
     final TextEditingController _controller = TextEditingController();
@@ -44,10 +50,33 @@ class ChatScreen extends StatelessWidget {
       );
     }
 
-    String _formatTimestamp(Timestamp timestamp) {
-      final DateTime dateTime = timestamp.toDate();
-      final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm');
-      return formatter.format(dateTime);
+    Future<void> _terminateChat() async {
+      final bool confirm = await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Terminate Chat'),
+            content: const Text('Are you sure you want to terminate the chat?'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Yes'),
+              ),
+            ],
+          );
+        },
+      ) ?? false;
+
+      if (confirm) {
+        await FirebaseFirestore.instance.collection('chats').doc(chatId).update({
+          'status': 'completed',
+        });
+        Navigator.pop(context);
+      }
     }
 
     return Scaffold(
@@ -63,10 +92,8 @@ class ChatScreen extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.black),
-            onPressed: () {
-              // Handle notification icon tap
-            },
+            icon: const Icon(Icons.attachment, color: Colors.black),
+            onPressed: _terminateChat,
           ),
         ],
       ),
@@ -75,18 +102,18 @@ class ChatScreen extends StatelessWidget {
           Expanded(
             child: StreamBuilder(
               stream: FirebaseFirestore.instance.collection('chats').doc(chatId).collection('messages').orderBy('timestamp', descending: false).snapshots(),
-              builder: (context, snapshot) {
+              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                final messages = snapshot.data?.docs ?? [];
+                final messages = snapshot.data!.docs;
 
                 return ListView.builder(
                   controller: _scrollController,
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
-                    final message = messages[index];
+                    final message = messages[index].data() as Map<String, dynamic>;
                     final bool isSentByUser = message['senderId'] == FirebaseAuth.instance.currentUser?.uid;
 
                     return Padding(
@@ -125,27 +152,39 @@ class ChatScreen extends StatelessWidget {
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    decoration: const InputDecoration(
-                      hintText: 'Enter your question here',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(12)),
+          StreamBuilder<DocumentSnapshot>(
+            stream: FirebaseFirestore.instance.collection('chats').doc(chatId).snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData && snapshot.data!.data() != null) {
+                final chatData = snapshot.data!.data() as Map<String, dynamic>;
+                if (chatData['status'] == 'completed') {
+                  return SizedBox.shrink(); // No input area if chat is completed
+                }
+              }
+              // Show input area if chat is not completed
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _controller,
+                        decoration: const InputDecoration(
+                          hintText: 'Enter your question here',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(12)),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                    IconButton(
+                      icon: const Icon(Icons.send),
+                      onPressed: () => _sendMessage(text: _controller.text),
+                    ),
+                  ],
                 ),
-                IconButton(
-                  icon: const Icon(Icons.send),
-                  onPressed: () => _sendMessage(text: _controller.text),
-                ),
-              ],
-            ),
+              );
+            }
           ),
         ],
       ),

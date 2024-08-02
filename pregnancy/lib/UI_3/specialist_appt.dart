@@ -91,7 +91,6 @@ class ChatWithSpecialistScreen extends StatelessWidget {
       stream: FirebaseFirestore.instance
           .collection('chats')
           .where('createdBy', isEqualTo: userId)
-          //.orderBy('lastUpdated', descending: true)  
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -157,58 +156,64 @@ class ChatWithSpecialistScreen extends StatelessWidget {
   }
 
   Widget _buildChatSection(BuildContext context, String title, List<DocumentSnapshot> chats, String userName, bool isSpecialist, String userId) {
-      return Expanded(
-        child: Column(
-          children: [
-            Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            Expanded(
-              child: ListView.builder(
-                itemCount: chats.length,
-                itemBuilder: (context, index) {
-                  final chat = chats[index];
-                  Map<String, dynamic>? chatData = chat.data() as Map<String, dynamic>?;
+    return Expanded(
+      child: Column(
+        children: [
+          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Expanded(
+            child: ListView.builder(
+              itemCount: chats.length,
+              itemBuilder: (context, index) {
+                final chat = chats[index];
+                Map<String, dynamic>? chatData = chat.data() as Map<String, dynamic>?;
 
-                  // Determine display name based on the role (specialist or user)
-                  String displayName = isSpecialist
-                    ? (chatData?.containsKey('createdByName') ?? false ? chatData!['createdByName'] as String : 'No name available')
-                    : (chatData?.containsKey('specialistName') ?? false ? chatData!['specialistName'] as String : 'No specialist assigned');
+                // Determine display name based on the role (specialist or user)
+                String displayName = isSpecialist
+                  ? (chatData?.containsKey('createdByName') ?? false ? chatData!['createdByName'] as String : 'No name available')
+                  : (chatData?.containsKey('specialistName') ?? false ? chatData!['specialistName'] as String : 'No specialist assigned');
 
-                  return ListTile(
-                    title: Text(displayName),
-                    subtitle: Text(
-                      chatData != null && chatData.containsKey('lastMessage')
-                      ? chatData['lastMessage'] as String 
-                      : 'No message'
-                    ),
-                    trailing: Text(
-                      chatData != null && chatData.containsKey('lastUpdated') && chat['lastUpdated'] != null
-                      ? _formatTimestamp(chat['lastUpdated'] as Timestamp)
-                      : 'No date'
-                    ),
-                    onTap: () {
-                      if (!isSpecialist && (chatData?['specialistId'] == null || chatData?['status'] == 'new')) {
-                        // User action (if needed)
-                      }
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ChatScreen(
-                            chatId: chat.id,
-                            userName: userName,
-                            isSpecialist: isSpecialist,
-                          ),
+                return ListTile(
+                  title: Text(displayName),
+                  subtitle: Text(
+                    chatData != null && chatData.containsKey('lastMessage')
+                    ? chatData['lastMessage'] as String 
+                    : 'No message'
+                  ),
+                  trailing: Text(
+                    chatData != null && chatData.containsKey('lastUpdated') && chat['lastUpdated'] != null
+                    ? _formatTimestamp(chat['lastUpdated'] as Timestamp)
+                    : 'No date'
+                  ),
+                  onTap: () async {
+                    if (isSpecialist && (chatData?['specialistId'] == null || chatData?['status'] == 'new')) {
+                      // Update chat to assign this specialist
+                      await FirebaseFirestore.instance.collection('chats').doc(chat.id).update({
+                        'specialistId': userId,
+                        'specialistName': userName, // Ensure the specialist name is set
+                        'status': 'ongoing',
+                        'lastUpdated': FieldValue.serverTimestamp(),
+                      });
+                    }
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChatScreen(
+                          chatId: chat.id,
+                          userName: userName,
+                          isSpecialist: isSpecialist,
                         ),
-                      );
-                    },
-                  );
-                },
-              ),
+                      ),
+                    );
+                  },
+                );
+              },
             ),
-          ],
-        ),
-      );
+          ),
+        ],
+      ),
+    );
   }
-
 
   Widget _buildSpecialistChatList(BuildContext context, String userId, String userName) {
     return StreamBuilder(
