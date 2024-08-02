@@ -26,9 +26,8 @@ class _CountdownDaysState extends State<CountdownDays> {
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         DocumentSnapshot userDoc = await _firestore.collection('user_accounts').doc(user.uid).get();
-        if (userDoc.exists && userDoc['due_date_data'] != null) {
-          Map<String, dynamic> dueDateData = userDoc['due_date_data'];
-          Timestamp dueDateTimestamp = dueDateData['estimatedDueDate'];
+        if (userDoc.exists && userDoc['estimated_due_date'] != null) {
+          Timestamp dueDateTimestamp = userDoc['estimated_due_date'];
           DateTime dueDate = dueDateTimestamp.toDate();
           final now = DateTime.now();
           final difference = dueDate.difference(now).inDays;

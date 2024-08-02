@@ -69,6 +69,11 @@ class _DueDateCalculatorPageState extends State<DueDateCalculatorPage> {
           },
         }, SetOptions(merge: true));
 
+        // Also save the estimated due date in the main document
+        await _firestore.collection('user_accounts').doc(user.uid).update({
+          'estimated_due_date': _estimatedDueDate != null ? Timestamp.fromDate(_estimatedDueDate!) : null,
+        });
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Due date data saved successfully')),
         );
