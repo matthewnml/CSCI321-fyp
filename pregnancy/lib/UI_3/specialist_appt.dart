@@ -88,55 +88,51 @@ class ChatWithSpecialistScreen extends StatelessWidget {
 
   Widget _buildUserChatList(BuildContext context, String userId, String userName) {
     return StreamBuilder(
-      stream: FirebaseFirestore.instance.collection('chats').where('createdBy', isEqualTo: userId).snapshots(),
+      stream: FirebaseFirestore.instance
+          .collection('chats')
+          .where('createdBy', isEqualTo: userId)
+          //.orderBy('lastUpdated', descending: true)  
+          .snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
+        if (snapshot.hasError) {
+          return const Center(child: Text('An error occurred'));
+        }
+        if (!snapshot.hasData) {
+          return const Center(child: Text('No data available'));
+        }
 
-        final chatPreviews = snapshot.data!.docs.map((doc) {
-          return ChatPreview(
-            chatId: doc.id,
-            previewText: doc['lastMessage'] ?? 'No message',
-            date: (doc['lastUpdated'] != null) ? _formatTimestamp(doc['lastUpdated'] as Timestamp) : 'No date',
-            specialistName: doc.data().containsKey('specialistName') ? doc['specialistName'] : 'No specialist',
-          );
-        }).toList();
+        final waitingForReplyChats = snapshot.data!.docs.where((doc) => doc['status'] == 'new').toList();
+        final ongoingChats = snapshot.data!.docs.where((doc) => doc['status'] == 'ongoing').toList();
+        final completedChats = snapshot.data!.docs.where((doc) => doc['status'] == 'completed').toList();
 
         return Column(
           children: [
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.all(16.0),
-                itemCount: chatPreviews.length,
-                itemBuilder: (context, index) {
-                  final chat = chatPreviews[index];
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ListTile(
-                        leading: const CircleAvatar(
-                          backgroundColor: Colors.grey,
-                          child: Icon(Icons.person, color: Colors.white),
-                        ),
-                        title: Text(chat.specialistName),
-                        subtitle: Text(chat.previewText),
-                        trailing: Text(chat.date),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ChatScreen(chatId: chat.chatId, userName: userName, isSpecialist: false),
-                            ),
-                          );
-                        },
-                      ),
-                      if (chat.specialistName == 'No specialist') const Text('Waiting for Reply'),
-                      const SizedBox(height: 16),
-                    ],
-                  );
-                },
-              ),
+            _buildChatSection(
+              context,
+              'Waiting for Reply',
+              waitingForReplyChats,
+              userName,
+              false,
+              userId,
+            ),
+            _buildChatSection(
+              context,
+              'Ongoing Chats',
+              ongoingChats,
+              userName,
+              false,
+              userId,
+            ),
+            _buildChatSection(
+              context,
+              'Completed Chats',
+              completedChats,
+              userName,
+              false,
+              userId,
             ),
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -160,107 +156,110 @@ class ChatWithSpecialistScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildChatSection(BuildContext context, String title, List<DocumentSnapshot> chats, String userName, bool isSpecialist, String userId) {
+      return Expanded(
+        child: Column(
+          children: [
+            Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Expanded(
+              child: ListView.builder(
+                itemCount: chats.length,
+                itemBuilder: (context, index) {
+                  final chat = chats[index];
+                  Map<String, dynamic>? chatData = chat.data() as Map<String, dynamic>?;
+
+                  // Determine display name based on the role (specialist or user)
+                  String displayName = isSpecialist
+                    ? (chatData?.containsKey('createdByName') ?? false ? chatData!['createdByName'] as String : 'No name available')
+                    : (chatData?.containsKey('specialistName') ?? false ? chatData!['specialistName'] as String : 'No specialist assigned');
+
+                  return ListTile(
+                    title: Text(displayName),
+                    subtitle: Text(
+                      chatData != null && chatData.containsKey('lastMessage')
+                      ? chatData['lastMessage'] as String 
+                      : 'No message'
+                    ),
+                    trailing: Text(
+                      chatData != null && chatData.containsKey('lastUpdated') && chat['lastUpdated'] != null
+                      ? _formatTimestamp(chat['lastUpdated'] as Timestamp)
+                      : 'No date'
+                    ),
+                    onTap: () {
+                      if (!isSpecialist && (chatData?['specialistId'] == null || chatData?['status'] == 'new')) {
+                        // User action (if needed)
+                      }
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChatScreen(
+                            chatId: chat.id,
+                            userName: userName,
+                            isSpecialist: isSpecialist,
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      );
+  }
+
+
   Widget _buildSpecialistChatList(BuildContext context, String userId, String userName) {
     return StreamBuilder(
-      stream: FirebaseFirestore.instance.collection('chats').snapshots(),
+      stream: FirebaseFirestore.instance
+          .collection('chats')
+          .orderBy('lastUpdated', descending: true)
+          .snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
+        if (snapshot.hasError) {
+          return const Center(child: Text('An error occurred'));
+        }
+        if (!snapshot.hasData) {
+          return const Center(child: Text('No data available'));
+        }
 
-        final newChats = snapshot.data!.docs.where((doc) => doc['specialistId'] == null).toList();
-        final ongoingChats = snapshot.data!.docs.where((doc) => doc['specialistId'] == userId).toList();
+        final newChats = snapshot.data!.docs.where((doc) => doc['specialistId'] == null && doc['status'] == 'new').toList();
+        final ongoingChats = snapshot.data!.docs.where((doc) => doc['specialistId'] == userId && doc['status'] == 'ongoing').toList();
+        final completedChats = snapshot.data!.docs.where((doc) => doc['specialistId'] == userId && doc['status'] == 'completed').toList();
 
         return Column(
           children: [
-            Expanded(
-              child: Column(
-                children: [
-                  const Text('New Chats', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: newChats.length,
-                      itemBuilder: (context, index) {
-                        final chat = newChats[index];
-                        return ListTile(
-                          title: const Text('No specialist'),
-                          subtitle: Text(chat['lastMessage'] ?? 'No message'),
-                          trailing: Text((chat['lastUpdated'] != null) ? _formatTimestamp(chat['lastUpdated'] as Timestamp) : 'No date'),
-                          onTap: () async {
-                            // Update chat to assign this specialist
-                            await FirebaseFirestore.instance.collection('chats').doc(chat.id).update({
-                              'specialistId': userId,
-                              'specialistName': userName, // Ensure the specialist name is set
-                              'status': 'ongoing'
-                            });
-
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ChatScreen(
-                                  chatId: chat.id,
-                                  userName: userName, // Pass the specialist name to ChatScreen
-                                  isSpecialist: true,
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
+            _buildChatSection(
+              context,
+              'New Chats',
+              newChats,
+              userName,
+              true,
+              userId,
             ),
-            Expanded(
-              child: Column(
-                children: [
-                  const Text('Ongoing Chats', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: ongoingChats.length,
-                      itemBuilder: (context, index) {
-                        final chat = ongoingChats[index];
-                        return ListTile(
-                          title: Text(chat['createdByName'] ?? 'Unknown'),
-                          subtitle: Text(chat['lastMessage'] ?? 'No message'),
-                          trailing: Text((chat['lastUpdated'] != null) ? _formatTimestamp(chat['lastUpdated'] as Timestamp) : 'No date'),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ChatScreen(
-                                  chatId: chat.id,
-                                  userName: chat.data().containsKey('specialistName') ? chat['specialistName'] : userName, // Ensure specialistName is used
-                                  isSpecialist: true,
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
+            _buildChatSection(
+              context,
+              'Ongoing Chats',
+              ongoingChats,
+              userName,
+              true,
+              userId,
+            ),
+            _buildChatSection(
+              context,
+              'Completed Chats',
+              completedChats,
+              userName,
+              true,
+              userId,
             ),
           ],
         );
       },
     );
   }
-}
-
-class ChatPreview {
-  final String chatId;
-  final String previewText;
-  final String date;
-  final String specialistName;
-
-  ChatPreview({
-    required this.chatId,
-    required this.previewText,
-    required this.date,
-    required this.specialistName,
-  });
 }
