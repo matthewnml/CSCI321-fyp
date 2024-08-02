@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:pregnancy/UI_4/notificationpage.dart'; // Import the notifications page
-import 'ivfinjection.dart'; // Import the IVF Injection page
-import 'guides.dart'; // Import the GuidePage
-import 'articles.dart'; // Import the ArticlesPage
+import 'ivfinjection.dart'; // Import the IVF Injection page // Import the ArticlesPage
 import '/UI_2/calendar.dart'; // Import the calendar.dart file
-import '../UI_3/health_user.dart'; // Import the health.dart file
+import '/UI_3/health_user.dart'; // Import the health.dart file
 import '/UI_4/setting.dart'; // Import the settings.dart file
+import 'nutrition_guides_page.dart'; // Import the NutritionGuidesPage
+import 'fitness_guides_page.dart'; // Import the FitnessGuidesPage
+import 'pregnancy_symptoms_guides_page.dart'; // Import the PregnancySymptomsGuidesPage
+import 'video_guides_page.dart'; // Import the VideoGuidesPage
+import 'female_health_articles_page.dart';
+import 'conceiving_articles_page.dart';
+import 'parenting_articles_page.dart';
+
 
 class HomeBeforePage extends StatefulWidget {
   final String userId;
@@ -18,13 +24,12 @@ class HomeBeforePage extends StatefulWidget {
 
 class _HomeBeforePageState extends State<HomeBeforePage> {
   int _selectedIndex = 0;
-
   late List<Widget> _pages;
 
   @override
   void initState() {
     super.initState();
-    _pages = <Widget>[
+    _pages = [
       HomePageContent(userId: widget.userId),
       const CalendarScreen(),
       const HealthScreen(),
@@ -86,7 +91,6 @@ class HomePageContent extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.notifications, color: Colors.black),
             onPressed: () {
-              // Navigate to the notifications page
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const NotificationPage()),
@@ -114,7 +118,6 @@ class HomePageContent extends StatelessWidget {
                   color: const Color(0xFFE3C3C3),
                   textColor: const Color(0xFF000000),
                   onTap: () {
-                    // Navigate to IVF Injection feature
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => IVFInjectionTrackerPage(userId: userId)),
@@ -140,40 +143,54 @@ class HomePageContent extends StatelessWidget {
                         ),
                       ),
                       const Divider(), // Added a divider below the Articles heading
-                      _buildArticleTile(
-                        'Picture1',
-                        'Female Health Articles',
-                        'Article preview..................................................................................',
-                        const Color(0xFFE3D2C3),
-                        'assets/article1.jpg',
-                        context,
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const FemaleHealthArticlesPage()),
+                          );
+                        },
+                        child: _buildArticleTile(
+                          'Picture1',
+                          'Female Health Articles',
+                          'Article preview...........................................................................................................',
+                          const Color(0xFFE3D2C3),
+                          'assets/article1.jpg',
+                        ),
                       ),
-                      _buildArticleTile(
-                        'Picture2',
-                        'Conceiving Articles',
-                        'Article preview..................................................................................',
-                        const Color(0xFFC3D5E3),
-                        'assets/article2.jpg',
-                        context,
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const ConceivingArticlesPage()),
+                          );
+                        },
+                        child: _buildArticleTile(
+                          'Picture2',
+                          'Conceiving Articles',
+                          'Article preview...........................................................................................................',
+                          const Color(0xFFC3D5E3),
+                          'assets/article2.jpg',
+                        ),
                       ),
-                      _buildArticleTile(
-                        'Picture3',
-                        'Parenting Articles',
-                        'Article preview..................................................................................',
-                        const Color(0xFFDAE3C3),
-                        'assets/article3.jpg',
-                        context,
-                      ),
-                      const SizedBox(height: 8),
-                      Center(
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const ArticlesPage()),
-                            );
-                          },
-                          child: const Text('See more', style: TextStyle(color: Color(0xFF000000))),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const ParentingArticlesPage()),
+                          );
+                        },
+                        child: _buildArticleTile(
+                          'Picture3',
+                          'Parenting Articles',
+                          'Article preview...........................................................................................................',
+                          const Color(0xFFDAE3C3),
+                          'assets/article3.jpg',
+                          child: const Text('See more',
+                              style: TextStyle(color: Color(0xFF000000))),
                         ),
                       ),
                     ],
@@ -186,43 +203,66 @@ class HomePageContent extends StatelessWidget {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              GestureDetector(
-                onTap: () {
-                  // Navigate to the Guides List page
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const GuidesPage()),
-                  );
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildGuideButton(
-                      'Guide 1',
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const FitnessGuidesPage()),
+                      );
+                    },
+                    child: _buildGuideButton(
+                      'Fitness Guides',
                       const Color(0xFFE3C3C3),
                       const AssetImage('assets/fitnessguide.jpg'),
-                      context,
                     ),
-                    _buildGuideButton(
-                      'Guide 2',
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const PregnancySymptomsGuidesPage()),
+                      );
+                    },
+                    child: _buildGuideButton(
+                      'Pregnancy Symptoms Guides',
                       const Color(0xFFC3D5E3),
                       const AssetImage('assets/pregnancysymptomsguide.jpg'),
-                      context,
                     ),
-                    _buildGuideButton(
-                      'Guide 3',
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const NutritionGuidesPage()),
+                      );
+                    },
+                    child: _buildGuideButton(
+                      'Nutrition Guides',
                       const Color(0xFFDAE3C3),
                       const AssetImage('assets/nutritionguide.jpg'),
-                      context,
                     ),
-                    _buildGuideButton(
-                      'Guide 4',
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const VideoGuidesPage()),
+                      );
+                    },
+                    child: _buildGuideButton(
+                      'Video Guides',
                       const Color(0xFFE3D2C3),
                       const AssetImage('assets/videoguide.jpg'),
-                      context,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -231,10 +271,10 @@ class HomePageContent extends StatelessWidget {
     );
   }
 
-  Widget _buildGuideButton(String title, Color color, ImageProvider<Object> image, BuildContext context) {
+  Widget _buildGuideButton(String title, Color color, ImageProvider<Object> image) {
     return Container(
-      width: 80,
-      height: 80,
+      width: 150,
+      height: 200,
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(12),
@@ -242,7 +282,6 @@ class HomePageContent extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
@@ -254,7 +293,7 @@ class HomePageContent extends StatelessWidget {
                 decoration: BoxDecoration(
                   image: DecorationImage(
                     image: image,
-                    fit: BoxFit.cover, // Use BoxFit.cover to make the image fill the entire space
+                    fit: BoxFit.cover,
                   ),
                 ),
               ),
@@ -265,7 +304,14 @@ class HomePageContent extends StatelessWidget {
     );
   }
 
-  Widget _buildArticleTile(String picture, String title, String preview, Color color, String imagePath, BuildContext context) {
+  Widget _buildArticleTile(
+    String picture,
+    String title,
+    String preview,
+    Color color,
+    String imagePath, {
+    Widget? child,
+  }) {
     return Column(
       children: [
         ListTile(
@@ -281,20 +327,22 @@ class HomePageContent extends StatelessWidget {
           ),
           title: Text(
             title,
-            style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
+            style: const TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
           ),
           subtitle: Text(
             preview,
-            style: const TextStyle(color: Colors.black, fontSize: 12),
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 12,
+            ),
           ),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ArticlesPage()),
-            );
-          },
         ),
         const Divider(), // Add a divider between each article
+        if (child != null) child,
       ],
     );
   }
