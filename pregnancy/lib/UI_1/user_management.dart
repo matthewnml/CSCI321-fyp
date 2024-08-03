@@ -95,6 +95,7 @@ class _UserManagementState extends State<UserManagement> {
                               Text('Email: ${data['email'] ?? 'N/A'}'),
                               Text('Role: ${data['role'] ?? 'N/A'}'),
                               Text('Password: ${data['password'] ?? 'N/A'}'),
+                              if (data['role'] == 'User') Text('Pregnancy Status: ${data['pregnancy_status'] ?? 'N/A'}'),
                             ],
                           ),
                           trailing: Row(
@@ -179,6 +180,7 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
   final _passwordController = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   String? _selectedRole;
+  String? _selectedPregnancyStatus;
 
   @override
   Widget build(BuildContext context) {
@@ -206,7 +208,7 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
               ),
               TextFormField(
                 controller: _dobController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Date of Birth (DD/MM/YYYY)',
                 ),
                 validator: (value) {
@@ -247,7 +249,7 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
               ),
               DropdownButtonFormField<String>(
                 value: _selectedRole,
-                hint: Text('Select Role'),
+                hint: const Text('Select Role'),
                 items: ['User', 'Specialist'].map((String role) {
                   return DropdownMenuItem<String>(
                     value: role,
@@ -266,6 +268,29 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
                   return null;
                 },
               ),
+              if (_selectedRole == 'User')
+                DropdownButtonFormField<String>(
+                  value: _selectedPregnancyStatus,
+                  hint: const Text('Select Pregnancy Status'),
+                  items: ['Trying to conceive', 'Currently pregnant', 'Have given birth']
+                      .map((String status) {
+                    return DropdownMenuItem<String>(
+                      value: status,
+                      child: Text(status),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedPregnancyStatus = newValue;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Please select a pregnancy status';
+                    }
+                    return null;
+                  },
+                ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
@@ -289,15 +314,26 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
       'email': _emailController.text,
       'password': _passwordController.text, // Handle password securely
       'role': _selectedRole,
+            'pregnancy_status': _selectedRole == 'User' ? _selectedPregnancyStatus : null,
     });
+
     Navigator.pop(context);
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _dobController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 }
 
 class EditUserScreen extends StatefulWidget {
   final String userId;
 
-  const EditUserScreen({super.key, required this.userId});
+  const EditUserScreen({required this.userId, super.key});
 
   @override
   _EditUserScreenState createState() => _EditUserScreenState();
@@ -305,42 +341,32 @@ class EditUserScreen extends StatefulWidget {
 
 class _EditUserScreenState extends State<EditUserScreen> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nameController;
-  late TextEditingController _dobController;
-  late TextEditingController _emailController;
-  late TextEditingController _passwordController;
+  final _nameController = TextEditingController();
+  final _dobController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   String? _selectedRole;
+  String? _selectedPregnancyStatus;
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController();
-    _dobController = TextEditingController();
-    _emailController = TextEditingController();
-    _passwordController = TextEditingController();
-        _loadUserData();
+    _loadUserData();
   }
 
-  void _loadUserData() async {
-    try {
-      final doc = await _firestore.collection('user_accounts').doc(widget.userId).get();
-      if (doc.exists) {
-        final data = doc.data() as Map<String, dynamic>;
+  Future<void> _loadUserData() async {
+    final docSnapshot = await _firestore.collection('user_accounts').doc(widget.userId).get();
+    if (docSnapshot.exists) {
+      final data = docSnapshot.data() as Map<String, dynamic>;
+      setState(() {
         _nameController.text = data['full_name'] ?? '';
         _dobController.text = data['date_of_birth'] ?? '';
         _emailController.text = data['email'] ?? '';
         _passwordController.text = data['password'] ?? '';
-        setState(() {
-          _selectedRole = data['role'] ?? '';
-        });
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User data does not exist.')));
-        Navigator.pop(context);
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error fetching user data: $e')));
-      Navigator.pop(context);
+        _selectedRole = data['role'];
+        _selectedPregnancyStatus = data['pregnancy_status'];
+      });
     }
   }
 
@@ -348,7 +374,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit User'),
+        title: const Text('Edit User'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -370,7 +396,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
               ),
               TextFormField(
                 controller: _dobController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Date of Birth (DD/MM/YYYY)',
                 ),
                 validator: (value) {
@@ -411,7 +437,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
               ),
               DropdownButtonFormField<String>(
                 value: _selectedRole,
-                hint: Text('Select Role'),
+                hint: const Text('Select Role'),
                 items: ['User', 'Specialist'].map((String role) {
                   return DropdownMenuItem<String>(
                     value: role,
@@ -430,6 +456,29 @@ class _EditUserScreenState extends State<EditUserScreen> {
                   return null;
                 },
               ),
+              if (_selectedRole == 'User')
+                DropdownButtonFormField<String>(
+                  value: _selectedPregnancyStatus,
+                  hint: const Text('Select Pregnancy Status'),
+                  items: ['Trying to conceive', 'Currently pregnant', 'Have given birth']
+                      .map((String status) {
+                    return DropdownMenuItem<String>(
+                      value: status,
+                      child: Text(status),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedPregnancyStatus = newValue;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Please select a pregnancy status';
+                    }
+                    return null;
+                  },
+                ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
@@ -447,18 +496,24 @@ class _EditUserScreenState extends State<EditUserScreen> {
   }
 
   void _updateUser() async {
-    try {
-      await _firestore.collection('user_accounts').doc(widget.userId).update({
-        'full_name': _nameController.text,
-        'date_of_birth': _dobController.text,
-        'email': _emailController.text,
-        'password': _passwordController.text,
-        'role': _selectedRole,
-      });
-      Navigator.pop(context);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error updating user: $e')));
-    }
+    await _firestore.collection('user_accounts').doc(widget.userId).update({
+      'full_name': _nameController.text,
+      'date_of_birth': _dobController.text,
+      'email': _emailController.text,
+      'password': _passwordController.text, // Handle password securely
+      'role': _selectedRole,
+      'pregnancy_status': _selectedRole == 'User' ? _selectedPregnancyStatus : null,
+    });
+
+    Navigator.pop(context);
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _dobController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 }
-
