@@ -169,7 +169,7 @@ class HomePageContent extends StatelessWidget {
                         child: _buildArticleTile(
                           'Picture1',
                           'Female Health Articles',
-                          'Article preview...........................................................................................................',
+                          '',
                           const Color(0xFFE3D2C3),
                           'assets/article1.jpg',
                         ),
@@ -185,7 +185,7 @@ class HomePageContent extends StatelessWidget {
                         child: _buildArticleTile(
                           'Picture2',
                           'Conceiving Articles',
-                          'Article preview...........................................................................................................',
+                          '',
                           const Color(0xFFC3D5E3),
                           'assets/article2.jpg',
                         ),
@@ -201,7 +201,7 @@ class HomePageContent extends StatelessWidget {
                         child: _buildArticleTile(
                           'Picture3',
                           'Parenting Articles',
-                          'Article preview...........................................................................................................',
+                          '',
                           const Color(0xFFDAE3C3),
                           'assets/article3.jpg',
                           child: const Text('See more',
