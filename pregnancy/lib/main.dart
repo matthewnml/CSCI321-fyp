@@ -35,9 +35,6 @@ void main() async {
       await Firebase.initializeApp();
     }
 
-    NotificationService notificationService = NotificationService();
-    await notificationService.init();
-
     runApp(const MyApp());
   } catch (e) {
     print('Error during main initialization: $e');
@@ -54,9 +51,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         scaffoldBackgroundColor: const Color(0xFFfdebeb),
       ),
-      initialRoute: '/',
+      initialRoute: '/login',
       routes: {
-        '/': (context) => const LoadingPage(),
         '/login': (context) => const LoginPage(),
         '/calendar': (context) => const CalendarScreen(),
         '/health': (context) => const HealthScreen(),
@@ -84,71 +80,11 @@ class MyApp extends StatelessWidget {
           );
         }
         // Add other dynamic routes here if needed
-        return null; // Let `onUnknownRoute` handle this
+        return null; // Let onUnknownRoute handle this
       },
       onUnknownRoute: (settings) {
         return MaterialPageRoute(builder: (context) => const LoginPage());
       },
-    );
-  }
-}
-
-class LoadingPage extends StatefulWidget {
-  const LoadingPage({super.key});
-
-  @override
-  _LoadingPageState createState() => _LoadingPageState();
-}
-
-class _LoadingPageState extends State<LoadingPage> {
-  @override
-  void initState() {
-    super.initState();
-    _initializeApp();
-  }
-
-  Future<void> _initializeApp() async {
-    // Initialize Firebase and request permissions
-    try {
-      print('Initializing Firebase...');
-      await Firebase.initializeApp();
-      print('Firebase initialized.');
-      await _requestPermissions();
-      print('Permissions requested.');
-
-      // Navigate to the login page
-      Navigator.of(context).pushReplacementNamed('/login');
-    } catch (e) {
-      print('Error during initialization: $e');
-    }
-  }
-
-  Future<void> _requestPermissions() async {
-    try {
-      NotificationSettings settings = await FirebaseMessaging.instance.requestPermission(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
-
-      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-        print('User granted permission');
-      } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
-        print('User granted provisional permission');
-      } else {
-        print('User declined or has not accepted permission');
-      }
-    } catch (e) {
-      print('Error during permission request: $e');
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
-      ),
     );
   }
 }
