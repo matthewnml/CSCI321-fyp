@@ -69,34 +69,6 @@ class _HealthSpecialistScreenState extends State<HealthSpecialistScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const BookWithDoctorScreen(),
-                      ),
-                    );
-                  },
-                  child: Column(
-                    children: [
-                      CircleAvatar(
-                        radius: 40,
-                        backgroundColor: Colors.pink.shade100,
-                        child: const Icon(
-                          Icons.person_add,
-                          size: 40,
-                          color: Colors.black,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        'Find A Doctor',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                    ],
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
                         builder: (context) => const ChatWithSpecialistScreen(),
                       ),
                     );
@@ -164,34 +136,6 @@ class _HealthSpecialistScreenState extends State<HealthSpecialistScreen> {
                       const SizedBox(height: 10),
                       const Text(
                         'My Profile',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                    ],
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const HealthJournal(),
-                      ),
-                    );
-                  },
-                  child: Column(
-                    children: [
-                      CircleAvatar(
-                        radius: 40,
-                        backgroundColor: Colors.brown.shade100,
-                        child: const Icon(
-                          Icons.book,
-                          size: 40,
-                          color: Colors.black,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        'Health Journal',
                         style: TextStyle(fontSize: 16),
                       ),
                     ],
