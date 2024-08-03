@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'history.dart';
 //import 'heart_rate_tracker.dart'; 
+import 'medication_tracker.dart'; 
 
 class HealthJournal extends StatelessWidget {
   const HealthJournal({super.key});
@@ -65,6 +66,23 @@ class HealthJournal extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => HistoryPage(userId: currentUser.uid),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const Divider(height: 1),
+            Container(
+              color: Colors.white,
+              child: ListTile(
+                leading: const Icon(Icons.healing, color: Colors.black),
+                title: const Text('Medication Tracker'),
+                trailing: const Icon(Icons.arrow_forward_ios, color: Colors.black),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MedicationTrackerPage(userId: currentUser.uid),
                     ),
                   );
                 },
