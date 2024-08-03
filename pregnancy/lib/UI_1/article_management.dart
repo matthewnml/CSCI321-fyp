@@ -199,6 +199,8 @@ class _EditArticleScreenState extends State<EditArticleScreen> {
   @override
   void initState() {
     super.initState();
+    _titleController = TextEditingController();
+    _contentController = TextEditingController();
     _loadArticleData();
   }
 
@@ -206,8 +208,17 @@ class _EditArticleScreenState extends State<EditArticleScreen> {
     final doc = await _firestore.collection('articles').doc(widget.articleId).get(); // Collection for articles
     final data = doc.data() as Map<String, dynamic>;
 
-    _titleController = TextEditingController(text: data['title']);
-    _contentController = TextEditingController(text: data['content']);
+    setState(() {
+      _titleController.text = data['title'] ?? '';
+      _contentController.text = data['content'] ?? '';
+    });
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _contentController.dispose();
+    super.dispose();
   }
 
   @override
