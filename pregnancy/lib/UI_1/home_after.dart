@@ -114,6 +114,39 @@ class HomePageContent extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 32),
+              // Congratulatory message inside a white text box
+              Container(
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.2),
+                      spreadRadius: 2,
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: const Text(
+                  "Congratulations on Your Child's Birth!",
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
+              Center(
+                child: CircleAvatar(
+                  radius: 150,
+                  backgroundImage: AssetImage('assets/month10.png'), // Ensure the image path is correct
+                  backgroundColor: const Color(0xFFF0C29B),
+                ),
+              ),
+              const SizedBox(height: 32),
               // Baby Development Section
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -123,7 +156,7 @@ class HomePageContent extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: FeatureButton(
                         title: 'Baby Development',
-                        image: const AssetImage('assets/babydevelopment.jpg'),
+                        image: const AssetImage('assets/babydevelopment.png'),
                         color: const Color(0xFFE3C3C3),
                         textColor: const Color(0xFF000000),
                         onTap: () {
@@ -140,7 +173,7 @@ class HomePageContent extends StatelessWidget {
                   ),
                 ],
               ),
-             const SizedBox(height: 32),
+              const SizedBox(height: 32),
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -319,7 +352,7 @@ class HomePageContent extends StatelessWidget {
     );
   }
 
- Widget _buildArticleTile(
+  Widget _buildArticleTile(
     String picture,
     String title,
     String preview,
