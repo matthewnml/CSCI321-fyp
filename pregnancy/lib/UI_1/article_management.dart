@@ -15,7 +15,7 @@ class _ArticleManagementState extends State<ArticleManagement> {
   @override
   void initState() {
     super.initState();
-    _articleStream = _firestore.collection('articles').snapshots(); // Collection for articles
+    _articleStream = _firestore.collection('articles').snapshots();
   }
 
   @override
@@ -42,7 +42,7 @@ class _ArticleManagementState extends State<ArticleManagement> {
                   MaterialPageRoute(builder: (context) => const CreateArticleScreen()),
                 );
               },
-              child: const Text('Create New Article'),
+              child: const Text('Add New Article'),
             ),
             const SizedBox(height: 10),
             Expanded(
@@ -62,32 +62,54 @@ class _ArticleManagementState extends State<ArticleManagement> {
                       final article = articles[index];
                       final data = article.data() as Map<String, dynamic>;
                       final articleId = article.id;
+                      final urls = data['url'] as Map<String, dynamic>;
 
                       return Card(
-                        child: ListTile(
-                          title: Text(data['title'] ?? 'No title'),
-                          subtitle: Text(data['content'] ?? 'No content'),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              IconButton(
-                                icon: const Icon(Icons.edit),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => EditArticleScreen(articleId: articleId),
+                        margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 5.0),
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: ListTile(
+                            title: Text(
+                              data['title']?.toString() ?? 'No title',
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: urls.entries.map<Widget>((entry) {
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(height: 5),
+                                    Text(
+                                      '${entry.key}: ${entry.value}',
+                                      style: const TextStyle(color: Colors.blue),
                                     ),
-                                  );
-                                },
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.delete),
-                                onPressed: () {
-                                  _deleteArticle(articleId);
-                                },
-                              ),
-                            ],
+                                  ],
+                                );
+                              }).toList(),
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                IconButton(
+                                  icon: const Icon(Icons.edit, color: Colors.blue),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => EditArticleScreen(articleId: articleId),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete, color: Colors.red),
+                                  onPressed: () {
+                                    _deleteArticle(articleId);
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       );
@@ -103,7 +125,7 @@ class _ArticleManagementState extends State<ArticleManagement> {
   }
 
   void _deleteArticle(String articleId) async {
-    await _firestore.collection('articles').doc(articleId).delete(); // Collection for articles
+    await _firestore.collection('articles').doc(articleId).delete();
   }
 }
 
@@ -116,15 +138,30 @@ class CreateArticleScreen extends StatefulWidget {
 
 class _CreateArticleScreenState extends State<CreateArticleScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
-  final _contentController = TextEditingController();
+  String _selectedCategory = '';
+  final _displayNameController = TextEditingController();
+  final _urlController = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  late Stream<QuerySnapshot> _articleStream;
+
+  @override
+  void initState() {
+    super.initState();
+    _articleStream = _firestore.collection('articles').snapshots();
+  }
+
+  @override
+  void dispose() {
+    _displayNameController.dispose();
+    _urlController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create New Article'),
+        title: const Text('Add New Article'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -132,26 +169,63 @@ class _CreateArticleScreenState extends State<CreateArticleScreen> {
           key: _formKey,
           child: Column(
             children: <Widget>[
+              StreamBuilder<QuerySnapshot>(
+                stream: _articleStream,
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const CircularProgressIndicator();
+                  }
+
+                  final categories = snapshot.data!.docs.map((doc) {
+                    final data = doc.data() as Map<String, dynamic>;
+                    return data['title']?.toString() ?? '';
+                  }).toList();
+
+                  return DropdownButtonFormField<String>(
+                    value: _selectedCategory.isNotEmpty ? _selectedCategory : null,
+                    items: categories.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedCategory = newValue ?? '';
+                      });
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Select Category',
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please select a category';
+                      }
+                      return null;
+                    },
+                  );
+                },
+              ),
               TextFormField(
-                controller: _titleController,
+                controller: _displayNameController,
                 decoration: const InputDecoration(
-                  labelText: 'Title',
+                  labelText: 'Display Name',
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter a title';
+                    return 'Please enter a display name';
                   }
                   return null;
                 },
               ),
               TextFormField(
-                controller: _contentController,
+                controller: _urlController,
                 decoration: const InputDecoration(
-                  labelText: 'Content',
+                  labelText: 'URL',
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter content';
+                    return 'Please enter a URL';
                   }
                   return null;
                 },
@@ -160,7 +234,7 @@ class _CreateArticleScreenState extends State<CreateArticleScreen> {
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
-                    _createArticle();
+                    _addArticleToCategory();
                   }
                 },
                 child: const Text('Save'),
@@ -172,12 +246,23 @@ class _CreateArticleScreenState extends State<CreateArticleScreen> {
     );
   }
 
-  void _createArticle() async {
-    await _firestore.collection('articles').add({ // Collection for articles
-      'title': _titleController.text,
-      'content': _contentController.text,
-    });
-    Navigator.pop(context);
+  void _addArticleToCategory() async {
+    final snapshot = await _firestore
+        .collection('articles')
+        .where('title', isEqualTo: _selectedCategory)
+        .get();
+    if (snapshot.docs.isNotEmpty) {
+      final doc = snapshot.docs.first;
+      final data = doc.data() as Map<String, dynamic>;
+      final urls = data['url'] as Map<String, dynamic>;
+      urls[_displayNameController.text] = _urlController.text;
+
+      await _firestore.collection('articles').doc(doc.id).update({
+        'url': urls,
+      });
+
+      Navigator.pop(context);
+    }
   }
 }
 
@@ -193,31 +278,34 @@ class EditArticleScreen extends StatefulWidget {
 class _EditArticleScreenState extends State<EditArticleScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _titleController;
-  late TextEditingController _contentController;
+  final Map<String, TextEditingController> _urlControllers = {};
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   void initState() {
     super.initState();
     _titleController = TextEditingController();
-    _contentController = TextEditingController();
     _loadArticleData();
   }
 
   void _loadArticleData() async {
-    final doc = await _firestore.collection('articles').doc(widget.articleId).get(); // Collection for articles
+    final doc = await _firestore.collection('articles').doc(widget.articleId).get();
     final data = doc.data() as Map<String, dynamic>;
 
     setState(() {
-      _titleController.text = data['title'] ?? '';
-      _contentController.text = data['content'] ?? '';
+      _titleController.text = data['title']?.toString() ?? '';
+
+      final urls = data['url'] as Map<String, dynamic>;
+      urls.forEach((key, value) {
+        _urlControllers[key] = TextEditingController(text: value.toString());
+      });
     });
   }
 
   @override
   void dispose() {
     _titleController.dispose();
-    _contentController.dispose();
+    _urlControllers.values.forEach((controller) => controller.dispose());
     super.dispose();
   }
 
@@ -239,25 +327,40 @@ class _EditArticleScreenState extends State<EditArticleScreen> {
                   labelText: 'Title',
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                                    if (value == null || value.isEmpty) {
                     return 'Please enter a title';
                   }
                   return null;
                 },
               ),
-              TextFormField(
-                controller: _contentController,
-                decoration: const InputDecoration(
-                  labelText: 'Content',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter content';
-                  }
-                  return null;
-                },
-              ),
-             
+              ..._urlControllers.entries.map((entry) {
+                return Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: entry.value,
+                        decoration: InputDecoration(
+                          labelText: entry.key,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a URL';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () {
+                        setState(() {
+                          _urlControllers.remove(entry.key);
+                        });
+                      },
+                    ),
+                  ],
+                );
+              }).toList(),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
@@ -275,10 +378,13 @@ class _EditArticleScreenState extends State<EditArticleScreen> {
   }
 
   void _updateArticle() async {
-    await _firestore.collection('articles').doc(widget.articleId).update({ // Collection for articles
+    final urls = {for (var entry in _urlControllers.entries) entry.key: entry.value.text};
+
+    await _firestore.collection('articles').doc(widget.articleId).update({
       'title': _titleController.text,
-      'content': _contentController.text,
+      'url': urls,
     });
+
     Navigator.pop(context);
   }
 }
