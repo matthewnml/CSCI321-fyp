@@ -15,7 +15,7 @@ class _GuideManagementState extends State<GuideManagement> {
   @override
   void initState() {
     super.initState();
-    _guideStream = _firestore.collection('guides').snapshots(); // Collection for guides
+    _guideStream = _firestore.collection('guides').snapshots();
   }
 
   @override
@@ -62,32 +62,56 @@ class _GuideManagementState extends State<GuideManagement> {
                       final guide = guides[index];
                       final data = guide.data() as Map<String, dynamic>;
                       final guideId = guide.id;
+                      final urls = data['url'] is Map
+                          ? data['url'] as Map<String, dynamic>
+                          : <String, dynamic>{'default': data['url']};
 
                       return Card(
-                        child: ListTile(
-                          title: Text(data['title'] ?? 'No title'),
-                          subtitle: Text(data['content'] ?? 'No content'),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              IconButton(
-                                icon: const Icon(Icons.edit),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => EditGuideScreen(guideId: guideId),
+                        margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 5.0),
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: ListTile(
+                            title: Text(
+                              data['title']?.toString() ?? 'No title',
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: urls.entries.map<Widget>((entry) {
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(height: 5),
+                                    Text(
+                                      '${entry.key}: ${entry.value}',
+                                      style: const TextStyle(color: Colors.blue),
                                     ),
-                                  );
-                                },
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.delete),
-                                onPressed: () {
-                                  _deleteGuide(guideId);
-                                },
-                              ),
-                            ],
+                                  ],
+                                );
+                              }).toList(),
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                IconButton(
+                                  icon: const Icon(Icons.edit, color: Colors.blue),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => EditGuideScreen(guideId: guideId),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete, color: Colors.red),
+                                  onPressed: () {
+                                    _deleteGuide(guideId);
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       );
@@ -103,7 +127,7 @@ class _GuideManagementState extends State<GuideManagement> {
   }
 
   void _deleteGuide(String guideId) async {
-    await _firestore.collection('guides').doc(guideId).delete(); // Collection for guides
+    await _firestore.collection('guides').doc(guideId).delete();
   }
 }
 
@@ -116,9 +140,24 @@ class CreateGuideScreen extends StatefulWidget {
 
 class _CreateGuideScreenState extends State<CreateGuideScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
-  final _contentController = TextEditingController();
+  String _selectedCategory = '';
+  final _displayNameController = TextEditingController();
+  final _urlController = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  late Stream<QuerySnapshot> _guideStream;
+
+  @override
+  void initState() {
+    super.initState();
+    _guideStream = _firestore.collection('guides').snapshots();
+  }
+
+  @override
+  void dispose() {
+    _displayNameController.dispose();
+    _urlController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -132,26 +171,63 @@ class _CreateGuideScreenState extends State<CreateGuideScreen> {
           key: _formKey,
           child: Column(
             children: <Widget>[
+              StreamBuilder<QuerySnapshot>(
+                stream: _guideStream,
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const CircularProgressIndicator();
+                  }
+
+                  final categories = snapshot.data!.docs.map((doc) {
+                    final data = doc.data() as Map<String, dynamic>;
+                    return data['title']?.toString() ?? '';
+                  }).toList();
+
+                  return DropdownButtonFormField<String>(
+                    value: _selectedCategory.isNotEmpty ? _selectedCategory : null,
+                    items: categories.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedCategory = newValue ?? '';
+                      });
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Select Category',
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please select a category';
+                      }
+                      return null;
+                    },
+                  );
+                },
+              ),
               TextFormField(
-                controller: _titleController,
+                controller: _displayNameController,
                 decoration: const InputDecoration(
-                  labelText: 'Title',
+                  labelText: 'Display Name',
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter a title';
+                    return 'Please enter a display name';
                   }
                   return null;
                 },
               ),
               TextFormField(
-                controller: _contentController,
+                controller: _urlController,
                 decoration: const InputDecoration(
-                  labelText: 'Content',
+                  labelText: 'URL',
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter content';
+                    return 'Please enter a URL';
                   }
                   return null;
                 },
@@ -160,7 +236,7 @@ class _CreateGuideScreenState extends State<CreateGuideScreen> {
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
-                    _createGuide();
+                    _addGuideToCategory();
                   }
                 },
                 child: const Text('Save'),
@@ -172,12 +248,25 @@ class _CreateGuideScreenState extends State<CreateGuideScreen> {
     );
   }
 
-  void _createGuide() async {
-    await _firestore.collection('guides').add({ // Collection for guides
-      'title': _titleController.text,
-      'content': _contentController.text,
-    });
-    Navigator.pop(context);
+  void _addGuideToCategory() async {
+    final snapshot = await _firestore
+        .collection('guides')
+        .where('title', isEqualTo: _selectedCategory)
+        .get();
+    if (snapshot.docs.isNotEmpty) {
+      final doc = snapshot.docs.first;
+      final data = doc.data() as Map<String, dynamic>;
+      final urls = data['url'] is Map
+          ? data['url'] as Map<String, dynamic>
+          : <String, dynamic>{'default': data['url']};
+      urls[_displayNameController.text] = _urlController.text;
+
+      await _firestore.collection('guides').doc(doc.id).update({
+        'url': urls,
+      });
+
+      Navigator.pop(context);
+    }
   }
 }
 
@@ -193,31 +282,36 @@ class EditGuideScreen extends StatefulWidget {
 class _EditGuideScreenState extends State<EditGuideScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _titleController;
-  late TextEditingController _contentController;
+  final Map<String, TextEditingController> _urlControllers = {};
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   void initState() {
     super.initState();
     _titleController = TextEditingController();
-    _contentController = TextEditingController();
     _loadGuideData();
   }
 
   void _loadGuideData() async {
-    final doc = await _firestore.collection('guides').doc(widget.guideId).get(); // Collection for guides
+    final doc = await _firestore.collection('guides').doc(widget.guideId).get();
     final data = doc.data() as Map<String, dynamic>;
 
     setState(() {
-      _titleController.text = data['title'] ?? '';
-      _contentController.text = data['content'] ?? '';
+      _titleController.text = data['title']?.toString() ?? '';
+
+      final urls = data['url'] is Map
+          ? data['url'] as Map<String, dynamic>
+          : <String, dynamic>{'default': data['url']};
+      urls.forEach((key, value) {
+        _urlControllers[key] = TextEditingController(text: value.toString());
+      });
     });
   }
 
   @override
   void dispose() {
     _titleController.dispose();
-    _contentController.dispose();
+    _urlControllers.values.forEach((controller) => controller.dispose());
     super.dispose();
   }
 
@@ -236,26 +330,52 @@ class _EditGuideScreenState extends State<EditGuideScreen> {
               TextFormField(
                 controller: _titleController,
                 decoration: const InputDecoration(
-                  labelText: 'Title',
+                  labelText: 'Guide Title',
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter a title';
+                    return 'Please enter a guide title';
                   }
                   return null;
                 },
               ),
-              TextFormField(
-                controller: _contentController,
-                decoration: const InputDecoration(
-                  labelText: 'Content',
+              const SizedBox(height: 20),
+              Expanded(
+                child: ListView(
+                  children: _urlControllers.entries.map((entry) {
+                    final displayName = entry.key;
+                    final urlController = entry.value;
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: TextFormField(
+                              controller: urlController,
+                              decoration: InputDecoration(
+                                labelText: 'URL for $displayName',
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter a URL for $displayName';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () {
+                              setState(() {
+                                _urlControllers.remove(entry.key);
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter content';
-                  }
-                  return null;
-                },
               ),
               const SizedBox(height: 20),
               ElevatedButton(
@@ -274,10 +394,15 @@ class _EditGuideScreenState extends State<EditGuideScreen> {
   }
 
   void _updateGuide() async {
-    await _firestore.collection('guides').doc(widget.guideId).update({ // Collection for guides
+    final urls = Map<String, dynamic>.from(_urlControllers.map(
+      (key, controller) => MapEntry(key, controller.text),
+    ));
+
+    await _firestore.collection('guides').doc(widget.guideId).update({
       'title': _titleController.text,
-      'content': _contentController.text,
+      'url': urls,
     });
+
     Navigator.pop(context);
   }
 }
