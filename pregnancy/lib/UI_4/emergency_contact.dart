@@ -27,11 +27,18 @@ class _EmergencyContactPageState extends State<EmergencyContactPage> {
       User? user = _auth.currentUser;
       if (user != null) {
         DocumentSnapshot userDoc = await _firestore.collection('user_accounts').doc(user.uid).get();
-        if (userDoc.exists && userDoc['emergency_contact'] != null) {
-          Map<String, dynamic> emergencyContact = userDoc['emergency_contact'];
-          _nameController.text = emergencyContact['name'] ?? '';
-          _phoneController.text = emergencyContact['phone'] ?? '';
-          _relationController.text = emergencyContact['relation'] ?? '';
+        if (userDoc.exists) {
+          var data = userDoc.data() as Map<String, dynamic>;
+          if (data.containsKey('emergency_contact')) {
+            Map<String, dynamic> emergencyContact = data['emergency_contact'];
+            _nameController.text = emergencyContact['name'] ?? '';
+            _phoneController.text = emergencyContact['phone'] ?? '';
+            _relationController.text = emergencyContact['relation'] ?? '';
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Please fill in your emergency contact details')),
+            );
+          }
         }
       }
     } catch (e) {

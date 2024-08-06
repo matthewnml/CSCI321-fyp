@@ -7,7 +7,6 @@ import 'package:pregnancy/UI_4/notifications.dart'; // Import the notification s
 import 'view_specialist_profile.dart';
 import 'package:flutter/gestures.dart';
 
-
 class ChatScreen extends StatefulWidget {
   final String chatId;
   final String userName; // This will be the name of the currently logged-in user or specialist
@@ -130,6 +129,21 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOut,
     );
+
+    // Fetch chat document to determine the receiver's user ID
+    final chatDoc = await FirebaseFirestore.instance.collection('chats').doc(widget.chatId).get();
+    final chatData = chatDoc.data();
+    if (chatData != null) {
+      final receiverId = chatData['createdBy'] == userId ? chatData['specialistId'] : chatData['createdBy'];
+      if (receiverId != userId) {
+        // Save notification if the receiver is not the sender
+        _notificationService.saveNotificationToDatabase(
+          'New message from $senderName',
+          text,
+          receiverId,
+        );
+      }
+    }
   }
 
   Future<void> _terminateChat() async {

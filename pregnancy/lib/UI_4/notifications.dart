@@ -1,20 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class NotificationService {
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-
   Future<void> init() async {
-    // Initialize local notifications
-    const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('app_icon');
-    final InitializationSettings initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid,
-    );
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-
+    // Initialize the Firestore listeners
     _listenForFirestoreChanges();
     _checkAppointments();
   }
@@ -85,11 +76,6 @@ class NotificationService {
             if (appointmentDate.year == tomorrow.year &&
                 appointmentDate.month == tomorrow.month &&
                 appointmentDate.day == tomorrow.day) {
-              _sendLocalNotification(
-                'Appointment Reminder',
-                'You have an appointment with ${data['Doctor Name']} at ${data['Location']} tomorrow at ${data['Time']}',
-              );
-
               saveNotificationToDatabase(
                 'Appointment Reminder',
                 'You have an appointment with ${data['Doctor Name']} at ${data['Location']} tomorrow at ${data['Time']}',
@@ -102,24 +88,5 @@ class NotificationService {
         }
       });
     }
-  }
-
-  Future<void> _sendLocalNotification(String title, String body) async {
-    const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
-      'your_channel_id',
-      'your_channel_name',
-      channelDescription: 'your_channel_description',
-      importance: Importance.max,
-      priority: Priority.high,
-      showWhen: false,
-    );
-    const NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
-    await flutterLocalNotificationsPlugin.show(
-      0,
-      title,
-      body,
-      platformChannelSpecifics,
-      payload: 'item x',
-    );
   }
 }

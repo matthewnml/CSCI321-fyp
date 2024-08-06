@@ -266,6 +266,11 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
                 onChanged: (String? newValue) {
                   setState(() {
                     _selectedRole = newValue;
+                    if (_selectedRole == 'Specialist') {
+                      _selectedPregnancyStatus = 'None(For Specialist)';
+                    } else {
+                      _selectedPregnancyStatus = null;
+                    }
                   });
                 },
                 validator: (value) {
@@ -292,10 +297,10 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
                     });
                   },
                   validator: (value) {
-                    if (value == null) {
+                    if (_selectedRole == 'User' && value == null) {
                       return 'Please select a pregnancy status';
                     }
-                    return 'None(For Specialist)';
+                    return null;
                   },
                 ),
               const SizedBox(height: 20),
@@ -329,7 +334,7 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
         'email': _emailController.text,
         'password': _passwordController.text, // Store password securely
         'role': _selectedRole,
-        'pregnancy_status': _selectedRole == 'User' ? _selectedPregnancyStatus : null,
+        'pregnancy_status': _selectedRole == 'User' ? _selectedPregnancyStatus : 'None(For Specialist)',
       });
 
       Navigator.pop(context);
@@ -469,6 +474,11 @@ class _EditUserScreenState extends State<EditUserScreen> {
                 onChanged: (String? newValue) {
                   setState(() {
                     _selectedRole = newValue;
+                    if (_selectedRole == 'Specialist') {
+                      _selectedPregnancyStatus = 'None(For Specialist)';
+                    } else {
+                      _selectedPregnancyStatus = null;
+                    }
                   });
                 },
                 validator: (value) {
@@ -495,7 +505,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
                     });
                   },
                   validator: (value) {
-                    if (value == null) {
+                    if (_selectedRole == 'User' && value == null) {
                       return 'Please select a pregnancy status';
                     }
                     return null;
@@ -538,7 +548,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
         'email': _emailController.text,
         'password': _passwordController.text, // Store password securely
         'role': _selectedRole,
-        'pregnancy_status': _selectedRole == 'User' ? _selectedPregnancyStatus : null,
+        'pregnancy_status': _selectedRole == 'User' ? _selectedPregnancyStatus : 'None(For Specialist)',
       });
 
       Navigator.pop(context);
