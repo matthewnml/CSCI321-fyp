@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class UserManagement extends StatefulWidget {
   const UserManagement({super.key});
@@ -179,6 +179,7 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   String? _selectedRole;
   String? _selectedPregnancyStatus;
 
@@ -308,16 +309,27 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
   }
 
   void _createUser() async {
-    await _firestore.collection('user_accounts').add({
-      'full_name': _nameController.text,
-      'date_of_birth': _dobController.text,
-      'email': _emailController.text,
-      'password': _passwordController.text, // Handle password securely
-      'role': _selectedRole,
-            'pregnancy_status': _selectedRole == 'User' ? _selectedPregnancyStatus : null,
-    });
+    try {
+      // Create user with Firebase Authentication
+      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
 
-    Navigator.pop(context);
+      // Add user data to Firestore
+      await _firestore.collection('user_accounts').doc(userCredential.user!.uid).set({
+        'full_name': _nameController.text,
+        'date_of_birth': _dobController.text,
+        'email': _emailController.text,
+        'role': _selectedRole,
+        'pregnancy_status': _selectedRole == 'User' ? _selectedPregnancyStatus : null,
+      });
+
+      Navigator.pop(context);
+    } catch (e) {
+      print('Error creating user: $e');
+      // Handle error (e.g., show a dialog)
+    }
   }
 
   @override
@@ -346,8 +358,10 @@ class _EditUserScreenState extends State<EditUserScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   String? _selectedRole;
   String? _selectedPregnancyStatus;
+  String? _initialEmail;
 
   @override
   void initState() {
@@ -363,6 +377,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
         _nameController.text = data['full_name'] ?? '';
         _dobController.text = data['date_of_birth'] ?? '';
         _emailController.text = data['email'] ?? '';
+        _initialEmail = data['email'];
         _passwordController.text = data['password'] ?? '';
         _selectedRole = data['role'];
         _selectedPregnancyStatus = data['pregnancy_status'];
@@ -496,16 +511,33 @@ class _EditUserScreenState extends State<EditUserScreen> {
   }
 
   void _updateUser() async {
-    await _firestore.collection('user_accounts').doc(widget.userId).update({
-      'full_name': _nameController.text,
-      'date_of_birth': _dobController.text,
-      'email': _emailController.text,
-      'password': _passwordController.text, // Handle password securely
-      'role': _selectedRole,
-      'pregnancy_status': _selectedRole == 'User' ? _selectedPregnancyStatus : null,
-    });
+    try {
+      User? currentUser = _auth.currentUser;
 
-    Navigator.pop(context);
+      // Update email if changed
+      if (_initialEmail != _emailController.text) {
+        await currentUser!.updateEmail(_emailController.text);
+      }
+
+      // Update password if not empty
+      if (_passwordController.text.isNotEmpty) {
+        await currentUser!.updatePassword(_passwordController.text);
+      }
+
+      // Update user data in Firestore
+      await _firestore.collection('user_accounts').doc(widget.userId).update({
+        'full_name': _nameController.text,
+        'date_of_birth': _dobController.text,
+        'email': _emailController.text,
+        'role': _selectedRole,
+        'pregnancy_status': _selectedRole == 'User' ? _selectedPregnancyStatus : null,
+      });
+
+      Navigator.pop(context);
+    } catch (e) {
+      print('Error updating user: $e');
+      // Handle error (e.g., show a dialog)
+    }
   }
 
   @override
