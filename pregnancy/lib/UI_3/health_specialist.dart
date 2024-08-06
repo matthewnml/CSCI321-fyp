@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pregnancy/UI_3/specialist_appt.dart';
-import 'package:pregnancy/UI_3/find_doc.dart';
-import 'package:pregnancy/UI_3/health_journal.dart';
 import 'package:pregnancy/UI_3/specialist_profile.dart'; // Import the specialist_profile.dart file
 
 class HealthSpecialistScreen extends StatefulWidget {
