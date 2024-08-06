@@ -4,6 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:pregnancy/UI_4/notifications.dart'; // Import the notification service
+import 'view_specialist_profile.dart';
+import 'package:flutter/gestures.dart';
+
 
 class ChatScreen extends StatefulWidget {
   final String chatId;
@@ -26,14 +29,27 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   final ScrollController _scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
   late NotificationService _notificationService;
+  bool _isChatCompleted = false; // State to track if chat is completed
+  String? specialistId; // Variable to store the specialist's ID
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    print("ChatScreen initialized");  // Debug statement
     _notificationService = NotificationService();
-    _notificationService.init(); // Initialize the notification service
+    _notificationService.init();
+    fetchChatDetails();
+  }
+
+  void fetchChatDetails() async {
+    DocumentSnapshot chatSnapshot = await FirebaseFirestore.instance.collection('chats').doc(widget.chatId).get();
+    if (chatSnapshot.exists) {
+      var data = chatSnapshot.data() as Map<String, dynamic>;
+      setState(() {
+        _isChatCompleted = data['status'] == 'completed';
+        specialistId = data['specialistId']; // Store the specialistId from Firestore
+      });
+    }
   }
 
   @override
@@ -43,19 +59,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     _scrollController.dispose();
     _focusNode.dispose();
     super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-    print("App state changed to: $state");  // Debug statement
-    if (state == AppLifecycleState.resumed) {
-      print("Requesting focus on resume");  // Debug statement
-      // Optionally, you might want to delay the focus request slightly
-      Future.delayed(Duration(milliseconds: 500), () {
-        _focusNode.requestFocus();
-      });
-    }
   }
 
   String _formatTimestamp(Timestamp timestamp) {
@@ -71,25 +74,34 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   }
 
   Widget _buildMessage(String text, bool isSentByUser) {
-    // This regular expression matches URLs
     final urlRegExp = RegExp(r'(https?:\/\/[^\s]+)');
-    final matches = urlRegExp.allMatches(text);
+    List<InlineSpan> spans = [];
 
-    if (matches.isNotEmpty) {
-      final String url = matches.first.group(0)!;
-      return InkWell(
-        onTap: () => _launchURL(url),
-        child: Text(
-          text,
-          style: TextStyle(
-            color: Colors.blue,
-            decoration: TextDecoration.underline,
-          ),
-        ),
-      );
-    } else {
-      return Text(text);
-    }
+    text.splitMapJoin(
+      urlRegExp,
+      onMatch: (Match match) {
+        spans.add(TextSpan(
+          text: match.group(0),
+          style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
+          recognizer: TapGestureRecognizer()..onTap = () => _launchURL(match.group(0)!),
+        ));
+        return '';
+      },
+      onNonMatch: (String text) {
+        spans.add(TextSpan(
+          text: text,
+          style: TextStyle(color: Colors.black),
+        ));
+        return '';
+      },
+    );
+
+    return RichText(
+      text: TextSpan(
+        children: spans,
+        style: TextStyle(fontSize: 16),  // Default text style
+      ),
+    );
   }
 
   Future<void> _sendMessage({required String text}) async {
@@ -107,7 +119,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     };
 
     await FirebaseFirestore.instance.collection('chats').doc(widget.chatId).collection('messages').add(message);
-
     await FirebaseFirestore.instance.collection('chats').doc(widget.chatId).update({
       'lastMessage': text,
       'lastUpdated': FieldValue.serverTimestamp(),
@@ -119,30 +130,41 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOut,
     );
+  }
 
-    // Fetch chat document to determine the receiver's user ID
-    final chatDoc = await FirebaseFirestore.instance.collection('chats').doc(widget.chatId).get();
-    final chatData = chatDoc.data();
-    if (chatData != null) {
-      final receiverId = chatData['createdBy'] == userId ? chatData['specialistId'] : chatData['createdBy'];
-      if (receiverId != userId) {
-        // Only save notification if the receiver is not the sender
-        _notificationService.saveNotificationToDatabase(
-          'New message from $senderName',
-          text,
-          receiverId, // Pass the receiver's user ID to save the notification correctly
+  Future<void> _terminateChat() async {
+    final bool confirm = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Terminate Chat'),
+          content: const Text('Are you sure you want to terminate the chat?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Yes'),
+            ),
+          ],
         );
-      }
+      },
+    ) ?? false;
+
+    if (confirm) {
+      await FirebaseFirestore.instance.collection('chats').doc(widget.chatId).update({
+        'status': 'completed',
+      });
+      Navigator.pop(context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async {
-        print("Back button pressed");  // Debug statement
-        return true;
-      },
+      onWillPop: () async => true,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Chat with Specialist'),
@@ -154,6 +176,42 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
               Navigator.pop(context);
             },
           ),
+          actions: <Widget>[
+            PopupMenuButton<String>(
+              onSelected: (value) async {
+                switch (value) {
+                  case 'profile':
+                    if (specialistId != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ViewSpecialistProfile(specialistId: specialistId!),
+                        ),
+                      );
+                    } else {
+                      print("Specialist ID is not available.");
+                    }
+                    break;
+                  case 'terminate':
+                    await _terminateChat();
+                    break;
+                }
+              },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                const PopupMenuItem<String>(
+                  value: 'profile',
+                  child: Text('View Specialist’s Profile'),
+                ),
+                PopupMenuItem<String>(
+                  value: 'terminate',
+                  child: Text(
+                    'Terminate Chat',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
         body: Column(
           children: [
@@ -164,16 +222,13 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                   if (!snapshot.hasData) {
                     return const Center(child: CircularProgressIndicator());
                   }
-
                   final messages = snapshot.data!.docs;
-
                   return ListView.builder(
                     controller: _scrollController,
                     itemCount: messages.length,
                     itemBuilder: (context, index) {
                       final message = messages[index].data() as Map<String, dynamic>;
                       final bool isSentByUser = message['senderId'] == FirebaseAuth.instance.currentUser?.uid;
-
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
                         child: Align(
@@ -210,29 +265,30 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                 },
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      focusNode: _focusNode,
-                      controller: _controller,
-                      decoration: const InputDecoration(
-                        hintText: 'Enter your question here',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(12)),
+            if (!_isChatCompleted) // Conditionally render the input area
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        focusNode: _focusNode,
+                        controller: _controller,
+                        decoration: const InputDecoration(
+                          hintText: 'Enter your question here',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(12)),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.send),
-                    onPressed: () => _sendMessage(text: _controller.text),
-                  ),
-                ],
+                    IconButton(
+                      icon: const Icon(Icons.send),
+                      onPressed: () => _sendMessage(text: _controller.text),
+                    ),
+                  ],
+                ),
               ),
-            ),
           ],
         ),
         backgroundColor: const Color(0xFFfdebeb),
