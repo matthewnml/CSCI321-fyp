@@ -247,6 +247,12 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
                   labelText: 'Password',
                 ),
                 obscureText: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a password';
+                  }
+                  return null;
+                },
               ),
               DropdownButtonFormField<String>(
                 value: _selectedRole,
@@ -321,6 +327,7 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
         'full_name': _nameController.text,
         'date_of_birth': _dobController.text,
         'email': _emailController.text,
+        'password': _passwordController.text, // Store password securely
         'role': _selectedRole,
         'pregnancy_status': _selectedRole == 'User' ? _selectedPregnancyStatus : null,
       });
@@ -529,6 +536,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
         'full_name': _nameController.text,
         'date_of_birth': _dobController.text,
         'email': _emailController.text,
+        'password': _passwordController.text, // Store password securely
         'role': _selectedRole,
         'pregnancy_status': _selectedRole == 'User' ? _selectedPregnancyStatus : null,
       });
