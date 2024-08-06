@@ -12,7 +12,7 @@ class ConceivingArticlesPage extends StatelessWidget {
         title: const Text('Conceiving Articles'),
       ),
       body: StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance.collection('articles').doc('SMhg3Y56y10pIKz1Xvzb').snapshots(),
+        stream: FirebaseFirestore.instance.collection('articles').doc('jGZsYHPjW7ETD50Yz9hu').snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
