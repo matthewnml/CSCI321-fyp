@@ -295,7 +295,7 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
                     if (value == null) {
                       return 'Please select a pregnancy status';
                     }
-                    return null;
+                    return 'None(For Specialist)';
                   },
                 ),
               const SizedBox(height: 20),

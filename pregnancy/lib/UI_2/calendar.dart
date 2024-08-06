@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       home: const CalendarScreen(),
       theme: ThemeData(
-        scaffoldBackgroundColor: const Color(0xFFfdebeb), // Set your desired background color here
+        scaffoldBackgroundColor: const Color(0xFFfdebeb),
       ),
     );
   }
@@ -38,11 +38,38 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Map<DateTime, List<Map<String, dynamic>>> _notes = {};
   Set<DateTime> _noteDates = {};
   bool _loadingNotes = true;
+  Set<DateTime> _ovulationDates = {};
+  Set<DateTime> _periodDates = {};
+  DateTime? _lastPeriodStartDate;
+  int _cycleLength = 28;
+  int _lutealPhaseLength = 14;
+  int _periodLength = 6; // average period length
+  int _fertileWindowLength = 6; // fertile window length including ovulation day
 
   @override
   void initState() {
     super.initState();
+    _loadCycleInfo();
     _loadNotes();
+  }
+
+  Future<void> _loadCycleInfo() async {
+    User? user = _auth.currentUser;
+    if (user != null) {
+      try {
+        DocumentSnapshot cycleDoc = await _firestore.collection('user_accounts').doc(user.uid).collection('cycle_info').doc('data').get();
+        if (cycleDoc.exists) {
+          setState(() {
+            _lastPeriodStartDate = (cycleDoc['lastPeriodStartDate'] as Timestamp?)?.toDate();
+            _cycleLength = cycleDoc['cycleLength'] ?? 28;
+            _lutealPhaseLength = cycleDoc['lutealPhaseLength'] ?? 14;
+            _calculateFutureDates();
+          });
+        }
+      } catch (e) {
+        print("Failed to load cycle info: $e");
+      }
+    }
   }
 
   Future<void> _loadNotes() async {
@@ -78,6 +105,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
           }
           loadedNotes[dateOnly]!.add(note);
           noteDates.add(dateOnly);
+
+          if (note['title'].toLowerCase().contains('ovulation')) {
+            _ovulationDates.add(dateOnly);
+          }
+          if (note['title'].toLowerCase().contains('period')) {
+            _periodDates.add(dateOnly);
+          }
         }
 
         for (var doc in apptSnapshot.docs) {
@@ -115,6 +149,21 @@ class _CalendarScreenState extends State<CalendarScreen> {
     }
   }
 
+  Future<void> _saveCycleInfo() async {
+    User? user = _auth.currentUser;
+    if (user != null) {
+      try {
+        await _firestore.collection('user_accounts').doc(user.uid).collection('cycle_info').doc('data').set({
+          'lastPeriodStartDate': _lastPeriodStartDate != null ? Timestamp.fromDate(_lastPeriodStartDate!) : null,
+          'cycleLength': _cycleLength,
+          'lutealPhaseLength': _lutealPhaseLength,
+        }, SetOptions(merge: true));
+      } catch (e) {
+        print("Failed to save cycle info: $e");
+      }
+    }
+  }
+
   Future<void> _saveNote(String title, String content) async {
     User? user = _auth.currentUser;
     if (user != null) {
@@ -136,6 +185,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
           }
           _notes[dateOnly]!.add({'title': title, 'content': content});
           _noteDates.add(dateOnly);
+
+          if (title.toLowerCase().contains('ovulation')) {
+            _ovulationDates.add(dateOnly);
+          }
+          if (title.toLowerCase().contains('period')) {
+            _periodDates.add(dateOnly);
+          }
         });
       } catch (e) {
         print("Failed to save note: $e");
@@ -159,6 +215,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
           if (_notes[dateOnly]?.isEmpty ?? true) {
             _notes.remove(dateOnly);
             _noteDates.remove(dateOnly);
+            _ovulationDates.remove(dateOnly);
+            _periodDates.remove(dateOnly);
           }
         });
       } catch (e) {
@@ -167,14 +225,121 @@ class _CalendarScreenState extends State<CalendarScreen> {
     }
   }
 
+  void _calculateFutureDates() {
+    if (_lastPeriodStartDate != null) {
+      _periodDates.clear();
+      _ovulationDates.clear();
+      DateTime date = _lastPeriodStartDate!;
+      for (int i = 0; i < 12; i++) {
+        // Add period dates
+        for (int j = 0; j < _periodLength; j++) {
+          _periodDates.add(date.add(Duration(days: j)));
+        }
+        // Add ovulation dates (fertile window)
+        DateTime ovulationStartDate = date.add(Duration(days: _cycleLength - _lutealPhaseLength - (_fertileWindowLength - 1)));
+        for (int j = 0; j < _fertileWindowLength; j++) {
+          _ovulationDates.add(ovulationStartDate.add(Duration(days: j)));
+        }
+        date = date.add(Duration(days: _cycleLength));
+      }
+      setState(() {});
+    }
+  }
+
+  void _showCycleSettingsDialog() {
+    TextEditingController cycleLengthController = TextEditingController(text: _cycleLength.toString());
+    TextEditingController lutealPhaseController = TextEditingController(text: _lutealPhaseLength.toString());
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Cycle Settings"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: cycleLengthController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: "Cycle Length (days)"),
+              ),
+              TextField(
+                controller: lutealPhaseController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: "Luteal Phase Length (days)"),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            ElevatedButton(
+              child: const Text("Save"),
+              onPressed: () {
+                setState(() {
+                  _cycleLength = int.tryParse(cycleLengthController.text) ?? 28;
+                  _lutealPhaseLength = int.tryParse(lutealPhaseController.text) ?? 14;
+                  _calculateFutureDates();
+                  _saveCycleInfo();
+                });
+                Navigator.of(context).pop();
+              },
+            ),
+            ElevatedButton(
+              child: const Text("Cancel"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showDatePicker() async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: _lastPeriodStartDate ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (pickedDate != null && pickedDate != _lastPeriodStartDate) {
+      setState(() {
+        _lastPeriodStartDate = pickedDate;
+        _calculateFutureDates();
+        _saveCycleInfo();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Calendar'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: _showCycleSettingsDialog,
+          ),
+        ],
       ),
       body: Column(
         children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              onPressed: _showDatePicker,
+              child: const Text('Select Last Period Start Date'),
+            ),
+          ),
+          if (_lastPeriodStartDate != null)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                'Last Period Start Date: ${DateFormat.yMMMd().format(_lastPeriodStartDate!)}',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ),
           TableCalendar(
             firstDay: DateTime.utc(2010, 10, 16),
             lastDay: DateTime.utc(2030, 3, 14),
@@ -185,7 +350,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             onDaySelected: (selectedDay, focusedDay) {
               setState(() {
                 _selectedDay = selectedDay;
-                _focusedDay = focusedDay; // update `_focusedDay` here as well
+                _focusedDay = focusedDay;
               });
             },
             calendarFormat: _calendarFormat,
@@ -199,14 +364,23 @@ class _CalendarScreenState extends State<CalendarScreen> {
             },
             calendarBuilders: CalendarBuilders(
               markerBuilder: (context, date, events) {
-                if (_noteDates.contains(DateTime(date.year, date.month, date.day))) {
+                DateTime dateOnly = DateTime(date.year, date.month, date.day);
+                if (_noteDates.contains(dateOnly) || _ovulationDates.contains(dateOnly) || _periodDates.contains(dateOnly)) {
+                  Color markerColor;
+                  if (_ovulationDates.contains(dateOnly)) {
+                    markerColor = Colors.blue;
+                  } else if (_periodDates.contains(dateOnly)) {
+                    markerColor = Colors.red;
+                  } else {
+                    markerColor = Colors.black;
+                  }
                   return Positioned(
                     bottom: 1,
                     child: Container(
                       width: 8,
                       height: 8,
-                      decoration: const BoxDecoration(
-                        color: Colors.black,
+                      decoration: BoxDecoration(
+                        color: markerColor,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -215,6 +389,17 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 return null;
               },
             ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildLegendItem(Colors.blue, "Ovulation Dates"),
+              const SizedBox(width: 16),
+              _buildLegendItem(Colors.red, "Period Dates"),
+              const SizedBox(width: 16),
+              _buildLegendItem(Colors.black, "Other Notes"),
+            ],
           ),
           const SizedBox(height: 16),
           Expanded(
@@ -234,6 +419,23 @@ class _CalendarScreenState extends State<CalendarScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildLegendItem(Color color, String text) {
+    return Row(
+      children: [
+        Container(
+          width: 16,
+          height: 16,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(text),
+      ],
     );
   }
 
@@ -270,12 +472,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
           ..._notes[dateOnly]!.map((note) => ListTile(
                 title: Text(note['title']),
                 subtitle: Text(note['content']),
-                trailing: note.containsKey('id') ? IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () {
-                    _deleteNote(note['id'], dateOnly);
-                  },
-                ) : null,
+                trailing: note.containsKey('id')
+                    ? IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () {
+                          _deleteNote(note['id'], dateOnly);
+                        },
+                      )
+                    : null,
               ))
         else
           const Padding(

@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:timezone/timezone.dart' as tz;
 
 class NotificationService {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -35,29 +34,30 @@ class NotificationService {
   Future<void> _listenForFirestoreChanges() async {
     var user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      FirebaseFirestore.instance
-          .collection('chats')
-          .snapshots()
-          .listen((snapshot) {
+      FirebaseFirestore.instance.collection('chats').snapshots().listen((snapshot) {
         for (var docChange in snapshot.docChanges) {
-          if (docChange.type == DocumentChangeType.added || docChange.type == DocumentChangeType.modified) {
-            var chat = docChange.doc.data();
-            if (chat != null) {
-              String receiverId = chat['specialistId'];
-              if (chat['createdBy'] == user.uid) {
-                receiverId = chat['createdBy'];
-              } else {
-                receiverId = chat['specialistId'];
-              }
+          try {
+            if (docChange.type == DocumentChangeType.added || docChange.type == DocumentChangeType.modified) {
+              var chat = docChange.doc.data();
+              if (chat != null) {
+                String receiverId = chat['specialistId'] as String? ?? '';
+                if (chat['createdBy'] == user.uid) {
+                  receiverId = chat['createdBy'] as String? ?? '';
+                } else {
+                  receiverId = chat['specialistId'] as String? ?? '';
+                }
 
-              if (receiverId != user.uid) {
-                saveNotificationToDatabase(
-                  'New message in chat with ${chat['specialistName'] ?? 'Unknown'}',
-                  chat['lastMessage'] ?? 'No message',
-                  receiverId,
-                );
+                if (receiverId.isNotEmpty && receiverId != user.uid) {
+                  saveNotificationToDatabase(
+                    'New message in chat with ${chat['specialistName'] ?? 'Unknown'}',
+                    chat['lastMessage'] ?? 'No message',
+                    receiverId,
+                  );
+                }
               }
             }
+          } catch (e) {
+            print('Error processing Firestore changes: $e');
           }
         }
       });
@@ -78,22 +78,26 @@ class NotificationService {
           .snapshots()
           .listen((snapshot) {
         for (var doc in snapshot.docs) {
-          var data = doc.data();
-          DateTime appointmentDate = DateFormat('dd/MM/yyyy').parse(data['Date']);
+          try {
+            var data = doc.data();
+            DateTime appointmentDate = DateFormat('dd/MM/yyyy').parse(data['Date']);
 
-          if (appointmentDate.year == tomorrow.year &&
-              appointmentDate.month == tomorrow.month &&
-              appointmentDate.day == tomorrow.day) {
-            _sendLocalNotification(
-              'Appointment Reminder',
-              'You have an appointment with ${data['Doctor Name']} at ${data['Location']} tomorrow at ${data['Time']}',
-            );
+            if (appointmentDate.year == tomorrow.year &&
+                appointmentDate.month == tomorrow.month &&
+                appointmentDate.day == tomorrow.day) {
+              _sendLocalNotification(
+                'Appointment Reminder',
+                'You have an appointment with ${data['Doctor Name']} at ${data['Location']} tomorrow at ${data['Time']}',
+              );
 
-            saveNotificationToDatabase(
-              'Appointment Reminder',
-              'You have an appointment with ${data['Doctor Name']} at ${data['Location']} tomorrow at ${data['Time']}',
-              user.uid,
-            );
+              saveNotificationToDatabase(
+                'Appointment Reminder',
+                'You have an appointment with ${data['Doctor Name']} at ${data['Location']} tomorrow at ${data['Time']}',
+                user.uid,
+              );
+            }
+          } catch (e) {
+            print('Error processing appointment data: $e');
           }
         }
       });

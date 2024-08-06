@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'account.dart';
 import 'emergency_contact.dart'; // Import the EmergencyContactPage
 import 'package:pregnancy/UI_main/password_reset.dart'; // Import the PasswordResetPage
@@ -11,6 +13,53 @@ class SettingsScreen extends StatelessWidget {
   final String userId;
 
   const SettingsScreen({super.key, required this.userId});
+
+  Future<void> _deleteAccount(BuildContext context) async {
+    try {
+      // Get the current user
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        // Delete user data from Firestore
+        await FirebaseFirestore.instance.collection('user_accounts').doc(user.uid).delete();
+        // Delete user from Firebase Authentication
+        await user.delete();
+        // Navigate to the login page
+        Navigator.pushReplacementNamed(context, '/login');
+      }
+    } catch (e) {
+      // Show an error message if something goes wrong
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to delete account: $e')),
+      );
+    }
+  }
+
+  void _showDeleteConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Account'),
+          content: const Text('Are you sure you want to delete your account? This action cannot be undone.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            ElevatedButton(
+              child: const Text('Delete'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _deleteAccount(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,6 +146,13 @@ class SettingsScreen extends StatelessWidget {
                   builder: (context) => const PasswordResetPage(),
                 ),
               );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.delete_forever),
+            title: const Text('Delete Account'),
+            onTap: () {
+              _showDeleteConfirmationDialog(context);
             },
           ),
           Padding(
