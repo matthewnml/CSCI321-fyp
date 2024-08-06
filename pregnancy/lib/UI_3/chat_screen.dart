@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:pregnancy/UI_4/notifications.dart'; // Import the notification service
 
 class ChatScreen extends StatefulWidget {
   final String chatId;
@@ -24,12 +25,15 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
+  late NotificationService _notificationService;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     print("ChatScreen initialized");  // Debug statement
+    _notificationService = NotificationService();
+    _notificationService.init(); // Initialize the notification service
   }
 
   @override
@@ -115,6 +119,21 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOut,
     );
+
+    // Fetch chat document to determine the receiver's user ID
+    final chatDoc = await FirebaseFirestore.instance.collection('chats').doc(widget.chatId).get();
+    final chatData = chatDoc.data();
+    if (chatData != null) {
+      final receiverId = chatData['createdBy'] == userId ? chatData['specialistId'] : chatData['createdBy'];
+      if (receiverId != userId) {
+        // Only save notification if the receiver is not the sender
+        _notificationService.saveNotificationToDatabase(
+          'New message from $senderName',
+          text,
+          receiverId, // Pass the receiver's user ID to save the notification correctly
+        );
+      }
+    }
   }
 
   @override
