@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'UI_main/login.dart';
 import 'firebase_options.dart';
 import 'UI_3/health_user.dart';
@@ -14,12 +13,11 @@ import 'UI_2/calendar.dart';
 import 'UI_4/setting.dart';
 import 'UI_4/account.dart';
 import 'UI_4/contact_us.dart';
-import 'UI_4/notifications.dart';
 import 'UI_4/notificationpage.dart';
 import 'UI_4/privacy_security.dart';
 import 'UI_4/emergency_contact.dart';
 import 'UI_main/password_reset.dart';
-import 'UI_1/admin.dart'; // Import the admin.dart file
+import 'UI_1/admin.dart'; 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
