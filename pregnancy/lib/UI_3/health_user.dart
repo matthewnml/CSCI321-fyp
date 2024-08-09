@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pregnancy/UI_3/specialist_appt.dart'; // Import the chat_with_specialist.dart file
-import 'package:pregnancy/UI_3/find_doc.dart'; // Import the doc_appt.dart file
+import 'package:pregnancy/UI_3/find_doctor.dart'; // Import the doc_appt.dart file
 import 'package:pregnancy/UI_3/my_appt.dart'; // Import the my_appt.dart file
 import 'package:pregnancy/UI_3/health_journal.dart'; // Import the health_journal.dart file
 
@@ -69,7 +69,7 @@ class _HealthScreenState extends State<HealthScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const BookWithDoctorScreen(),
+                        builder: (context) => const FindADoctor(),
                       ),
                     );
                   },
