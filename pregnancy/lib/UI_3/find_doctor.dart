@@ -5,17 +5,17 @@ class FindADoctor extends StatefulWidget {
   const FindADoctor({Key? key}) : super(key: key);
 
   @override
-  _FindADoctorState createState() => _FindADoctorState();
+  FindADoctorState createState() => FindADoctorState();
 }
 
-class _FindADoctorState extends State<FindADoctor> {
+class FindADoctorState extends State<FindADoctor> {
   late Future<List<Map<String, String>>> _doctorProfiles;
 
   @override
   void initState() {
     super.initState();
     DoctorProfileService service = DoctorProfileService(
-        'https://www.kkh.com.sg/patient-care/find-a-doctor?InstID=607a2275-3dee-4aff-8eeb-ff49077be347#abdomen');
+        'https://www.kkh.com.sg/patient-care/find-a-doctor?k=*#abdomen');
     _doctorProfiles = service.getAllDoctorProfiles();
   }
 
@@ -81,7 +81,7 @@ class _FindADoctorState extends State<FindADoctor> {
                               // Navigate to detailed profile or perform an action
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.pink.shade100, // Button color
+                              backgroundColor: Colors.pink.shade100,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20.0),
                               ),
