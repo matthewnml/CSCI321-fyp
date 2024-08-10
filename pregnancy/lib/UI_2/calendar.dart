@@ -42,9 +42,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Set<DateTime> _periodDates = {};
   DateTime? _lastPeriodStartDate;
   int _cycleLength = 28;
-  int _lutealPhaseLength = 14;
   int _periodLength = 6; // average period length
-  int _fertileWindowLength = 6; // fertile window length including ovulation day
+  int _fertileWindowLength = 4; // fertile window length including ovulation day
 
   @override
   void initState() {
@@ -62,7 +61,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
           setState(() {
             _lastPeriodStartDate = (cycleDoc['lastPeriodStartDate'] as Timestamp?)?.toDate();
             _cycleLength = cycleDoc['cycleLength'] ?? 28;
-            _lutealPhaseLength = cycleDoc['lutealPhaseLength'] ?? 14;
             _calculateFutureDates();
           });
         }
@@ -156,7 +154,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
         await _firestore.collection('user_accounts').doc(user.uid).collection('cycle_info').doc('data').set({
           'lastPeriodStartDate': _lastPeriodStartDate != null ? Timestamp.fromDate(_lastPeriodStartDate!) : null,
           'cycleLength': _cycleLength,
-          'lutealPhaseLength': _lutealPhaseLength,
         }, SetOptions(merge: true));
       } catch (e) {
         print("Failed to save cycle info: $e");
@@ -226,74 +223,77 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   void _calculateFutureDates() {
-    if (_lastPeriodStartDate != null) {
-      _periodDates.clear();
-      _ovulationDates.clear();
-      DateTime date = _lastPeriodStartDate!;
-      for (int i = 0; i < 12; i++) {
-        // Add period dates
-        for (int j = 0; j < _periodLength; j++) {
-          _periodDates.add(date.add(Duration(days: j)));
-        }
-        // Add ovulation dates (fertile window)
-        DateTime ovulationStartDate = date.add(Duration(days: _cycleLength - _lutealPhaseLength - (_fertileWindowLength - 1)));
-        for (int j = 0; j < _fertileWindowLength; j++) {
-          _ovulationDates.add(ovulationStartDate.add(Duration(days: j)));
-        }
-        date = date.add(Duration(days: _cycleLength));
+  if (_lastPeriodStartDate != null) {
+    _periodDates.clear();
+    _ovulationDates.clear();
+    DateTime date = _lastPeriodStartDate!;
+    
+    // Standard assumption for the luteal phase length
+    const int standardLutealPhaseLength = 14;
+
+    for (int i = 0; i < 12; i++) {
+      // Add period dates
+      for (int j = 0; j < _periodLength; j++) {
+        _periodDates.add(date.add(Duration(days: j)));
       }
-      setState(() {});
+
+      // Calculate ovulation date assuming ovulation occurs 14 days before the next period
+      DateTime ovulationStartDate = date.add(Duration(days: _cycleLength - standardLutealPhaseLength - (_fertileWindowLength - 1)));
+
+      for (int j = 0; j < _fertileWindowLength; j++) {
+        _ovulationDates.add(ovulationStartDate.add(Duration(days: j)));
+      }
+
+      // Move to the next cycle
+      date = date.add(Duration(days: _cycleLength));
     }
+
+    setState(() {});
   }
+}
 
   void _showCycleSettingsDialog() {
-    TextEditingController cycleLengthController = TextEditingController(text: _cycleLength.toString());
-    TextEditingController lutealPhaseController = TextEditingController(text: _lutealPhaseLength.toString());
+  TextEditingController cycleLengthController = TextEditingController(text: _cycleLength.toString());
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Cycle Settings"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: cycleLengthController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: "Cycle Length (days)"),
-              ),
-              TextField(
-                controller: lutealPhaseController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: "Luteal Phase Length (days)"),
-              ),
-            ],
-          ),
-          actions: <Widget>[
-            ElevatedButton(
-              child: const Text("Save"),
-              onPressed: () {
-                setState(() {
-                  _cycleLength = int.tryParse(cycleLengthController.text) ?? 28;
-                  _lutealPhaseLength = int.tryParse(lutealPhaseController.text) ?? 14;
-                  _calculateFutureDates();
-                  _saveCycleInfo();
-                });
-                Navigator.of(context).pop();
-              },
-            ),
-            ElevatedButton(
-              child: const Text("Cancel"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text("Cycle Settings"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: cycleLengthController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: "Cycle Length (days)"),
             ),
           ],
-        );
-      },
-    );
-  }
+        ),
+        actions: <Widget>[
+          ElevatedButton(
+            child: const Text("Save"),
+            onPressed: () {
+              setState(() {
+                _cycleLength = int.tryParse(cycleLengthController.text) ?? 28;
+                _calculateFutureDates();
+                _saveCycleInfo();
+              });
+              Navigator.of(context).pop();
+            },
+          ),
+          ElevatedButton(
+            child: const Text("Cancel"),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
 
   void _showDatePicker() async {
     DateTime? pickedDate = await showDatePicker(
@@ -402,21 +402,20 @@ class _CalendarScreenState extends State<CalendarScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          Expanded(
-            child: _loadingNotes
+            Expanded(
+              child: _loadingNotes
                 ? const Center(child: CircularProgressIndicator())
                 : ListView(
                     children: [
                       _buildExpandableTile(context, 'Pregnancy Symptoms'),
                       _buildExpandableTile(context, 'Weight'),
                       _buildExpandableTile(context, 'Activity'),
-                      _buildExpandableTile(context, 'Appointments'),
-                      _buildExpandableTile(context, 'Medication'),
+                      _buildExpandableTile(context, 'Notes'),
                       const SizedBox(height: 16),
                       _buildNotesSection(),
                     ],
                   ),
-          ),
+              ),
         ],
       ),
     );
@@ -440,55 +439,145 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Widget _buildExpandableTile(BuildContext context, String title) {
-    return ExpansionTile(
-      title: Text(title),
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: ElevatedButton(
-            onPressed: () {
-              _showDialog(context, title);
-            },
-            child: Text('Add $title'),
-          ),
-        ),
-      ],
-    );
-  }
+  TextEditingController noteController = TextEditingController();
 
-  Widget _buildNotesSection() {
-    DateTime dateOnly = DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day);
-    return Column(
+  return Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Text(
-            'Notes for Selected Date',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        Text(
+          title,
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: noteController,
+          maxLines: null, // Allows for multiline input
+          decoration: InputDecoration(
+            hintText: 'Enter $title here',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
           ),
         ),
-        if (_notes[dateOnly] != null && _notes[dateOnly]!.isNotEmpty)
-          ..._notes[dateOnly]!.map((note) => ListTile(
-                title: Text(note['title']),
-                subtitle: Text(note['content']),
-                trailing: note.containsKey('id')
-                    ? IconButton(
-                        icon: const Icon(Icons.delete),
-                        onPressed: () {
-                          _deleteNote(note['id'], dateOnly);
-                        },
-                      )
-                    : null,
-              ))
-        else
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text('No notes for this date'),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerRight,
+          child: ElevatedButton(
+            onPressed: () {
+              _saveNote(title, noteController.text);
+              noteController.clear();
+            },
+            child: const Text('Save'),
           ),
+        ),
       ],
-    );
+    ),
+  );
+}
+
+  Widget _buildNotesSection() {
+  DateTime dateOnly = DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day);
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Padding(
+        padding: EdgeInsets.all(8.0),
+        child: Text(
+          'Notes for Selected Date',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+      ),
+      if (_notes[dateOnly] != null && _notes[dateOnly]!.isNotEmpty)
+        ..._notes[dateOnly]!.map((note) => ListTile(
+              title: Text(note['title']),
+              subtitle: Text(note['content']),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.edit),
+                    onPressed: () {
+                      _editNoteDialog(note, dateOnly);
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () {
+                      _deleteNote(note['id'], dateOnly);
+                    },
+                  ),
+                ],
+              ),
+            ))
+      else
+        const Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Text('No notes for this date'),
+        ),
+    ],
+  );
+}
+
+void _editNoteDialog(Map<String, dynamic> note, DateTime dateOnly) {
+  TextEditingController noteController = TextEditingController(text: note['content']);
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Edit ${note['title']}'),
+        content: TextField(
+          controller: noteController,
+          maxLines: null,
+          decoration: const InputDecoration(hintText: "Edit note"),
+        ),
+        actions: <Widget>[
+          ElevatedButton(
+            child: const Text("Save"),
+            onPressed: () async {
+              await _updateNote(note['id'], note['title'], noteController.text, dateOnly);
+              Navigator.of(context).pop();
+            },
+          ),
+          ElevatedButton(
+            child: const Text("Cancel"),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
+Future<void> _updateNote(String noteId, String title, String content, DateTime dateOnly) async {
+  User? user = _auth.currentUser;
+  if (user != null) {
+    try {
+      await _firestore
+          .collection('user_accounts')
+          .doc(user.uid)
+          .collection('notes')
+          .doc(noteId)
+          .update({
+        'content': content,
+        'timestamp': Timestamp.fromDate(dateOnly),
+      });
+
+      setState(() {
+        final noteIndex = _notes[dateOnly]!.indexWhere((note) => note['id'] == noteId);
+        if (noteIndex >= 0) {
+          _notes[dateOnly]![noteIndex]['content'] = content;
+        }
+      });
+    } catch (e) {
+      print("Failed to update note: $e");
+    }
   }
+}
 
   void _showDialog(BuildContext context, String title) {
     TextEditingController noteController = TextEditingController();
