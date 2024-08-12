@@ -11,8 +11,8 @@ class BabyDevelopmentPage extends StatefulWidget {
 }
 
 class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTickerProviderStateMixin {
-  final List<double> weights = [3.5, 4.2, 5.0, 5.8, 6.2, 6.5, 7.0, 7.3, 7.6, 8.0, 8.3, 8.5];
-  final List<double> heights = [50, 54, 57, 60, 62, 64, 66, 68, 70, 72, 74, 76];
+  final List<double?> weights = List<double?>.filled(12, null);
+  final List<double?> heights = List<double?>.filled(12, null);
   final List<String> months = [
     'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'
   ];
@@ -44,13 +44,8 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
       setState(() {
         final monthIndex = months.indexOf(selectedMonth);
 
-        if (monthIndex < weights.length) {
-          weights[monthIndex] = newWeight;
-          heights[monthIndex] = newHeight;
-        } else {
-          weights.add(newWeight);
-          heights.add(newHeight);
-        }
+        weights[monthIndex] = newWeight;
+        heights[monthIndex] = newHeight;
       });
 
       _weightController.clear();
@@ -59,6 +54,13 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
     } else {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter valid data and select a valid month.')));
     }
+  }
+
+  void _deleteData(int index) {
+    setState(() {
+      weights[index] = null;
+      heights[index] = null;
+    });
   }
 
   @override
@@ -146,14 +148,16 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
     );
   }
 
-  Widget _buildTrendGraph(String title, List<double> data, Color color) {
-    final double maxDataValue = data.isNotEmpty ? data.reduce((a, b) => a > b ? a : b) : 100;
-    const double minY = 0;
-    final double maxY = maxDataValue + 5;
-    final double interval = (maxY / 10).ceilToDouble();
+  Widget _buildTrendGraph(String title, List<double?> data, Color color) {
     final adjustedData = List.generate(months.length, (index) {
-      return FlSpot(index.toDouble(), index < data.length ? data[index] : 0);
-    });
+      return data[index] != null ? FlSpot(index.toDouble(), data[index]!) : null;
+    }).where((spot) => spot != null).toList();
+
+    final double maxY = data.where((d) => d != null).isNotEmpty
+        ? data.where((d) => d != null).reduce((a, b) => a! > b! ? a : b)!
+        : 100;
+    const double minY = 0;
+    final double interval = (maxY / 10).ceilToDouble() + 1;
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -168,7 +172,7 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
           Expanded(
             child: LineChart(
               LineChartData(
-                maxY: maxY,
+                maxY: maxY + 5,
                 minY: minY,
                 gridData: FlGridData(
                   show: true,
@@ -180,41 +184,38 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 60, // Increased reserved size for bottom titles
+                      reservedSize: 60,
                       interval: 1,
                       getTitlesWidget: (value, meta) {
                         final index = value.toInt();
-                        if (index < months.length) {
-                          return SideTitleWidget(
-                            axisSide: meta.axisSide,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4.0), // Adjust vertical padding
-                              child: Text(
-                                months[index],
-                                style: const TextStyle(fontSize: 10),
-                                textAlign: TextAlign.center, // Center align text
-                              ),
+                        return SideTitleWidget(
+                          axisSide: meta.axisSide,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4.0),
+                            child: Text(
+                              months[index],
+                              style: const TextStyle(fontSize: 10),
+                              textAlign: TextAlign.center,
                             ),
-                          );
-                        }
-                        return const SizedBox.shrink();
+                          ),
+                        );
                       },
                     ),
                   ),
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 70, // Increased reserved size for left titles
-                      interval: interval, // Adjust interval based on data range
+                      reservedSize: 70,
+                      interval: interval,
                       getTitlesWidget: (value, meta) {
                         return SideTitleWidget(
                           axisSide: meta.axisSide,
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8.0), // Adjust horizontal padding
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
                             child: Text(
                               '${value.toInt()}',
                               style: const TextStyle(fontSize: 12),
-                              textAlign: TextAlign.right, // Align text to the right
+                              textAlign: TextAlign.right,
                             ),
                           ),
                         );
@@ -223,7 +224,7 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
                   ),
                   topTitles: const AxisTitles(
                     sideTitles: SideTitles(
-                      showTitles: false, // Hide top titles
+                      showTitles: false,
                     ),
                   ),
                   rightTitles: const AxisTitles(
@@ -241,7 +242,7 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
                 ),
                 lineBarsData: [
                   LineChartBarData(
-                    spots: adjustedData,
+                    spots: adjustedData.cast<FlSpot>(),
                     isCurved: true,
                     barWidth: 4,
                     color: color,
@@ -255,6 +256,55 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
                 ),
               ),
             ),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: DataTable(
+                columns: const [
+                  DataColumn(label: Text('Month')),
+                  DataColumn(label: Text('Height (cm)')),
+                  DataColumn(label: Text('Weight (kg)')),
+                  DataColumn(label: Text('Actions')),
+                ],
+                rows: List<DataRow>.generate(months.length, (index) {
+                  return DataRow(cells: [
+                    DataCell(Text(months[index])),
+                    DataCell(Text(heights[index]?.toStringAsFixed(1) ?? 'N/A')),
+                    DataCell(Text(weights[index]?.toStringAsFixed(1) ?? 'N/A')),
+                    DataCell(
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () => _confirmDelete(index),
+                      ),
+                    ),
+                  ]);
+                }),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDelete(int index) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Data'),
+        content: Text('Are you sure you want to delete the data for ${months[index]}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              _deleteData(index);
+              Navigator.pop(context);
+            },
+            child: const Text('Delete'),
           ),
         ],
       ),
