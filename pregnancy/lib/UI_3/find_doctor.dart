@@ -9,14 +9,45 @@ class FindADoctor extends StatefulWidget {
 }
 
 class FindADoctorState extends State<FindADoctor> {
-  late Future<List<Map<String, String>>> _doctorProfiles;
+  late ScrollController _scrollController;
+  late List<Map<String, String>> _doctorProfiles;
+  bool _isLoading = false;
+  int _currentPage = 0;
 
   @override
   void initState() {
     super.initState();
+    _doctorProfiles = [];
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
+    _fetchMoreData();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _fetchMoreData() async {
+    if (_isLoading) return;
+    setState(() => _isLoading = true);
+
     DoctorProfileService service = DoctorProfileService(
-        'https://www.kkh.com.sg/patient-care/find-a-doctor?k=*#abdomen');
-    _doctorProfiles = service.getAllDoctorProfiles();
+        'https://www.kkh.com.sg/patient-care/find-a-doctor?k=*&PageNo=$_currentPage#abdomen');
+    var newProfiles = await service.getAllDoctorProfiles();
+    _doctorProfiles.addAll(newProfiles);
+
+    setState(() {
+      _isLoading = false;
+      _currentPage++;
+    });
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+      _fetchMoreData();
+    }
   }
 
   @override
@@ -47,52 +78,41 @@ class FindADoctorState extends State<FindADoctor> {
             ),
           ),
           Expanded(
-            child: FutureBuilder<List<Map<String, String>>>(
-              future: _doctorProfiles,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
+            child: ListView.builder(
+              controller: _scrollController,
+              itemCount: _doctorProfiles.length + (_isLoading ? 1 : 0),
+              itemBuilder: (context, index) {
+                if (index >= _doctorProfiles.length) {
                   return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('No profiles found.'));
-                } else {
-                  return ListView.builder(
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index) {
-                      var profile = snapshot.data![index];
-                      return Card(
-                        margin: const EdgeInsets.all(8.0),
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: Colors.grey.shade200,
-                            child: const Icon(Icons.person),
-                          ),
-                          title: Text(profile['name'] ?? 'No name'),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(profile['specialty'] ?? 'No specialty'),
-                              Text(profile['location'] ?? 'No location'),
-                            ],
-                          ),
-                          trailing: ElevatedButton(
-                            onPressed: () {
-                              // Navigate to detailed profile or perform an action
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.pink.shade100,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20.0),
-                              ),
-                            ),
-                            child: const Text('View Profile'),
-                          ),
-                        ),
-                      );
-                    },
-                  );
                 }
+                var profile = _doctorProfiles[index];
+                return Card(
+                  margin: const EdgeInsets.all(8.0),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.grey.shade200,
+                      child: const Icon(Icons.person),
+                    ),
+                    title: Text(profile['name'] ?? 'No name'),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(profile['specialty'] ?? 'No specialty'),
+                        Text(profile['location'] ?? 'No location'),
+                      ],
+                    ),
+                    trailing: ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.pink.shade100,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                      ),
+                      child: const Text('View Profile'),
+                    ),
+                  ),
+                );
               },
             ),
           ),

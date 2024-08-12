@@ -3,12 +3,12 @@ import 'package:html/parser.dart' show parse;
 
 class DoctorProfileService {
   final String baseUrl;
-  late Uri uri;  // Marking `uri` as `late`
+  late Uri uri;
 
   DoctorProfileService(this.baseUrl) {
-    // Initialize `uri` within the constructor using the `replace` method to set initial query parameters
+    // Initialize the URI within the constructor using the 'replace' method to set initial query parameters
     uri = Uri.parse(baseUrl).replace(queryParameters: {
-      'k': Uri.encodeComponent('*')  // Ensure '*' is properly encoded if needed
+      'k': Uri.encodeComponent('*')  // Properly encode the '*' character if needed
     });
   }
 
@@ -36,52 +36,86 @@ class DoctorProfileService {
   }
 
   List<Map<String, String>> parseDoctorProfiles(String htmlContent) {
-    var document = parse(htmlContent);
-    var profileElements = document.querySelectorAll('figcaption');
-    var profiles = <Map<String, String>>[];
+  var document = parse(htmlContent);
+  var profileElements = document.querySelectorAll('figcaption');
+  var profiles = <Map<String, String>>[];
 
-    for (var element in profileElements) {
-      var nameElement = element.querySelector('h3 a');
-      var qualificationsElement = element.querySelector('.sub-line p');
-      var specialtyElement = element.querySelector('h4');
-      var interestsElement = element.querySelector('div[id^="ctl00"]');
+  for (var element in profileElements) {
+    // Extracting the name
+    var nameElement = element.querySelector('h3 a');
+    var name = nameElement?.text.trim() ?? 'No name';
 
-      var name = nameElement?.text.trim() ?? 'No name';
-      var profileUrl = nameElement?.attributes['href'] ?? '#';
-      var qualifications = qualificationsElement?.text.trim() ?? 'No qualifications';
-      var specialty = specialtyElement?.text.trim() ?? 'No specialty';
-      var interests = interestsElement?.text.trim() ?? 'No clinical interests';
+    // Debug output to check if h4 elements are captured
+    var h4Elements = element.querySelectorAll('h4');
 
-      profiles.add({
-        'name': name,
-        'profileUrl': profileUrl,
-        'qualifications': qualifications,
-        'specialty': specialty,
-        'clinicalInterests': interests,
-      });
+    var specialty = 'No specialty';
+    for (var h4 in h4Elements) {
+      if (h4.text.contains('Specialty')) {
+        specialty = 'Specialty/Department: ' + h4.text.split(':').last.trim();
+        break;
+      }
     }
 
-    return profiles;
+    // Extracting the location
+    var location = 'No location';
+    var locationElement = element.querySelector('div[id^="ctl00_"] img');
+    if (locationElement != null && locationElement.attributes['alt'] != null) {
+      location = locationElement.attributes['alt']!;
+    } else {
+      var possibleLocationElement = element.querySelector('h4[id*="PrimaryInstitution"]');
+      if (possibleLocationElement != null) {
+        location = 'Institute: ' + possibleLocationElement.text.split('"').last;
+      }
+    }
+
+    profiles.add({
+      'name': name,
+      'specialty': specialty,
+      'location': location
+    });
   }
+
+  return profiles;
+}
+
+
+
+
 
   Future<int> getTotalPages() async {
-    String htmlContent = await fetchDoctorProfiles(1);
+  try {
+    String htmlContent = await fetchDoctorProfiles(1); // Fetching the first page
     var document = parse(htmlContent);
-    var totalPagesElement = document.querySelector('.pagination')?.children.last;
-    int totalPages = int.parse(totalPagesElement?.text.trim() ?? '1');
-    return totalPages;
+
+    // Example of parsing pagination: Find a 'span' or 'div' that contains total pages info
+    var paginationText = document.querySelector('.pagination-info')?.text; // Adjust the selector as needed
+    if (paginationText != null) {
+      // Extract total pages from paginationText, assuming it contains text like "Page 1 of 10"
+      var matches = RegExp(r'of (\d+)').firstMatch(paginationText);
+      if (matches != null && matches.groupCount >= 1) {
+        return int.parse(matches.group(1)!);
+      }
+    }
+    return 1; // Default to one page if no pagination info found
+  } catch (e) {
+    throw Exception('Failed to determine total pages: $e');
   }
+}
+
 
   Future<List<Map<String, String>>> getAllDoctorProfiles() async {
-    int totalPages = await getTotalPages();
-    List<Map<String, String>> allProfiles = [];
+    try {
+      int totalPages = await getTotalPages();
+      List<Map<String, String>> allProfiles = [];
 
-    for (int page = 1; page <= totalPages; page++) {
-      String htmlContent = await fetchDoctorProfiles(page);
-      List<Map<String, String>> profiles = parseDoctorProfiles(htmlContent);
-      allProfiles.addAll(profiles);
+      for (int page = 1; page <= totalPages; page++) {
+        String htmlContent = await fetchDoctorProfiles(page);
+        List<Map<String, String>> profiles = parseDoctorProfiles(htmlContent);
+        allProfiles.addAll(profiles);
+      }
+      return allProfiles;
+    } catch (e) {
+      throw Exception('Failed to fetch all profiles: $e');
     }
-
-    return allProfiles;
   }
 }
