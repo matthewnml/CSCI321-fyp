@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:health/health.dart'; 
 import 'UI_main/login.dart';
 import 'firebase_options.dart';
 import 'UI_3/health_user.dart';
@@ -23,6 +24,14 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
+    // Configure the Health plugin 
+    try {
+      Health().configure(useHealthConnectIfAvailable: true);
+      print('Health plugin configured successfully.');
+    } catch (e) {
+      print('Error configuring Health plugin: $e');
+    }
+
     if (kIsWeb) {
       // Initialize Firebase for web
       await Firebase.initializeApp(
@@ -124,7 +133,6 @@ class HomePage extends StatelessWidget {
         } else {
           homePage = const LoginPage(); // Default case, shouldn't happen
         }
-
         return homePage;
       },
     );
