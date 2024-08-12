@@ -107,7 +107,7 @@ class _GuideManagementState extends State<GuideManagement> {
                                 IconButton(
                                   icon: const Icon(Icons.delete, color: Colors.red),
                                   onPressed: () {
-                                    _deleteGuide(guideId);
+                                    _showDeleteConfirmationDialog(guideId);
                                   },
                                 ),
                               ],
@@ -123,6 +123,33 @@ class _GuideManagementState extends State<GuideManagement> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showDeleteConfirmationDialog(String guideId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Guide'),
+          content: const Text('Are you sure you want to delete this guide? This action cannot be undone.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _deleteGuide(guideId);
+              },
+              child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -297,11 +324,10 @@ class _EditGuideScreenState extends State<EditGuideScreen> {
     final data = doc.data() as Map<String, dynamic>;
 
     setState(() {
+     
       _titleController.text = data['title']?.toString() ?? '';
 
-      final urls = data['url'] is Map
-          ? data['url'] as Map<String, dynamic>
-          : <String, dynamic>{'default': data['url']};
+      final urls = data['url'] as Map<String, dynamic>;
       urls.forEach((key, value) {
         _urlControllers[key] = TextEditingController(text: value.toString());
       });
@@ -319,7 +345,7 @@ class _EditGuideScreenState extends State<EditGuideScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Guide ${widget.guideId}'),
+        title: const Text('Edit Guide'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -330,53 +356,41 @@ class _EditGuideScreenState extends State<EditGuideScreen> {
               TextFormField(
                 controller: _titleController,
                 decoration: const InputDecoration(
-                  labelText: 'Guide Title',
+                  labelText: 'Title',
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter a guide title';
+                    return 'Please enter a title';
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 20),
-              Expanded(
-                child: ListView(
-                  children: _urlControllers.entries.map((entry) {
-                    final displayName = entry.key;
-                    final urlController = entry.value;
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Row(
-                        children: <Widget>[
-                          Expanded(
-                            child: TextFormField(
-                              controller: urlController,
-                              decoration: InputDecoration(
-                                labelText: 'URL for $displayName',
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter a URL for $displayName';
-                                }
-                                return null;
-                              },
-                            ),
+              ..._urlControllers.entries.map((entry) {
+                final key = entry.key;
+                final controller = entry.value;
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: controller,
+                          decoration: InputDecoration(
+                            labelText: key,
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () {
-                              setState(() {
-                                _urlControllers.remove(entry.key);
-                              });
-                            },
-                          ),
-                        ],
+                        ),
                       ),
-                    );
-                  }).toList(),
-                ),
-              ),
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () {
+                          _showUrlDeleteConfirmationDialog(key);
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
@@ -393,11 +407,37 @@ class _EditGuideScreenState extends State<EditGuideScreen> {
     );
   }
 
-  void _updateGuide() async {
-    final urls = Map<String, dynamic>.from(_urlControllers.map(
-      (key, controller) => MapEntry(key, controller.text),
-    ));
+  void _showUrlDeleteConfirmationDialog(String urlKey) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete URL'),
+          content: const Text('Are you sure you want to delete this URL?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                setState(() {
+                  _urlControllers.remove(urlKey);
+                });
+              },
+              child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
+  void _updateGuide() async {
+    final urls = _urlControllers.map((key, controller) => MapEntry(key, controller.text));
     await _firestore.collection('guides').doc(widget.guideId).update({
       'title': _titleController.text,
       'url': urls,

@@ -39,7 +39,9 @@ class _ArticleManagementState extends State<ArticleManagement> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const CreateArticleScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const CreateArticleScreen(),
+                  ),
                 );
               },
               child: const Text('Add New Article'),
@@ -65,24 +67,29 @@ class _ArticleManagementState extends State<ArticleManagement> {
                       final urls = data['url'] as Map<String, dynamic>;
 
                       return Card(
-                        margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 5.0),
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 10.0, horizontal: 5.0),
                         child: Padding(
                           padding: const EdgeInsets.all(10.0),
                           child: ListTile(
                             title: Text(
                               data['title']?.toString() ?? 'No title',
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 18),
                             ),
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: urls.entries.map<Widget>((entry) {
+                              children: urls.entries
+                                  .map<Widget>((entry) {
                                 return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
                                   children: [
                                     const SizedBox(height: 5),
                                     Text(
                                       '${entry.key}: ${entry.value}',
-                                      style: const TextStyle(color: Colors.blue),
+                                      style: const TextStyle(
+                                          color: Colors.blue),
                                     ),
                                   ],
                                 );
@@ -92,18 +99,22 @@ class _ArticleManagementState extends State<ArticleManagement> {
                               mainAxisSize: MainAxisSize.min,
                               children: <Widget>[
                                 IconButton(
-                                  icon: const Icon(Icons.edit, color: Colors.blue),
+                                  icon: const Icon(Icons.edit,
+                                      color: Colors.blue),
                                   onPressed: () {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => EditArticleScreen(articleId: articleId),
+                                        builder: (context) =>
+                                            EditArticleScreen(
+                                                articleId: articleId),
                                       ),
                                     );
                                   },
                                 ),
                                 IconButton(
-                                  icon: const Icon(Icons.delete, color: Colors.red),
+                                  icon: const Icon(Icons.delete,
+                                      color: Colors.red),
                                   onPressed: () {
                                     _deleteArticle(articleId);
                                   },
@@ -125,7 +136,34 @@ class _ArticleManagementState extends State<ArticleManagement> {
   }
 
   void _deleteArticle(String articleId) async {
-    await _firestore.collection('articles').doc(articleId).delete();
+    bool? confirmDelete = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Deletion'),
+          content: const Text(
+              'Are you sure you want to delete this article?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // Cancel button
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); // Delete button
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmDelete == true) {
+      await _firestore.collection('articles').doc(articleId).delete();
+    }
   }
 }
 
@@ -177,13 +215,18 @@ class _CreateArticleScreenState extends State<CreateArticleScreen> {
                   }
 
                   final categories = snapshot.data!.docs.map((doc) {
-                    final data = doc.data() as Map<String, dynamic>;
+                    final data =
+                        doc.data() as Map<String, dynamic>;
                     return data['title']?.toString() ?? '';
                   }).toList();
 
                   return DropdownButtonFormField<String>(
-                    value: _selectedCategory.isNotEmpty ? _selectedCategory : null,
-                    items: categories.map<DropdownMenuItem<String>>((String value) {
+                    value: _selectedCategory.isNotEmpty
+                        ? _selectedCategory
+                        : null,
+                    items: categories
+                        .map<DropdownMenuItem<String>>(
+                            (String value) {
                       return DropdownMenuItem<String>(
                         value: value,
                         child: Text(value),
@@ -289,7 +332,10 @@ class _EditArticleScreenState extends State<EditArticleScreen> {
   }
 
   void _loadArticleData() async {
-    final doc = await _firestore.collection('articles').doc(widget.articleId).get();
+    final doc = await _firestore
+        .collection('articles')
+        .doc(widget.articleId)
+        .get();
     final data = doc.data() as Map<String, dynamic>;
 
     setState(() {
@@ -297,7 +343,8 @@ class _EditArticleScreenState extends State<EditArticleScreen> {
 
       final urls = data['url'] as Map<String, dynamic>;
       urls.forEach((key, value) {
-        _urlControllers[key] = TextEditingController(text: value.toString());
+        _urlControllers[key] =
+            TextEditingController(text: value.toString());
       });
     });
   }
@@ -305,7 +352,8 @@ class _EditArticleScreenState extends State<EditArticleScreen> {
   @override
   void dispose() {
     _titleController.dispose();
-    _urlControllers.values.forEach((controller) => controller.dispose());
+    _urlControllers.values
+        .forEach((controller) => controller.dispose());
     super.dispose();
   }
 
@@ -327,7 +375,7 @@ class _EditArticleScreenState extends State<EditArticleScreen> {
                   labelText: 'Title',
                 ),
                 validator: (value) {
-                                    if (value == null || value.isEmpty) {
+                  if (value == null || value.isEmpty) {
                     return 'Please enter a title';
                   }
                   return null;
@@ -351,11 +399,10 @@ class _EditArticleScreenState extends State<EditArticleScreen> {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
+                      icon: const Icon(Icons.delete,
+                          color: Colors.red),
                       onPressed: () {
-                        setState(() {
-                          _urlControllers.remove(entry.key);
-                        });
+                        _deleteUrl(entry.key);
                       },
                     ),
                   ],
@@ -377,8 +424,43 @@ class _EditArticleScreenState extends State<EditArticleScreen> {
     );
   }
 
+  void _deleteUrl(String key) async {
+    bool? confirmDelete = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Deletion'),
+          content:
+              const Text('Are you sure you want to delete this URL?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // Cancel button
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); // Delete button
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmDelete == true) {
+      setState(() {
+        _urlControllers.remove(key);
+      });
+    }
+  }
+
   void _updateArticle() async {
-    final urls = {for (var entry in _urlControllers.entries) entry.key: entry.value.text};
+    final urls = {
+      for (var entry in _urlControllers.entries) entry.key: entry.value.text
+    };
 
     await _firestore.collection('articles').doc(widget.articleId).update({
       'title': _titleController.text,
