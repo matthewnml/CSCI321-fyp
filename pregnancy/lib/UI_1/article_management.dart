@@ -112,13 +112,6 @@ class _ArticleManagementState extends State<ArticleManagement> {
                                     );
                                   },
                                 ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete,
-                                      color: Colors.red),
-                                  onPressed: () {
-                                    _deleteArticle(articleId);
-                                  },
-                                ),
                               ],
                             ),
                           ),
