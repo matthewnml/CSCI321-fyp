@@ -104,12 +104,6 @@ class _GuideManagementState extends State<GuideManagement> {
                                     );
                                   },
                                 ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete, color: Colors.red),
-                                  onPressed: () {
-                                    _showDeleteConfirmationDialog(guideId);
-                                  },
-                                ),
                               ],
                             ),
                           ),
