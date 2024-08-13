@@ -261,6 +261,7 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
             child: SingleChildScrollView(
               scrollDirection: Axis.vertical,
               child: DataTable(
+                columnSpacing: 2,
                 columns: const [
                   DataColumn(label: Text('Month')),
                   DataColumn(label: Text('Height (cm)')),

@@ -5,6 +5,7 @@ import 'package:pregnancy/UI_3/chat_w_specialist.dart'; // Import the chat_with_
 import 'package:pregnancy/UI_3/find_doctor.dart'; // Import the doc_appt.dart file
 import 'package:pregnancy/UI_3/my_appt.dart'; // Import the my_appt.dart file
 import 'package:pregnancy/UI_3/health_journal.dart'; // Import the health_journal.dart file
+import 'package:pregnancy/UI_4/notification_page.dart';
 
 class HealthScreen extends StatefulWidget {
   const HealthScreen({super.key});
@@ -52,7 +53,12 @@ class _HealthScreenState extends State<HealthScreen> {
           IconButton(
             icon: const Icon(Icons.notifications, color: Colors.black),
             onPressed: () {
-              // Handle notification icon tap
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NotificationPage(), // Navigate to the notification page
+                ),
+              );
             },
           ),
         ],

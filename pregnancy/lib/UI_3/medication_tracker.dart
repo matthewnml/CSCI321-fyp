@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:pregnancy/UI_4/notification_page.dart';
 
 class MedicationTrackerPage extends StatefulWidget {
   final String userId;
@@ -157,7 +158,12 @@ class _MedicationTrackerPageState extends State<MedicationTrackerPage> {
           IconButton(
             icon: const Icon(Icons.notifications, color: Colors.black),
             onPressed: () {
-              // Handle notification icon tap
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const NotificationPage(), // Navigate to the notification page
+                  ),
+                );
             },
           ),
         ],

@@ -251,8 +251,9 @@ class HomePageContent extends StatelessWidget {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Wrap(
+                spacing: 16.0, // Space between the guide buttons horizontally
+                runSpacing: 16.0, // Space between the rows vertically
                 children: [
                   GestureDetector(
                     onTap: () {

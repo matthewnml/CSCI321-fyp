@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pregnancy/UI_4/notification_page.dart';
 
 class HistoryPage extends StatelessWidget {
   final String userId;
@@ -23,7 +24,12 @@ class HistoryPage extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.notifications, color: Colors.black),
             onPressed: () {
-              // Handle notification icon tap
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const NotificationPage(), // Navigate to the notification page
+                  ),
+                );
             },
           ),
         ],

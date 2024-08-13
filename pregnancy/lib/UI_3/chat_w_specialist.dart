@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'chat_screen.dart';
+import 'package:pregnancy/UI_4/notification_page.dart';
 
 class ChatWithSpecialistScreen extends StatelessWidget {
   const ChatWithSpecialistScreen({super.key});
@@ -72,7 +73,12 @@ class ChatWithSpecialistScreen extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.notifications, color: Colors.black),
                 onPressed: () {
-                  // Handle notification icon tap
+                  Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const NotificationPage(), // Navigate to the notification page
+                  ),
+                );
                 },
               ),
             ],

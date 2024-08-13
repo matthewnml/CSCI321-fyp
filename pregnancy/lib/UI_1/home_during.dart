@@ -323,8 +323,9 @@ class _HomePageContentState extends State<HomePageContent> {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Wrap(
+                spacing: 16.0, // Space between the guide buttons horizontally
+                runSpacing: 16.0, // Space between the rows vertically
                 children: [
                   GestureDetector(
                     onTap: () {
@@ -543,7 +544,7 @@ class FeatureButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: 80,
-        height: 80,
+        height: 120,
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(12),

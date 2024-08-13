@@ -46,9 +46,9 @@ class _CountdownDaysState extends State<CountdownDays> {
     return Container(
       padding: const EdgeInsets.all(16.0),
       child: FractionallySizedBox(
-        widthFactor: 0.25, // Adjust this to set the width to 1/4 of the screen
+        widthFactor: 0.6, // Increased to make the box wider
         child: Container(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.all(16.0), // Increased padding for more space inside the box
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(8.0),
@@ -76,17 +76,18 @@ class _CountdownDaysState extends State<CountdownDays> {
                 children: [
                   Image.asset(
                     _getBabyImage(_remainingDays),
-                    width: 100,
-                    height: 100,
+                    width: 50,
+                    height: 50,
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       '$_remainingDays days until your due date!',
                       style: const TextStyle(
-                        fontSize: 18,
+                        fontSize: 16, // Increased font size for better readability
                         fontWeight: FontWeight.bold,
                       ),
+                      textAlign: TextAlign.center, // Center the text if needed
                     ),
                   ),
                 ],

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'history.dart';
 import 'heart_rate_tracker.dart'; 
 import 'medication_tracker.dart'; 
+import 'package:pregnancy/UI_4/notification_page.dart';
 
 class HealthJournal extends StatelessWidget {
   const HealthJournal({super.key});
@@ -34,7 +35,12 @@ class HealthJournal extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.notifications, color: Colors.black),
             onPressed: () {
-              // Handle notification icon tap
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const NotificationPage(), // Navigate to the notification page
+                  ),
+                );
             },
           ),
         ],

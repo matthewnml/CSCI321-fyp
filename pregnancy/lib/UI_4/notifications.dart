@@ -55,6 +55,40 @@ class NotificationService {
     }
   }
 
+   Future<void> _checkMedicationTimes() async {
+    var user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      FirebaseFirestore.instance
+          .collection('user_accounts')
+          .doc(user.uid)
+          .collection('medication')
+          .snapshots()
+          .listen((snapshot) {
+        for (var doc in snapshot.docs) {
+          try {
+            var data = doc.data();
+            TimeOfDay medicationTime = TimeOfDay(
+              hour: int.parse(data['time'].split(":")[0]),
+              minute: int.parse(data['time'].split(":")[1]),
+            );
+
+            TimeOfDay now = TimeOfDay.now();
+
+            if (medicationTime.hour == now.hour && medicationTime.minute == now.minute) {
+              saveNotificationToDatabase(
+                'Medication Reminder',
+                'It is time to take your ${data['name']} medication.',
+                user.uid,
+              );
+            }
+          } catch (e) {
+            print("Error processing medication document: $e");
+          }
+        }
+      });
+    }
+  }
+  
   Future<void> _checkAppointments() async {
     var user = FirebaseAuth.instance.currentUser;
     if (user != null) {

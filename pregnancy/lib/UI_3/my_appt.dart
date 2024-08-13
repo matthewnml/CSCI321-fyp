@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'view_details.dart'; // Import the view_details.dart file
 import 'add_appt.dart'; // Import the add_appt.dart file
+import 'package:pregnancy/UI_4/notification_page.dart';
 
 class MyAppointment extends StatefulWidget {
   const MyAppointment({super.key});
@@ -56,7 +57,12 @@ class _MyAppointmentState extends State<MyAppointment> {
           IconButton(
             icon: const Icon(Icons.notifications, color: Colors.black),
             onPressed: () {
-              // Handle notification icon tap
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const NotificationPage(), // Navigate to the notification page
+                  ),
+                );
             },
           ),
         ],

@@ -395,9 +395,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               _buildLegendItem(Colors.blue, "Ovulation Dates"),
-              const SizedBox(width: 16),
+              const SizedBox(width: 8), // Reduced spacing
               _buildLegendItem(Colors.red, "Period Dates"),
-              const SizedBox(width: 16),
+              const SizedBox(width: 8), // Reduced spacing
               _buildLegendItem(Colors.black, "Other Notes"),
             ],
           ),
