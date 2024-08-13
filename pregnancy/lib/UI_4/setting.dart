@@ -7,7 +7,7 @@ import 'package:pregnancy/UI_main/password_reset.dart'; // Import the PasswordRe
 import 'contact_us.dart';
 import 'privacy_security.dart';
 import 'notifications.dart';
-import 'notificationpage.dart';
+import 'notification_page.dart';
 
 class SettingsScreen extends StatelessWidget {
   final String userId;

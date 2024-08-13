@@ -14,7 +14,7 @@ import 'UI_2/calendar.dart';
 import 'UI_4/setting.dart';
 import 'UI_4/account.dart';
 import 'UI_4/contact_us.dart';
-import 'UI_4/notificationpage.dart';
+import 'UI_4/notification_page.dart';
 import 'UI_4/privacy_security.dart';
 import 'UI_4/emergency_contact.dart';
 import 'UI_main/password_reset.dart';
@@ -27,7 +27,7 @@ void main() async {
     // Configure the Health plugin 
     try {
       Health().configure(useHealthConnectIfAvailable: true);
-      print('Health plugin configured successfully.');
+      // print('Health plugin configured successfully.');
     } catch (e) {
       print('Error configuring Health plugin: $e');
     }

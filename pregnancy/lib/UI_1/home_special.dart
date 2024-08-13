@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pregnancy/UI_1/article_management.dart';
 import 'package:pregnancy/UI_1/guide_management.dart'; 
-import 'package:pregnancy/UI_4/notificationpage.dart'; // Import the notifications page
+import 'package:pregnancy/UI_4/notification_page.dart'; // Import the notifications page
 import '/UI_2/calendar.dart'; // Import the calendar.dart file
 import '/UI_3/health_specialist.dart'; // Import the health_specialist.dart file
 import '/UI_4/setting.dart'; // Import the settings.dart file
