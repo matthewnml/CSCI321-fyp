@@ -105,7 +105,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     _selectedRole = newValue!;
                   });
                 },
-                items: <String>['User', 'Doctor', 'Specialist']
+                items: <String>['User', 'Specialist']
                     .map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
