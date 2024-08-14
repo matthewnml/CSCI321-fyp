@@ -12,7 +12,7 @@ class FemaleHealthArticlesPage extends StatelessWidget {
         title: const Text('Female Health Articles'),
       ),
       body: StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance.collection('articles').doc('W9AddyOOZiPZEebJ8B3I').snapshots(),
+        stream: FirebaseFirestore.instance.collection('articles').doc('NQrNsw27czK0qUtInZLM').snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());

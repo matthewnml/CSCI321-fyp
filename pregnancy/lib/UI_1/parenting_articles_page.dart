@@ -12,7 +12,7 @@ class ParentingArticlesPage extends StatelessWidget {
         title: const Text('Parenting Articles'),
       ),
       body: StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance.collection('articles').doc('SzpJqnjbITgjk1GR0fgl').snapshots(),
+        stream: FirebaseFirestore.instance.collection('articles').doc('9Fq6UXolkptgqnvAo7pA').snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
