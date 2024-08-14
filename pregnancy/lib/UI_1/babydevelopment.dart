@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BabyDevelopmentPage extends StatefulWidget {
   final String userId;
@@ -26,6 +27,28 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _loadSavedData();
+  }
+
+  Future<void> _loadSavedData() async {
+    final babyDevelopmentCollection = await FirebaseFirestore.instance
+        .collection('user_accounts')
+        .doc(widget.userId)
+        .collection('baby_development')
+        .get();
+
+    setState(() {
+      for (var doc in babyDevelopmentCollection.docs) {
+        final month = doc.id;
+        final data = doc.data();
+
+        final monthIndex = months.indexOf(month);
+        if (monthIndex != -1) {
+          weights[monthIndex] = data['weight']?.toDouble();
+          heights[monthIndex] = data['height']?.toDouble();
+        }
+      }
+    });
   }
 
   @override
@@ -36,7 +59,7 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
     super.dispose();
   }
 
-  void _addData() {
+  void _addData() async {
     final newWeight = double.tryParse(_weightController.text);
     final newHeight = double.tryParse(_heightController.text);
 
@@ -48,19 +71,37 @@ class _BabyDevelopmentPageState extends State<BabyDevelopmentPage> with SingleTi
         heights[monthIndex] = newHeight;
       });
 
+      await FirebaseFirestore.instance
+          .collection('user_accounts')
+          .doc(widget.userId)
+          .collection('baby_development')
+          .doc(selectedMonth)
+          .set({
+        'weight': newWeight,
+        'height': newHeight,
+      });
+
       _weightController.clear();
       _heightController.clear();
       Navigator.pop(context); // Close the dialog
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter valid data and select a valid month.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please enter valid data and select a valid month.')));
     }
   }
 
-  void _deleteData(int index) {
+  void _deleteData(int index) async {
     setState(() {
       weights[index] = null;
       heights[index] = null;
     });
+
+    await FirebaseFirestore.instance
+        .collection('user_accounts')
+        .doc(widget.userId)
+        .collection('baby_development')
+        .doc(months[index])
+        .delete();
   }
 
   @override
