@@ -93,7 +93,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 controller: _dobController,
                 decoration: const InputDecoration(
                   labelText: 'Date of Birth',
-                  hintText: 'MM/DD/YYYY',
+                  hintText: 'DD/MM/YYYY',
                   border: OutlineInputBorder(),
                 ),
               ),
