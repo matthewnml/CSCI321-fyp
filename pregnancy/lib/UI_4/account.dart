@@ -62,11 +62,11 @@ class _AccountPageState extends State<AccountPage> {
         'pregnancy_status': _pregnancyStatusController.text,
       }, SetOptions(merge: true));
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile updated successfully')),
+        const SnackBar(content: Text('Account updated successfully')),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update profile: $e')),
+        SnackBar(content: Text('Failed to update Account: $e')),
       );
     }
   }
@@ -75,7 +75,7 @@ class _AccountPageState extends State<AccountPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'Edit Profile' : 'Profile'),
+        title: Text(_isEditing ? 'Edit Account' : 'Account'),
         actions: [
           IconButton(
             icon: Icon(_isEditing ? Icons.check : Icons.edit),

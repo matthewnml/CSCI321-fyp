@@ -107,7 +107,7 @@ class FindADoctorState extends State<FindADoctor> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Find A Doctor'),
-        backgroundColor: Colors.pink.shade100,
+        backgroundColor: Colors.pink.shade50,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -162,7 +162,7 @@ class FindADoctorState extends State<FindADoctor> {
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.pink.shade100,
+                        backgroundColor: Colors.pink.shade50,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20.0),
                         ),
