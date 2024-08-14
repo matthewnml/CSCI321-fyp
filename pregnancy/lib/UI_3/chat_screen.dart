@@ -6,7 +6,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:pregnancy/UI_4/notifications.dart'; // Import the notification service
 import 'view_specialist_profile.dart';
 import 'package:flutter/gestures.dart';
-import 'package:pregnancy/UI_4/notification_page.dart';
 
 class ChatScreen extends StatefulWidget {
   final String chatId;
