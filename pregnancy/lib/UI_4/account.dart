@@ -18,9 +18,9 @@ class _AccountPageState extends State<AccountPage> {
   final TextEditingController _roleController = TextEditingController();
   final TextEditingController _pregnancyStatusController = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  bool _isLoading = true; // Add a loading state
+  bool _isLoading = true;
 
-  List<String> pregnancyStatusOptions = ['Trying to conceive', 'Currently pregnant', 'Have given birth'];
+  List<String> pregnancyStatusOptions = [];
 
   @override
   void initState() {
@@ -40,6 +40,8 @@ class _AccountPageState extends State<AccountPage> {
         _dobController.text = userData['date_of_birth'] ?? '';
         _roleController.text = userData['role'] ?? '';
         _pregnancyStatusController.text = userData['pregnancy_status'] ?? '';
+
+        _updatePregnancyStatusOptions();  // Update options based on the role
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -50,6 +52,17 @@ class _AccountPageState extends State<AccountPage> {
         _isLoading = false;
       });
     }
+  }
+
+  void _updatePregnancyStatusOptions() {
+    setState(() {
+      if (_roleController.text == 'Specialist') {
+        pregnancyStatusOptions = ['None (For Specialist)'];
+        _pregnancyStatusController.text = 'None (For Specialist)'; // Automatically set to 'None (For Specialist)'
+      } else {
+        pregnancyStatusOptions = ['Trying to conceive', 'Currently pregnant', 'Have given birth'];
+      }
+    });
   }
 
   Future<void> _updateUserProfile() async {
@@ -104,7 +117,7 @@ class _AccountPageState extends State<AccountPage> {
                   buildTextField("Full Name", _nameController),
                   buildTextField("E-Mail", _emailController),
                   buildTextField("Date of Birth", _dobController),
-                  buildNonEditableField("Role", _roleController),
+                  buildNonEditableField("Role", _roleController),  // Uneditable Role field
                   buildDropdownField("Pregnancy Status", _pregnancyStatusController, pregnancyStatusOptions),
                   const SizedBox(height: 16),
                 ],
@@ -138,8 +151,7 @@ class _AccountPageState extends State<AccountPage> {
                   ),
                 )
               : Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.grey[200],
                     borderRadius: BorderRadius.circular(12),
@@ -227,8 +239,7 @@ class _AccountPageState extends State<AccountPage> {
                   ),
                 )
               : Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.grey[200],
                     borderRadius: BorderRadius.circular(12),
