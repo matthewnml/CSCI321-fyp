@@ -189,8 +189,6 @@ class HomePageContent extends StatelessWidget {
                           '',
                           const Color(0xFFDAE3C3),
                           'assets/article3.jpg',
-                          child: const Text('See more',
-                              style: TextStyle(color: Color(0xFF000000))),
                         ),
                       ),
                     ],
