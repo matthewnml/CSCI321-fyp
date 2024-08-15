@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ContractionTimerPage extends StatefulWidget {
   final String userId;
@@ -19,6 +20,36 @@ class _ContractionTimerPageState extends State<ContractionTimerPage> {
   String _intensity = '';
   final List<Map<String, dynamic>> _contractions = [];
 
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedContractions();
+  }
+
+  Future<void> _loadSavedContractions() async {
+    try {
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('user_accounts')
+          .doc(widget.userId)
+          .collection('contractions')
+          .orderBy('timestamp', descending: false)
+          .get();
+
+      setState(() {
+        _contractions.addAll(snapshot.docs.map((doc) => {
+              'intensity': doc['intensity'],
+              'duration': Duration(seconds: doc['duration']), // Convert int to Duration
+              'time': (doc['time'] as Timestamp).toDate(),
+              'timeApart': doc['timeApart'],
+            }).toList());
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load contractions: $e')),
+      );
+    }
+  }
+
   void _startTimer() {
     setState(() {
       _isTiming = true;
@@ -32,12 +63,12 @@ class _ContractionTimerPageState extends State<ContractionTimerPage> {
     });
   }
 
-  void _stopTimer() {
+  Future<void> _stopTimer() async {
     setState(() {
       _isTiming = false;
       _timer?.cancel();
       if (_startTime != null) {
-        String timeApart = '--'; // Default value for first entry
+        String timeApart = '--'; // Default value for the first entry
         if (_contractions.isNotEmpty) {
           Duration interval = _startTime!.difference(_contractions.last['time']);
           int minutes = interval.inMinutes;
@@ -45,15 +76,36 @@ class _ContractionTimerPageState extends State<ContractionTimerPage> {
           timeApart = '${minutes}m ${seconds}s'; // Calculate interval for subsequent entries
         }
 
-        _contractions.add({
+        Map<String, dynamic> newContraction = {
           'intensity': _intensity,
-          'duration': _contractionDuration,
+          'duration': _contractionDuration.inSeconds, // Save duration in seconds
           'time': _startTime!,
           'timeApart': timeApart,
-        });
+        };
+
+        _contractions.add(newContraction);
         _intensity = ''; // Reset intensity after saving
       }
     });
+
+    // Save to Firestore
+    try {
+      await FirebaseFirestore.instance
+          .collection('user_accounts')
+          .doc(widget.userId)
+          .collection('contractions')
+          .add({
+        'intensity': _intensity, // Store the intensity string
+        'duration': _contractionDuration.inSeconds, // Save duration in seconds
+        'time': _startTime!,
+        'timeApart': _contractions.last['timeApart'], // Store timeApart correctly
+        'timestamp': _startTime!, // Timestamp for querying later
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to save contraction: $e')),
+      );
+    }
   }
 
   void _setIntensity(String intensity) {
@@ -137,15 +189,13 @@ class _ContractionTimerPageState extends State<ContractionTimerPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Duration: ${_formatDuration(contraction['duration'])}',
+                          'Duration: ${_formatDuration(contraction['duration'] is Duration ? contraction['duration'] : Duration(seconds: contraction['duration']))}',
                         ),
                         Text(
                           'Time: ${_formatTime(contraction['time'])}',
                         ),
                         Text(
-                          index == 0
-                              ? 'Frequency: ${contraction['timeApart']}'
-                              : 'Frequency: ${contraction['timeApart']}',
+                          'Frequency: ${contraction['timeApart']}',
                           style: const TextStyle(color: Colors.black),
                         ),
                       ],

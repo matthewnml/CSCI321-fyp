@@ -57,8 +57,8 @@ class _AccountPageState extends State<AccountPage> {
   void _updatePregnancyStatusOptions() {
     setState(() {
       if (_roleController.text == 'Specialist') {
-        pregnancyStatusOptions = ['None (For Specialist)'];
-        _pregnancyStatusController.text = 'None (For Specialist)'; // Automatically set to 'None (For Specialist)'
+        pregnancyStatusOptions = ['None(For Specialist)'];
+        _pregnancyStatusController.text = 'None(For Specialist)'; // Automatically set to 'None (For Specialist)'
       } else {
         pregnancyStatusOptions = ['Trying to conceive', 'Currently pregnant', 'Have given birth'];
       }

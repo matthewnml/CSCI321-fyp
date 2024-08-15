@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class KickCounterPage extends StatefulWidget {
   final String userId;
@@ -18,6 +19,37 @@ class _KickCounterPageState extends State<KickCounterPage> {
   Duration _elapsedTime = Duration.zero;
   final List<Map<String, dynamic>> _records = [];
   bool _isTimerStarted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedRecords(); // Load saved records when the page is initialized
+  }
+
+  Future<void> _loadSavedRecords() async {
+    try {
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('user_accounts')
+          .doc(widget.userId)
+          .collection('kick_records')
+          .orderBy('timestamp', descending: false)
+          .get();
+
+      setState(() {
+        _records.addAll(snapshot.docs.map((doc) => {
+              'id': _records.length + 1,
+              'date': doc['date'],
+              'startTime': doc['startTime'],
+              'duration': doc['duration'],
+              'kicks': doc['kicks'],
+            }).toList());
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load records: $e')),
+      );
+    }
+  }
 
   void _incrementKickCount() {
     setState(() {
@@ -48,7 +80,7 @@ class _KickCounterPageState extends State<KickCounterPage> {
     });
   }
 
-  void _finishAndSave() {
+  Future<void> _finishAndSave() async {
     setState(() {
       _timer?.cancel();
       _records.add({
@@ -58,8 +90,28 @@ class _KickCounterPageState extends State<KickCounterPage> {
         'duration': _formatDuration(_elapsedTime),
         'kicks': _kickCount,
       });
-      _resetKickCount(); // Reset the kick count and timer after saving
     });
+
+    // Save the record to Firestore
+    try {
+      await FirebaseFirestore.instance
+          .collection('user_accounts')
+          .doc(widget.userId)
+          .collection('kick_records') // New collection for kick records
+          .add({
+        'date': _formatDate(_startTime),
+        'startTime': _formatTime(_startTime),
+        'duration': _formatDuration(_elapsedTime),
+        'kicks': _kickCount,
+        'timestamp': _startTime, // Useful for querying later
+      });
+
+      _resetKickCount(); // Reset the kick count and timer after saving
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to save record: $e')),
+      );
+    }
   }
 
   void _deleteRecord(int id) {
@@ -136,7 +188,7 @@ class _KickCounterPageState extends State<KickCounterPage> {
 
   Widget _buildInfo(String title, String value) {
     return SizedBox(
-      width: 200,
+      width: 300,
       child: Container(
         padding: const EdgeInsets.all(10.0),
         decoration: BoxDecoration(
