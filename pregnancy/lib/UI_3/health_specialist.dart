@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pregnancy/UI_3/chat_w_specialist.dart';
 import 'package:pregnancy/UI_3/specialist_profile.dart'; // Import the specialist_profile.dart file
+import 'package:pregnancy/UI_4/notification_page.dart';
 
 class HealthSpecialistScreen extends StatefulWidget {
   const HealthSpecialistScreen({super.key});
@@ -50,7 +51,12 @@ class _HealthSpecialistScreenState extends State<HealthSpecialistScreen> {
           IconButton(
             icon: const Icon(Icons.notifications, color: Colors.black),
             onPressed: () {
-              // Handle notification icon tap
+               Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const NotificationPage(), // Navigate to the notification page
+                  ),
+               );  
             },
           ),
         ],

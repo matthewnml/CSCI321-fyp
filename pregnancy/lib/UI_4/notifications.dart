@@ -8,6 +8,7 @@ class NotificationService {
     // Initialize the Firestore listeners
     _listenForFirestoreChanges();
     _checkAppointments();
+    _checkMedicationTimes(); 
   }
 
   Future<void> saveNotificationToDatabase(String title, String body, String receiverId) async {
@@ -55,7 +56,7 @@ class NotificationService {
     }
   }
 
-   Future<void> _checkMedicationTimes() async {
+  Future<void> _checkMedicationTimes() async {
     var user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       FirebaseFirestore.instance
@@ -88,7 +89,7 @@ class NotificationService {
       });
     }
   }
-  
+
   Future<void> _checkAppointments() async {
     var user = FirebaseAuth.instance.currentUser;
     if (user != null) {
