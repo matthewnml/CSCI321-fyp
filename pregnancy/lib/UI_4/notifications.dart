@@ -8,7 +8,6 @@ class NotificationService {
     // Initialize the Firestore listeners
     _listenForFirestoreChanges();
     _checkAppointments();
-    _checkMedicationTimes(); 
   }
 
   Future<void> saveNotificationToDatabase(String title, String body, String receiverId) async {

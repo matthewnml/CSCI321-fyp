@@ -22,6 +22,8 @@ class _HeartRateTrackerState extends State<HeartRateTracker> {
   Map<String, double>? _heartRateRange;
   int? _highHeartRateThreshold;
   int? _lowHeartRateThreshold;
+  bool _highHeartRateNotificationEnabled = false;
+  bool _lowHeartRateNotificationEnabled = false;
 
   @override
   void initState() {
@@ -92,6 +94,8 @@ class _HeartRateTrackerState extends State<HeartRateTracker> {
         setState(() {
           _highHeartRateThreshold = highThresholdDoc.data()?['threshold'];
           _lowHeartRateThreshold = lowThresholdDoc.data()?['threshold'];
+          _highHeartRateNotificationEnabled = highThresholdDoc.data()?['notificationsEnabled'] ?? false;
+          _lowHeartRateNotificationEnabled = lowThresholdDoc.data()?['notificationsEnabled'] ?? false;
         });
       } catch (e) {
         print('Error fetching heart rate thresholds: $e');
@@ -222,16 +226,20 @@ class _HeartRateTrackerState extends State<HeartRateTracker> {
               ),
             ),
             const SizedBox(height: 20),
-            _buildInfoRow('Resting Heart Rate:', _restingHeartRate != null ? '${_restingHeartRate!.toInt()} BPM' : '60'),
+            _buildInfoRow('Resting Heart Rate:', _restingHeartRate != null ? '${_restingHeartRate!.toInt()} BPM' : 'N/A'),
             const SizedBox(height: 10),
             _buildInfoRow(
-              'Healthy range:',
-              '50 - 140 BPM',
+              'Range:',
+              _heartRateRange != null
+                  ? '${_heartRateRange!['min']!.toInt()} - ${_heartRateRange!['max']!.toInt()} BPM'
+                  : '50 - 140 BPM',
             ),
             const SizedBox(height: 20),
             _buildNotificationButton('High Heart Rate Threshold:', _highHeartRateThreshold != null ? '${_highHeartRateThreshold!} BPM' : 'Set Threshold', _navigateToHighHeartRateNoti),
+            _buildNotificationToggle('High Heart Rate Notification', _highHeartRateNotificationEnabled, _updateHighHeartRateNotification),
             const SizedBox(height: 10),
             _buildNotificationButton('Low Heart Rate Threshold:', _lowHeartRateThreshold != null ? '${_lowHeartRateThreshold!} BPM' : 'Set Threshold', _navigateToLowHeartRateNoti),
+            _buildNotificationToggle('Low Heart Rate Notification', _lowHeartRateNotificationEnabled, _updateLowHeartRateNotification),
           ],
         ),
       ),
@@ -261,6 +269,21 @@ class _HeartRateTrackerState extends State<HeartRateTracker> {
     );
   }
 
+  Widget _buildNotificationToggle(String label, bool value, ValueChanged<bool> onChanged) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 16)),
+        Switch(
+          value: value,
+          onChanged: (newValue) {
+            onChanged(newValue);
+          },
+        ),
+      ],
+    );
+  }
+
   void _navigateToHighHeartRateNoti() {
     Navigator.push(
       context,
@@ -273,5 +296,49 @@ class _HeartRateTrackerState extends State<HeartRateTracker> {
       context,
       MaterialPageRoute(builder: (context) => LowHeartRateNotificationPage(userId: FirebaseAuth.instance.currentUser!.uid)),
     );
+  }
+
+  void _updateHighHeartRateNotification(bool enabled) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        await FirebaseFirestore.instance
+            .collection('user_accounts')
+            .doc(user.uid)
+            .collection('heart_rate_notifications')
+            .doc('high')
+            .set({
+          'notificationsEnabled': enabled,
+        }, SetOptions(merge: true));
+
+        setState(() {
+          _highHeartRateNotificationEnabled = enabled;
+        });
+      } catch (e) {
+        print('Error updating high heart rate notification: $e');
+      }
+    }
+  }
+
+  void _updateLowHeartRateNotification(bool enabled) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        await FirebaseFirestore.instance
+            .collection('user_accounts')
+            .doc(user.uid)
+            .collection('heart_rate_notifications')
+            .doc('low')
+            .set({
+          'notificationsEnabled': enabled,
+        }, SetOptions(merge: true));
+
+        setState(() {
+          _lowHeartRateNotificationEnabled = enabled;
+        });
+      } catch (e) {
+        print('Error updating low heart rate notification: $e');
+      }
+    }
   }
 }
