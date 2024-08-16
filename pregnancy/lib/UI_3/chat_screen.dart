@@ -135,8 +135,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     final chatData = chatDoc.data();
     if (chatData != null) {
       final receiverId = chatData['createdBy'] == userId ? chatData['specialistId'] : chatData['createdBy'];
-      if (receiverId != userId) {
-        // Save notification if the receiver is not the sender
+      if (receiverId != null && receiverId != userId) {
+        // Save notification if the receiver is not the sender and receiverId is not null
         _notificationService.saveNotificationToDatabase(
           'New message from $senderName',
           text,
