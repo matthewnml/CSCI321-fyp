@@ -73,7 +73,7 @@ class _HighHeartRateNotificationPageState extends State<HighHeartRateNotificatio
             ElevatedButton(
               onPressed: () {
                 _saveThreshold();
-                Navigator.pop(context);
+                Navigator.pop(context, true); // Pass 'true' back to indicate the threshold was updated
               },
               child: const Text('Save'),
             ),

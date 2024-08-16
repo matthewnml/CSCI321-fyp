@@ -3,8 +3,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:health/health.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';  // Import Firestore
 import 'utilities/health.dart';  // Import your health service
-import 'high_heart_noti.dart';  // Import the high heart rate notification page
-import 'low_heart_noti.dart';  // Import the low heart rate notification page
+import 'utilities/high_heart_noti.dart';  // Import the high heart rate notification page
+import 'utilities/low_heart_noti.dart';  // Import the low heart rate notification page
 import 'package:firebase_auth/firebase_auth.dart';  // Import FirebaseAuth
 
 class HeartRateTracker extends StatefulWidget {
@@ -284,18 +284,30 @@ class _HeartRateTrackerState extends State<HeartRateTracker> {
     );
   }
 
-  void _navigateToHighHeartRateNoti() {
-    Navigator.push(
+  void _navigateToHighHeartRateNoti() async {
+    final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => HighHeartRateNotificationPage(userId: FirebaseAuth.instance.currentUser!.uid)),
+      MaterialPageRoute(
+        builder: (context) => HighHeartRateNotificationPage(userId: FirebaseAuth.instance.currentUser!.uid),
+      ),
     );
+
+    if (result == true) {
+      _fetchHeartRateThresholds(); // Refresh thresholds when returning
+    }
   }
 
-  void _navigateToLowHeartRateNoti() {
-    Navigator.push(
+  void _navigateToLowHeartRateNoti() async {
+    final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => LowHeartRateNotificationPage(userId: FirebaseAuth.instance.currentUser!.uid)),
+      MaterialPageRoute(
+        builder: (context) => LowHeartRateNotificationPage(userId: FirebaseAuth.instance.currentUser!.uid),
+      ),
     );
+
+    if (result == true) {
+      _fetchHeartRateThresholds(); // Refresh thresholds when returning
+    }
   }
 
   void _updateHighHeartRateNotification(bool enabled) async {
