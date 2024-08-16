@@ -38,7 +38,7 @@ class _MedicationTrackerPageState extends State<MedicationTrackerPage> {
                 decoration: const InputDecoration(hintText: 'Enter Medication/Supplement Name'),
                 autofocus: true,
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -95,7 +95,7 @@ class _MedicationTrackerPageState extends State<MedicationTrackerPage> {
                   Navigator.of(context).pop();
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+                    const SnackBar(
                       content: Text('Medication name is required.'),
                       duration: Duration(seconds: 2),
                     ),

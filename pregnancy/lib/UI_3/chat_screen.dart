@@ -81,7 +81,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       onMatch: (Match match) {
         spans.add(TextSpan(
           text: match.group(0),
-          style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
+          style: const TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
           recognizer: TapGestureRecognizer()..onTap = () => _launchURL(match.group(0)!),
         ));
         return '';
@@ -89,7 +89,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       onNonMatch: (String text) {
         spans.add(TextSpan(
           text: text,
-          style: TextStyle(color: Colors.black),
+          style: const TextStyle(color: Colors.black),
         ));
         return '';
       },
@@ -98,7 +98,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     return RichText(
       text: TextSpan(
         children: spans,
-        style: TextStyle(fontSize: 16),  // Default text style
+        style: const TextStyle(fontSize: 16),  // Default text style
       ),
     );
   }
@@ -216,9 +216,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                   value: 'profile',
                   child: Text('View Specialist’s Profile'),
                 ),
-                PopupMenuItem<String>(
+                const PopupMenuItem<String>(
                   value: 'terminate',
-                  child: Text(
+                  child: const Text(
                     'Terminate Chat',
                     style: TextStyle(color: Colors.red),
                   ),

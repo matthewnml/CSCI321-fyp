@@ -67,7 +67,7 @@ class _SpecialistProfileScreenState extends State<SpecialistProfileScreen> {
           'clinicalInterest': _clinicalInterestController.text,
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Profile updated successfully')),
+          const SnackBar(content: Text('Profile updated successfully')),
         );
       }
     } catch (e) {
@@ -81,10 +81,10 @@ class _SpecialistProfileScreenState extends State<SpecialistProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Specialist Profile'),
+        title: const Text('Specialist Profile'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
@@ -92,11 +92,11 @@ class _SpecialistProfileScreenState extends State<SpecialistProfileScreen> {
               TextFormField(
                 controller: _nameController,
                 readOnly: true,
-                decoration: InputDecoration(labelText: 'Name'),
+                decoration: const InputDecoration(labelText: 'Name'),
               ),
               TextFormField(
                 controller: _degreeController,
-                decoration: InputDecoration(labelText: 'Degree'),
+                decoration: const InputDecoration(labelText: 'Degree'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your degree';
@@ -106,7 +106,7 @@ class _SpecialistProfileScreenState extends State<SpecialistProfileScreen> {
               ),
               TextFormField(
                 controller: _institutionController,
-                decoration: InputDecoration(labelText: 'Current Employment Institution'),
+                decoration: const InputDecoration(labelText: 'Current Employment Institution'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your institution';
@@ -116,7 +116,7 @@ class _SpecialistProfileScreenState extends State<SpecialistProfileScreen> {
               ),
               TextFormField(
                 controller: _specialtyController,
-                decoration: InputDecoration(labelText: 'Specialty/Department'),
+                decoration: const InputDecoration(labelText: 'Specialty/Department'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your specialty';
@@ -126,7 +126,7 @@ class _SpecialistProfileScreenState extends State<SpecialistProfileScreen> {
               ),
               TextFormField(
                 controller: _clinicalInterestController,
-                decoration: InputDecoration(labelText: 'Clinical Interest'),
+                decoration: const InputDecoration(labelText: 'Clinical Interest'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your clinical interest';
@@ -134,14 +134,14 @@ class _SpecialistProfileScreenState extends State<SpecialistProfileScreen> {
                   return null;
                 },
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     _saveSpecialistDetails();
                   }
                 },
-                child: Text('Save Profile'),
+                child: const Text('Save Profile'),
               ),
             ],
           ),

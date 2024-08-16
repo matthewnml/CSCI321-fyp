@@ -3,7 +3,7 @@ import 'package:url_launcher/url_launcher.dart'; // For launching URLs
 import 'utilities/doctor.dart'; // Assuming this is where your DoctorProfileService is defined
 
 class FindADoctor extends StatefulWidget {
-  const FindADoctor({Key? key}) : super(key: key);
+  const FindADoctor({super.key});
 
   @override
   FindADoctorState createState() => FindADoctorState();
@@ -39,7 +39,7 @@ class FindADoctorState extends State<FindADoctor> {
     setState(() => _isLoading = true);
 
     String url = 'https://www.kkh.com.sg/patient-care/find-a-doctor?SpID=598f1b27-454a-4b9e-bea2-806c243a98bd&InstID=607a2275-3dee-4aff-8eeb-ff49077be347&PageNo=$_currentPage#abdomen';
-    print('Fetching data from: $url');
+    //print('Fetching data from: $url');
 
     DoctorProfileService service = DoctorProfileService(url);
     String htmlContent = await service.fetchDoctorProfiles(url, _currentPage);
@@ -84,7 +84,7 @@ class FindADoctorState extends State<FindADoctor> {
     // Ensure the URL is fully qualified
     final String fullUrl = url.startsWith('http') ? url : 'https://www.kkh.com.sg$url';
 
-    print('Attempting to launch URL: $fullUrl');  // Debugging line
+    //print('Attempting to launch URL: $fullUrl');  // Debugging line
 
     try {
       final Uri uri = Uri.parse(fullUrl); // Convert the String URL to a Uri object

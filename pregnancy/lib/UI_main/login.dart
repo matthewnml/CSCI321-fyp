@@ -53,7 +53,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _startLockoutTimer() {
-    final duration = _lockoutEndTime!.difference(DateTime.now());
+    //final duration = _lockoutEndTime!.difference(DateTime.now());
     _lockoutTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       final remainingDuration = _lockoutEndTime!.difference(DateTime.now());
       if (remainingDuration.isNegative) {
