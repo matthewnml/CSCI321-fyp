@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:health/health.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';  // Import Firestore
 import 'utilities/health.dart';  // Import your health service
+import 'high_heart_noti.dart';  // Import the high heart rate notification page
+import 'low_heart_noti.dart';  // Import the low heart rate notification page
+import 'package:firebase_auth/firebase_auth.dart';  // Import FirebaseAuth
 
 class HeartRateTracker extends StatefulWidget {
   const HeartRateTracker({super.key});
@@ -16,11 +20,14 @@ class _HeartRateTrackerState extends State<HeartRateTracker> {
   String? _error = '';
   double? _restingHeartRate;
   Map<String, double>? _heartRateRange;
+  int? _highHeartRateThreshold;
+  int? _lowHeartRateThreshold;
 
   @override
   void initState() {
     super.initState();
     _fetchHeartRateData();
+    _fetchHeartRateThresholds();  // Fetch the current thresholds
   }
 
   Future<void> _fetchHeartRateData() async {
@@ -35,22 +42,13 @@ class _HeartRateTrackerState extends State<HeartRateTracker> {
         _heartRateRange = heartRateRange;
       });
 
-      //print('Data points retrieved: ${dataPoints?.length}');
-      
       if (dataPoints != null && dataPoints.isNotEmpty) {
         setState(() {
           _heartRateSpots = dataPoints.map((point) {
             final x = point.dateFrom.hour.toDouble() + point.dateFrom.minute.toDouble() / 60;
-
-            //print('point.value runtime type: ${point.value.runtimeType}');
-
             final y = (point.value as NumericHealthValue).numericValue.toDouble();
-            //print('FLSpot created: x = $x, y = $y');
-
             return FlSpot(x, y);
           }).toList();
-
-          //print('FLSpot List: $_heartRateSpots');
 
           _error = null; // Clear any previous errors
           _isLoading = false;
@@ -72,6 +70,35 @@ class _HeartRateTrackerState extends State<HeartRateTracker> {
     }
   }
 
+  Future<void> _fetchHeartRateThresholds() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      try {
+        final highThresholdDoc = await FirebaseFirestore.instance
+            .collection('user_accounts')
+            .doc(user.uid)
+            .collection('heart_rate_notifications')
+            .doc('high')
+            .get();
+
+        final lowThresholdDoc = await FirebaseFirestore.instance
+            .collection('user_accounts')
+            .doc(user.uid)
+            .collection('heart_rate_notifications')
+            .doc('low')
+            .get();
+
+        setState(() {
+          _highHeartRateThreshold = highThresholdDoc.data()?['threshold'];
+          _lowHeartRateThreshold = lowThresholdDoc.data()?['threshold'];
+        });
+      } catch (e) {
+        print('Error fetching heart rate thresholds: $e');
+      }
+    }
+  }
+
   String _getFormattedHour(double value) {
     int hours = value.toInt();
     if (hours >= 24) hours = hours % 24; // Wrap around if greater than 24
@@ -80,6 +107,16 @@ class _HeartRateTrackerState extends State<HeartRateTracker> {
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      return const Scaffold(
+        body: Center(
+          child: Text('User not logged in'),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Heart Rate Tracker'),
@@ -185,18 +222,16 @@ class _HeartRateTrackerState extends State<HeartRateTracker> {
               ),
             ),
             const SizedBox(height: 20),
-            _buildInfoRow('Resting Heart Rate:', _restingHeartRate != null ? '${_restingHeartRate!.toInt()} BPM' : 'N/A'),
+            _buildInfoRow('Resting Heart Rate:', _restingHeartRate != null ? '${_restingHeartRate!.toInt()} BPM' : '60'),
             const SizedBox(height: 10),
             _buildInfoRow(
-              'Range:',
-              _heartRateRange != null
-                  ? '${_heartRateRange!['min']!.toInt()} - ${_heartRateRange!['max']!.toInt()} BPM'
-                  : 'N/A',
+              'Healthy range:',
+              '50 - 140 BPM',
             ),
             const SizedBox(height: 20),
-            _buildNotificationToggle('High Heart Rate Notification', false),
+            _buildNotificationButton('High Heart Rate Threshold:', _highHeartRateThreshold != null ? '${_highHeartRateThreshold!} BPM' : 'Set Threshold', _navigateToHighHeartRateNoti),
             const SizedBox(height: 10),
-            _buildNotificationToggle('Low Heart Rate Notification', false),
+            _buildNotificationButton('Low Heart Rate Threshold:', _lowHeartRateThreshold != null ? '${_lowHeartRateThreshold!} BPM' : 'Set Threshold', _navigateToLowHeartRateNoti),
           ],
         ),
       ),
@@ -213,18 +248,30 @@ class _HeartRateTrackerState extends State<HeartRateTracker> {
     );
   }
 
-  Widget _buildNotificationToggle(String label, bool value) {
+  Widget _buildNotificationButton(String label, String buttonText, VoidCallback onTap) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label, style: const TextStyle(fontSize: 16)),
-        Switch(
-          value: value,
-          onChanged: (newValue) {
-            // Implement notification toggle logic
-          },
+        ElevatedButton(
+          onPressed: onTap,
+          child: Text(buttonText),
         ),
       ],
+    );
+  }
+
+  void _navigateToHighHeartRateNoti() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => HighHeartRateNotificationPage(userId: FirebaseAuth.instance.currentUser!.uid)),
+    );
+  }
+
+  void _navigateToLowHeartRateNoti() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => LowHeartRateNotificationPage(userId: FirebaseAuth.instance.currentUser!.uid)),
     );
   }
 }
