@@ -68,6 +68,7 @@ class _HighHeartRateNotificationPageState extends State<HighHeartRateNotificatio
             _buildBpmOption(110),
             _buildBpmOption(120),
             _buildBpmOption(130),
+            _buildBpmOption(140),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {

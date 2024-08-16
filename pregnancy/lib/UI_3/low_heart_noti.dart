@@ -12,7 +12,7 @@ class LowHeartRateNotificationPage extends StatefulWidget {
 }
 
 class _LowHeartRateNotificationPageState extends State<LowHeartRateNotificationPage> {
-  int _selectedBpm = 50; // Default value
+  int _selectedBpm = 40; // Default value
 
   @override
   void initState() {
