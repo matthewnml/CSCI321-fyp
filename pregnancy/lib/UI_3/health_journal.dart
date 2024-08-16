@@ -38,7 +38,8 @@ class HealthJournal extends StatelessWidget {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const NotificationPage(), // Navigate to the notification page
+                    // Navigate to the notification page
+                    builder: (context) => const NotificationPage(), 
                   ),
                 );
             },

@@ -21,14 +21,14 @@ class VideoGuidesPage extends StatelessWidget {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
           if (!snapshot.hasData || !snapshot.data!.exists) {
-            return Center(child: const Text('Document does not exist'));
+            return const Center(child: Text('Document does not exist'));
           }
 
           final guide = snapshot.data!;
           final data = guide.data() as Map<String, dynamic>;
 
           if (!data.containsKey('url')) {
-            return Center(child: const Text('Field "url" does not exist in the document'));
+            return const Center(child: Text('Field "url" does not exist in the document'));
           }
 
           final Map<String, dynamic> urls = Map<String, dynamic>.from(data['url']);

@@ -128,7 +128,7 @@ class HomePageContent extends StatelessWidget {
             child: const Text('Add Articles'),
             style: ElevatedButton.styleFrom(
               foregroundColor: Colors.white,
-              backgroundColor: Color.fromARGB(255, 133, 155, 173), // Text color
+              backgroundColor: const Color.fromARGB(255, 133, 155, 173), // Text color
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -148,7 +148,7 @@ class HomePageContent extends StatelessWidget {
             child: const Text('Add Guides'),
             style: ElevatedButton.styleFrom(
               foregroundColor: Colors.white,
-              backgroundColor: Color.fromARGB(255, 133, 155, 173), // Text color
+              backgroundColor: const Color.fromARGB(255, 133, 155, 173), // Text color
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -230,28 +230,28 @@ class HomePageContent extends StatelessWidget {
               'Fitness Guides',
               const Color(0xFFE3C3C3),
               'assets/fitnessguide.jpg',
-              FitnessGuidesPage(),
+              const FitnessGuidesPage(),
             ),
             _buildGuideButton(
               context,
               'Pregnancy Symptoms Guides',
               const Color(0xFFC3D5E3),
               'assets/pregnancysymptomsguide.jpg',
-              PregnancySymptomsGuidesPage(),
+              const PregnancySymptomsGuidesPage(),
             ),
             _buildGuideButton(
               context,
               'Nutrition Guides',
               const Color(0xFFDAE3C3),
               'assets/nutritionguide.jpg',
-              NutritionGuidesPage(),
+              const NutritionGuidesPage(),
             ),
             _buildGuideButton(
               context,
               'Video Guides',
               const Color(0xFFE3D2C3),
               'assets/videoguide.jpg',
-              VideoGuidesPage(),
+              const VideoGuidesPage(),
             ),
           ],
         ),

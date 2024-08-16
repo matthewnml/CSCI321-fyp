@@ -289,7 +289,7 @@ class _CreateArticleScreenState extends State<CreateArticleScreen> {
         .get();
     if (snapshot.docs.isNotEmpty) {
       final doc = snapshot.docs.first;
-      final data = doc.data() as Map<String, dynamic>;
+      final data = doc.data();
       final urls = data['url'] as Map<String, dynamic>;
       urls[_displayNameController.text] = _urlController.text;
 

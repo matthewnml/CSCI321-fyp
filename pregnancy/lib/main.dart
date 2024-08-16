@@ -64,7 +64,7 @@ class MyApp extends StatelessWidget {
         '/calendar': (context) => const CalendarScreen(),
         '/health': (context) => const HealthScreen(),
         '/setting': (context) => const SettingsScreen(userId: ''), // Temporary userId for settings screen
-        '/notifications': (context) => NotificationPage(), // Removed const here
+        '/notifications': (context) => const NotificationPage(), 
         '/terms_conditions': (context) => const TermsAndConditionsPage(),
         '/emergency-contact': (context) => const EmergencyContactPage(),
         '/password-reset': (context) => const PasswordResetPage(),

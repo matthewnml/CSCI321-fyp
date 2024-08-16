@@ -139,11 +139,11 @@ class HomePageContent extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              Center(
+              const Center(
                 child: CircleAvatar(
                   radius: 150,
                   backgroundImage: AssetImage('assets/month10.png'), // Ensure the image path is correct
-                  backgroundColor: const Color(0xFFF0C29B),
+                  backgroundColor: Color(0xFFF0C29B),
                 ),
               ),
               const SizedBox(height: 32),

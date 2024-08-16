@@ -47,20 +47,20 @@ class _ViewSpecialistProfileState extends State<ViewSpecialistProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Specialist Profile'),
+        title: const Text('Specialist Profile'),
         backgroundColor: Colors.pink[50],
       ),
       body: profileData == null
-        ? Center(child: CircularProgressIndicator())
+        ? const Center(child: CircularProgressIndicator())
         : profileData!.isEmpty
-          ? Center(child: Text("No data available. Please check the ID or network connection."))
+          ? const Center(child: Text("No data available. Please check the ID or network connection."))
           : buildProfileListView(),
     );
   }
 
   ListView buildProfileListView() {
     return ListView(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       children: <Widget>[
         buildProfileField('Full Name', profileData?['name']),
         buildProfileField('Degree', profileData?['degree']),
@@ -73,8 +73,8 @@ class _ViewSpecialistProfileState extends State<ViewSpecialistProfile> {
 
   Widget buildProfileField(String label, String? value) {
     return ListTile(
-      contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      title: Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
+      contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      title: Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
       subtitle: Text(value ?? 'N/A'),
     );
   }

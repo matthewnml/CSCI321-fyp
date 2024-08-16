@@ -429,52 +429,6 @@ class _HomePageContentState extends State<HomePageContent> {
     );
   }
 
-  Widget _buildFeatureButton(
-      BuildContext context,
-      String title,
-      ImageProvider<Object> image,
-      Color color,
-      Color textColor,
-      VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 80,
-        height: 80,
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: const Offset(0, 3), // changes position of shadow
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image(
-              image: image,
-              width: 40,
-              height: 40,
-              fit: BoxFit.contain,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  fontSize: 14, color: textColor, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildArticleTile(
     String picture,

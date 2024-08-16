@@ -6,7 +6,6 @@ import 'emergency_contact.dart'; // Import the EmergencyContactPage
 import 'package:pregnancy/UI_main/password_reset.dart'; // Import the PasswordResetPage
 import 'contact_us.dart';
 import 'privacy_security.dart';
-import 'notifications.dart';
 import 'notification_page.dart';
 
 class SettingsScreen extends StatelessWidget {
