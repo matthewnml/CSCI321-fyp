@@ -69,6 +69,9 @@ class _SpecialistProfileScreenState extends State<SpecialistProfileScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Profile updated successfully')),
         );
+        
+        // Return to the previous screen
+        Navigator.pop(context);
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
